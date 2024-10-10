@@ -1,19 +1,19 @@
-# TemplateLibrary
+# Harmonia
 
 ![](assets/masthead.png)
 
-> <sub><sup>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere ligula.</sup></sub>
+> <sub><sup>In Greek mythology, Harmonia is the goddess of harmony and concord.</sup></sub>
 
 ## Overview
 
-Duis vulputate vitae erat vel efficitur. Cras sed enim a erat tincidunt ornare sed a eros. Suspendisse vel venenatis nulla. Vivamus aliquam congue elit laoreet.
+Harmonia is a shared library focused on enhancing web development by providing a set of reusable components and utilities.
 
 ## Installation
 
 ### Adding
 
 ```
-git submodule add https://github.com/DaphneWebFramework/TemplateLibrary.git source/classes/TemplateLibrary
+git submodule add https://github.com/DaphneWebFramework/Harmonia.git source/classes/Harmonia
 ```
 
 ### Updating
@@ -24,4 +24,4 @@ git submodule update --remote --merge
 
 ## License
 
-TemplateLibrary is distributed under the Creative Commons Attribution 4.0 International License. For more information, visit [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
+Harmonia is distributed under the Creative Commons Attribution 4.0 International License. For more information, visit [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
