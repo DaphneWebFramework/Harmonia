@@ -6,11 +6,15 @@ jobs:
     steps:
       - name: Configure
         run: git config --global core.autocrlf false
-      - name: Setup
+      - name: Setup (PHP)
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
           tools: phpdoc
+      - name: Setup (Python)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Checkout
         uses: actions/checkout@v4
       - name: Checkout (Calliope)
@@ -24,7 +28,7 @@ jobs:
           repository: DaphneWebFramework/Documentation
           token: ${{secrets.PERSONAL_ACCESS_TOKEN}}
           path: .tmp/Documentation
-      - name: Generate
+      - name: Generate (Documentation)
         shell: cmd
         run: |
           phpdoc ^
@@ -33,6 +37,9 @@ jobs:
           --visibility="public" ^
           --ignore ".git" ^
           --ignore ".github"
+      - name: Generate (Index)
+        shell: cmd
+        run: python ".github/generateDocumentationIndex.py" ".tmp/Documentation/${{github.event.repository.name}}"
       - name: Publish
         run: |
           cd .tmp/Documentation
