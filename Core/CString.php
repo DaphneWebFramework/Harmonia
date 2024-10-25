@@ -111,6 +111,74 @@ class CString implements \Stringable
         return $this->coreLength();
     }
 
+    /**
+     * Returns the first character of the string.
+     *
+     * @return string
+     *   The first character of the string, or an empty string if the string
+     *   is empty.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    public function First(): string
+    {
+        if ($this->IsEmpty()) {
+            return '';
+        }
+        if ($this->isSingleByte) {
+            return $this->value[0];
+        } else {
+            return \mb_substr($this->value, 0, 1, $this->encoding);
+        }
+    }
+
+    /**
+     * Returns the last character of the string.
+     *
+     * @return string
+     *   The last character of the string, or an empty string if the string
+     *   is empty.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    public function Last(): string
+    {
+        if ($this->IsEmpty()) {
+            return '';
+        }
+        if ($this->isSingleByte) {
+            return $this->value[-1];
+        } else {
+            return \mb_substr($this->value, -1, 1, $this->encoding);
+        }
+    }
+
+    /**
+     * Returns the character at a specified offset.
+     *
+     * @param int $offset
+     *   The zero-based offset of the character to return.
+     * @return string
+     *   The character at the specified offset, or an empty string if the offset
+     *   is out of bounds.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    public function At(int $offset): string
+    {
+        if ($offset < 0) {
+            return '';
+        }
+        if ($this->isSingleByte) {
+            if ($offset >= $this->Length()) {
+                return '';
+            }
+            return $this->value[$offset];
+        } else {
+            return \mb_substr($this->value, $offset, 1, $this->encoding);
+        }
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
