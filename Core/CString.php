@@ -42,6 +42,8 @@ class CString implements \Stringable
      */
     private bool $isSingleByte;
 
+    #region public -------------------------------------------------------------
+
     /**
      * Constructs a new instance of CString.
      *
@@ -84,6 +86,34 @@ class CString implements \Stringable
     {
         return $this->value;
     }
+
+    /**
+     * Checks if the string is empty.
+     *
+     * @return bool
+     *   Returns `true` if the string is empty, `false` otherwise.
+     */
+    public function IsEmpty(): bool
+    {
+        return $this->value === '';
+    }
+
+    /**
+     * Returns the length of the string.
+     *
+     * @return int
+     *   The number of characters in the string.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    public function Length(): int
+    {
+        return $this->coreLength();
+    }
+
+    #endregion public
+
+    #region private ------------------------------------------------------------
 
     /**
      * Checks if the provided encoding is a single-byte encoding.
@@ -130,4 +160,29 @@ class CString implements \Stringable
         ];
         return isset($singleByteEncodings[\strtoupper($encoding)]);
     }
+
+    /**
+     * Core routine for getting the length of a string.
+     *
+     * @param ?string $string (Optional)
+     *   If provided, the method will calculate the length of this string
+     *   instead of using the instance's value.
+     * @return int
+     *   The number of characters in the string.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    private function coreLength(?string $string = null): int
+    {
+        if ($string === null) {
+            $string = $this->value;
+        }
+        if ($this->isSingleByte) {
+            return \strlen($string);
+        } else {
+            return \mb_strlen($string, $this->encoding);
+        }
+    }
+
+    #endregion private
 }
