@@ -220,6 +220,43 @@ class CString implements \Stringable
         return $this;
     }
 
+    /**
+     * Deletes the character at the specified offset.
+     *
+     * @param int $offset
+     *   The zero-based offset where the character will be deleted. If the
+     *   offset is negative or greater than or equal to the length of the
+     *   string, no changes will be made.
+     * @return CString
+     *   The current instance.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    public function DeleteAt(int $offset): CString
+    {
+        if ($offset < 0) {
+            return $this;
+        }
+        $length = $this->coreLength();
+        if ($offset >= $length) {
+            return $this;
+        }
+        $before;
+        $after;
+        $nextOffset = $offset + 1;
+        $remainingLength = $length - $offset - 1;
+        if ($this->isSingleByte) {
+            $before = \substr($this->value, 0, $offset);
+            $after = \substr($this->value, $nextOffset, $remainingLength);
+        } else {
+            $before = \mb_substr($this->value, 0, $offset, $this->encoding);
+            $after = \mb_substr($this->value, $nextOffset, $remainingLength,
+                $this->encoding);
+        }
+        $this->value = $before . $after;
+        return $this;
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
