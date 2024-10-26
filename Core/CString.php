@@ -122,7 +122,14 @@ class CString implements \Stringable
      */
     public function First(): string
     {
-        return $this->coreFirst();
+        if ($this->IsEmpty()) {
+            return '';
+        }
+        if ($this->isSingleByte) {
+            return $this->value[0];
+        } else {
+            return \mb_substr($this->value, 0, 1, $this->encoding);
+        }
     }
 
     /**
@@ -177,13 +184,11 @@ class CString implements \Stringable
      *
      * @param int $offset
      *   The zero-based offset where the character will be set. If the offset is
-     *   negative, no changes will be made. If the offset is greater than or
-     *   equal to the length of the string, the method pads the string with
-     *   spaces up to the specified offset and inserts the character at that
-     *   position.
+     *   negative or greater than or equal to the length of the string, no
+     *   changes will be made.
      * @param string $character
-     *   The character to set at the specified offset. If more than one
-     *   character is provided, only the first character will be used.
+     *   The character to set at the specified offset. If more than one character
+     *   is provided, no changes will be made.
      * @return CString
      *   The current instance.
      * @throws \ValueError
@@ -198,23 +203,18 @@ class CString implements \Stringable
             return $this;
         }
         if ($this->coreLength($character) > 1) {
-            $character = $this->coreFirst($character);
+            return $this;
         }
         $length = $this->coreLength();
         if ($offset >= $length) {
-            // Padding with spaces works correctly for both single-byte and
-            // multibyte encodings. The space character (U+0020) is universally
-            // represented as a single byte (0x20) in common encodings like
-            // UTF-8 and ISO-8859-1, as validated by the Unicode Standard and
-            // RFC 3629.
-            $this->value .= \str_repeat(' ', $offset - $length) . $character;
             return $this;
         }
         if ($this->isSingleByte) {
             $this->value[$offset] = $character;
         } else {
             $before = \mb_substr($this->value, 0, $offset, $this->encoding);
-            $after = \mb_substr($this->value, $offset + 1, $length - $offset - 1, $this->encoding);
+            $after = \mb_substr($this->value, $offset + 1, $length - $offset - 1,
+                $this->encoding);
             $this->value = $before . $character . $after;
         }
         return $this;
@@ -327,33 +327,6 @@ class CString implements \Stringable
             return \strlen($string);
         } else {
             return \mb_strlen($string, $this->encoding);
-        }
-    }
-
-    /**
-     * Core routine for getting the first character of a string.
-     *
-     * @param ?string $string (Optional)
-     *   If provided, the method will return the first character of this string
-     *   instead of using the instance's value.
-     * @return string
-     *   The first character of the string, or an empty string if the string
-     *   is empty.
-     * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
-     */
-    private function coreFirst(?string $string = null): string
-    {
-        if ($string === null) {
-            $string = $this->value;
-        }
-        if ($string === '') {
-            return '';
-        }
-        if ($this->isSingleByte) {
-            return $string[0];
-        } else {
-            return \mb_substr($string, 0, 1, $this->encoding);
         }
     }
 
