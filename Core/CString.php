@@ -221,39 +221,44 @@ class CString implements \Stringable
     }
 
     /**
-     * Deletes the character at the specified offset.
+     * Deletes a range of characters starting from the specified offset.
      *
      * @param int $offset
-     *   The zero-based offset where the character will be deleted. If the
-     *   offset is negative or greater than or equal to the length of the
-     *   string, no changes will be made.
+     *   The zero-based offset where the deletion will start. If the offset is
+     *   negative or greater than or equal to the length of the string, no
+     *   changes will be made.
+     * @param int $count (Optional)
+     *   The number of characters to delete. If the delete length is less than 1,
+     *   no changes will be made. If the delete length exceeds the string's
+     *   remaining length, it will delete up to the end. Defaults to 1.
      * @return CString
      *   The current instance.
      * @throws \ValueError
      *   If the encoding is invalid when operating in multibyte mode.
      */
-    public function DeleteAt(int $offset): CString
+    public function DeleteAt(int $offset, int $count = 1): CString
     {
         if ($offset < 0) {
+            return $this;
+        }
+        if ($count < 1) {
             return $this;
         }
         $length = $this->coreLength();
         if ($offset >= $length) {
             return $this;
         }
-        $before;
-        $after;
-        $nextOffset = $offset + 1;
-        $remainingLength = $length - $offset - 1;
+        $remainingLength = min($count, $length - $offset);
+        $endOffset = $offset + $remainingLength;
         if ($this->isSingleByte) {
-            $before = \substr($this->value, 0, $offset);
-            $after = \substr($this->value, $nextOffset, $remainingLength);
+            $this->value =
+                \substr($this->value, 0, $offset)
+              . \substr($this->value, $endOffset);
         } else {
-            $before = \mb_substr($this->value, 0, $offset, $this->encoding);
-            $after = \mb_substr($this->value, $nextOffset, $remainingLength,
-                $this->encoding);
+            $this->value =
+                \mb_substr($this->value, 0, $offset, $this->encoding)
+              . \mb_substr($this->value, $endOffset, null, $this->encoding);
         }
-        $this->value = $before . $after;
         return $this;
     }
 
