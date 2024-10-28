@@ -212,10 +212,56 @@ class CString implements \Stringable
         if ($this->isSingleByte) {
             $this->value[$offset] = $character;
         } else {
-            $before = \mb_substr($this->value, 0, $offset, $this->encoding);
-            $after = \mb_substr($this->value, $offset + 1, $length - $offset - 1,
-                $this->encoding);
-            $this->value = $before . $character . $after;
+            $this->value =
+                \mb_substr($this->value, 0, $offset, $this->encoding)
+              . $character
+              . \mb_substr($this->value, $offset + 1, $length - $offset - 1,
+                    $this->encoding);
+        }
+        return $this;
+    }
+
+    /**
+     * Inserts a substring at the specified offset.
+     *
+     * @param int $offset
+     *   The zero-based offset where the insertion will start. If the offset is
+     *   negative or greater than the length of the string, no changes will be
+     *   made.
+     * @param string $substring
+     *   The substring to insert. If an empty string is provided, no changes
+     *   will be made.
+     * @return CString
+     *   The current instance.
+     * @throws \ValueError
+     *   If the encoding is invalid when operating in multibyte mode.
+     */
+    public function InsertAt(int $offset, string $substring): CString
+    {
+        if ($offset < 0) {
+            return $this;
+        }
+        if ($substring === '') {
+            return $this;
+        }
+        $length = $this->coreLength();
+        if ($offset > $length) {
+            return $this;
+        }
+        if ($offset === $length) {
+            $this->value .= $substring;
+            return $this;
+        }
+        if ($this->isSingleByte) {
+            $this->value =
+                \substr($this->value, 0, $offset)
+              . $substring
+              . \substr($this->value, $offset);
+        } else {
+            $this->value =
+                \mb_substr($this->value, 0, $offset, $this->encoding)
+              . $substring
+              . \mb_substr($this->value, $offset, null, $this->encoding);
         }
         return $this;
     }
@@ -228,9 +274,9 @@ class CString implements \Stringable
      *   negative or greater than or equal to the length of the string, no
      *   changes will be made.
      * @param int $count (Optional)
-     *   The number of characters to delete. If the delete length is less than 1,
-     *   no changes will be made. If the delete length exceeds the string's
-     *   remaining length, it will delete up to the end. Defaults to 1.
+     *   The number of characters to delete. If this value is less than 1, no
+     *   changes will be made. If it exceeds the remaining characters, it will
+     *   delete up to the end. Defaults to 1.
      * @return CString
      *   The current instance.
      * @throws \ValueError
@@ -248,8 +294,8 @@ class CString implements \Stringable
         if ($offset >= $length) {
             return $this;
         }
-        $remainingLength = min($count, $length - $offset);
-        $endOffset = $offset + $remainingLength;
+        $availableLength = min($count, $length - $offset);
+        $endOffset = $offset + $availableLength;
         if ($this->isSingleByte) {
             $this->value =
                 \substr($this->value, 0, $offset)
