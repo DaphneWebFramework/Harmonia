@@ -104,11 +104,15 @@ class CString implements \Stringable
      * @return int
      *   The number of characters in the string.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function Length(): int
     {
-        return $this->coreLength();
+        if ($this->isSingleByte) {
+            return \strlen($this->value);
+        } else {
+            return \mb_strlen($this->value, $this->encoding);
+        }
     }
 
     /**
@@ -118,7 +122,7 @@ class CString implements \Stringable
      *   The first character of the string, or an empty string if the string
      *   is empty.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function First(): string
     {
@@ -139,7 +143,7 @@ class CString implements \Stringable
      *   The last character of the string, or an empty string if the string
      *   is empty.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function Last(): string
     {
@@ -162,7 +166,7 @@ class CString implements \Stringable
      *   The character at the specified offset, or an empty string if the offset
      *   is out of bounds.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function At(int $offset): string
     {
@@ -192,29 +196,30 @@ class CString implements \Stringable
      * @return CString
      *   The current instance.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function SetAt(int $offset, string $character): CString
     {
         if ($offset < 0) {
             return $this;
         }
-        if ($character === '') {
-            return $this;
-        }
-        if ($this->coreLength($character) > 1) {
-            return $this;
-        }
-        $length = $this->coreLength();
+        $length = $this->Length();
         if ($offset >= $length) {
             return $this;
         }
+        $character = $this->wrap($character);
+        if ($character->IsEmpty()) {
+            return $this;
+        }
+        if ($character->Length() > 1) {
+            return $this;
+        }
         if ($this->isSingleByte) {
-            $this->value[$offset] = $character;
+            $this->value[$offset] = (string)$character;
         } else {
             $this->value =
                 \mb_substr($this->value, 0, $offset, $this->encoding)
-              . $character
+              . (string)$character
               . \mb_substr($this->value, $offset + 1, $length - $offset - 1,
                     $this->encoding);
         }
@@ -234,33 +239,34 @@ class CString implements \Stringable
      * @return CString
      *   The current instance.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function InsertAt(int $offset, string $substring): CString
     {
         if ($offset < 0) {
             return $this;
         }
-        if ($substring === '') {
-            return $this;
-        }
-        $length = $this->coreLength();
+        $length = $this->Length();
         if ($offset > $length) {
             return $this;
         }
+        $substring = $this->wrap($substring);
+        if ($substring->IsEmpty()) {
+            return $this;
+        }
         if ($offset === $length) {
-            $this->value .= $substring;
+            $this->value .= (string)$substring;
             return $this;
         }
         if ($this->isSingleByte) {
             $this->value =
                 \substr($this->value, 0, $offset)
-              . $substring
+              . (string)$substring
               . \substr($this->value, $offset);
         } else {
             $this->value =
                 \mb_substr($this->value, 0, $offset, $this->encoding)
-              . $substring
+              . (string)$substring
               . \mb_substr($this->value, $offset, null, $this->encoding);
         }
         return $this;
@@ -280,7 +286,7 @@ class CString implements \Stringable
      * @return CString
      *   The current instance.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If an error occurs due to encoding.
      */
     public function DeleteAt(int $offset, int $count = 1): CString
     {
@@ -290,7 +296,7 @@ class CString implements \Stringable
         if ($count < 1) {
             return $this;
         }
-        $length = $this->coreLength();
+        $length = $this->Length();
         if ($offset >= $length) {
             return $this;
         }
@@ -359,26 +365,36 @@ class CString implements \Stringable
     }
 
     /**
-     * Core routine for getting the length of a string.
+     * Converts a native string into a `CString` instance, ensuring
+     * compatibility with the instance's encoding.
      *
-     * @param ?string $string (Optional)
-     *   If provided, the method will calculate the length of this string
-     *   instead of using the instance's value.
-     * @return int
-     *   The number of characters in the string.
+     * @param string $string
+     *   The native string to validate and convert to a `CString`.
+     * @return CString
+     *   A `CString` instance with the same encoding as the current instance.
      * @throws \ValueError
-     *   If the encoding is invalid when operating in multibyte mode.
+     *   If the string's encoding is not compatible with the current `CString`
+     *   instance.
      */
-    private function coreLength(?string $string = null): int
+    private function wrap(string $string): CString
     {
-        if ($string === null) {
-            $string = $this->value;
+        if (!\mb_check_encoding($string, $this->encoding)) {
+            throw new \ValueError(
+                "String is not compatible with encoding '{$this->encoding}'.");
         }
-        if ($this->isSingleByte) {
-            return \strlen($string);
-        } else {
-            return \mb_strlen($string, $this->encoding);
+        $detectedEncoding = \mb_detect_encoding($string);
+        if ($detectedEncoding === false) {
+            throw new \ValueError("Unable to detect string's encoding.");
         }
+        if ($detectedEncoding !== $this->encoding) {
+            $convertedString = \mb_convert_encoding($string, $this->encoding,
+                $detectedEncoding);
+            if ($convertedString !== $string) {
+                throw new \ValueError(
+                    "String could not be converted to encoding '{$this->encoding}'.");
+            }
+        }
+        return new CString($string, $this->encoding);
     }
 
     #endregion private
