@@ -314,6 +314,97 @@ class CString implements \Stringable
         return $this;
     }
 
+    /**
+     * Extracts a specified number of characters from the left side of the
+     * string.
+     *
+     * @param int $count
+     *   The number of characters to return. If greater than or equal to the
+     *   length of the string, the entire string is returned.
+     * @return CString
+     *   A new `CString` instance with the leftmost characters.
+     * @throws \InvalidArgumentException
+     *   If the count is negative.
+     */
+    public function Left(int $count): CString
+    {
+        if ($count < 0) {
+            throw new \InvalidArgumentException(
+                'Count must be a non-negative integer.');
+        }
+        if ($this->isSingleByte) {
+            $substring = \substr($this->value, 0, $count);
+        } else {
+            $substring = \mb_substr($this->value, 0, $count, $this->encoding);
+        }
+        return new CString($substring, $this->encoding);
+    }
+
+    /**
+     * Extracts a specified number of characters from the right side of the
+     * string.
+     *
+     * @param int $count
+     *   The number of characters to return. If greater than or equal to the
+     *   length of the string, the entire string is returned.
+     * @return CString
+     *   A new `CString` instance with the rightmost characters.
+     * @throws \InvalidArgumentException
+     *   If the count is negative.
+     */
+    public function Right(int $count): CString
+    {
+        if ($count < 0) {
+            throw new \InvalidArgumentException(
+                'Count must be a non-negative integer.');
+        }
+        if ($this->isSingleByte) {
+            // Without this check, calling `substr` with a length of 0 returns
+            // the entire string instead of an empty string.
+            if ($count === 0) {
+                $substring = '';
+            } else {
+                $substring = \substr($this->value, -$count);
+            }
+        } else {
+            $substring = \mb_substr($this->value, -$count, $count, $this->encoding);
+        }
+        return new CString($substring, $this->encoding);
+    }
+
+    /**
+     * Extracts a specified number of characters starting from a specified
+     * offset in the string.
+     *
+     * @param int $offset
+     *   The zero-based starting offset of the characters to return.
+     * @param int $count (Optional)
+     *   The number of characters to return. If omitted, or if fewer characters
+     *   are available in the string from the offset, only the available
+     *   characters are returned.
+     * @return CString
+     *   A new CString instance with the specified middle characters.
+     * @throws \InvalidArgumentException
+     *   If either the offset or count is negative.
+     */
+    public function Middle(int $offset, int $count = PHP_INT_MAX): CString
+    {
+        if ($offset < 0) {
+            throw new \InvalidArgumentException(
+                'Offset must be a non-negative integer.');
+        }
+        if ($count < 0) {
+            throw new \InvalidArgumentException(
+                'Count must be a non-negative integer.');
+        }
+        if ($this->isSingleByte) {
+            $substring = \substr($this->value, $offset, $count);
+        } else {
+            $substring = \mb_substr($this->value, $offset, $count, $this->encoding);
+        }
+        return new CString($substring, $this->encoding);
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
