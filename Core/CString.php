@@ -323,7 +323,9 @@ class CString implements \Stringable
      *   length of the string, the entire string is returned.
      * @return CString
      *   A new `CString` instance with the leftmost characters, or an empty
-     *   instance if the count is negative.
+     *   instance if the count is not a positive value.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
      */
     public function Left(int $count): CString
     {
@@ -347,7 +349,9 @@ class CString implements \Stringable
      *   length of the string, the entire string is returned.
      * @return CString
      *   A new `CString` instance with the rightmost characters, or an empty
-     *   instance if the count is negative.
+     *   instance if the count is not a positive value.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
      */
     public function Right(int $count): CString
     {
@@ -374,7 +378,9 @@ class CString implements \Stringable
      *   characters are returned.
      * @return CString
      *   A new `CString` instance with the specified middle characters, or an
-     *   empty instance if the offset or count is negative.
+     *   empty instance if the offset or count is not a positive value.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
      */
     public function Middle(int $offset, int $count = PHP_INT_MAX): CString
     {
