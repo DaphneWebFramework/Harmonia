@@ -511,6 +511,42 @@ class CString implements \Stringable
         return new CString($trimmed, $this->encoding);
     }
 
+    /**
+     * Converts the string to lowercase.
+     *
+     * @return CString
+     *   A new `CString` instance with all characters converted to lowercase.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function Lowercase(): CString
+    {
+        if ($this->isSingleByte) {
+            $lowercased = \strtolower($this->value);
+        } else {
+            $lowercased = \mb_strtolower($this->value, $this->encoding);
+        }
+        return new CString($lowercased, $this->encoding);
+    }
+
+    /**
+     * Converts the string to uppercase.
+     *
+     * @return CString
+     *   A new `CString` instance with all characters converted to uppercase.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function Uppercase(): CString
+    {
+        if ($this->isSingleByte) {
+            $uppercased = \strtoupper($this->value);
+        } else {
+            $uppercased = \mb_strtoupper($this->value, $this->encoding);
+        }
+        return new CString($uppercased, $this->encoding);
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
