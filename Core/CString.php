@@ -33,14 +33,14 @@ class CString implements \Stringable
      *
      * @var string
      */
-    private string $encoding;
+    private readonly string $encoding;
 
     /**
      * A boolean indicating if the encoding is single-byte or multibyte.
      *
      * @var bool
      */
-    private bool $isSingleByte;
+    private readonly bool $isSingleByte;
 
     #region public -------------------------------------------------------------
 
@@ -322,15 +322,13 @@ class CString implements \Stringable
      *   The number of characters to return. If greater than or equal to the
      *   length of the string, the entire string is returned.
      * @return CString
-     *   A new `CString` instance with the leftmost characters.
-     * @throws \InvalidArgumentException
-     *   If the count is negative.
+     *   A new `CString` instance with the leftmost characters, or an empty
+     *   instance if the count is negative.
      */
     public function Left(int $count): CString
     {
-        if ($count < 0) {
-            throw new \InvalidArgumentException(
-                'Count must be a non-negative integer.');
+        if ($count <= 0) {
+            return $this->empty();
         }
         if ($this->isSingleByte) {
             $substring = \substr($this->value, 0, $count);
@@ -348,24 +346,16 @@ class CString implements \Stringable
      *   The number of characters to return. If greater than or equal to the
      *   length of the string, the entire string is returned.
      * @return CString
-     *   A new `CString` instance with the rightmost characters.
-     * @throws \InvalidArgumentException
-     *   If the count is negative.
+     *   A new `CString` instance with the rightmost characters, or an empty
+     *   instance if the count is negative.
      */
     public function Right(int $count): CString
     {
-        if ($count < 0) {
-            throw new \InvalidArgumentException(
-                'Count must be a non-negative integer.');
+        if ($count <= 0) {
+            return $this->empty();
         }
         if ($this->isSingleByte) {
-            // Without this check, calling `substr` with a length of 0 returns
-            // the entire string instead of an empty string.
-            if ($count === 0) {
-                $substring = '';
-            } else {
-                $substring = \substr($this->value, -$count);
-            }
+            $substring = \substr($this->value, -$count);
         } else {
             $substring = \mb_substr($this->value, -$count, $count, $this->encoding);
         }
@@ -383,19 +373,13 @@ class CString implements \Stringable
      *   are available in the string from the offset, only the available
      *   characters are returned.
      * @return CString
-     *   A new CString instance with the specified middle characters.
-     * @throws \InvalidArgumentException
-     *   If either the offset or count is negative.
+     *   A new `CString` instance with the specified middle characters, or an
+     *   empty instance if the offset or count is negative.
      */
     public function Middle(int $offset, int $count = PHP_INT_MAX): CString
     {
-        if ($offset < 0) {
-            throw new \InvalidArgumentException(
-                'Offset must be a non-negative integer.');
-        }
-        if ($count < 0) {
-            throw new \InvalidArgumentException(
-                'Count must be a non-negative integer.');
+        if ($offset < 0 || $count <= 0) {
+            return $this->empty();
         }
         if ($this->isSingleByte) {
             $substring = \substr($this->value, $offset, $count);
@@ -453,6 +437,22 @@ class CString implements \Stringable
             'WINDOWS-1254' => 1, // Turkish, Windows
         ];
         return isset($singleByteEncodings[\strtoupper($encoding)]);
+    }
+
+    /**
+     * Returns a `CString` instance whose value is an empty string.
+     *
+     * @return CString
+     *   A `CString` instance that contains an empty string and has the same
+     *   encoding as the current instance.
+     */
+    private function empty(): CString
+    {
+        static $emptyInstance = null;
+        if ($emptyInstance === null) {
+            $emptyInstance = new CString('', $this->encoding);
+        }
+        return $emptyInstance;
     }
 
     /**
