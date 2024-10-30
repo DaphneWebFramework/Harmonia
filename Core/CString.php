@@ -389,6 +389,122 @@ class CString implements \Stringable
         return new CString($substring, $this->encoding);
     }
 
+    /**
+     * Trims whitespace or specified characters from both sides of the string.
+     *
+     * @param ?string $characters (Optional)
+     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @return CString
+     *   A new `CString` instance with the trimmed string.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function Trim(?string $characters = null): CString
+    {
+        if ($this->isSingleByte) {
+            if ($characters === null) {
+                $trimmed = \trim($this->value);
+            } else {
+                $trimmed = \trim($this->value, $characters);
+            }
+        } else {
+            if (PHP_VERSION_ID >= 80400) {
+                $trimmed = \mb_trim($this->value, $characters, $this->encoding);
+            } else {
+                $trimmed = $this->withRegexEncoding(function() use($characters) {
+                    if ($characters === null) {
+                        return \mb_ereg_replace(
+                            '^[[:space:]]+|[[:space:]]+$', '', $this->value);
+                    } elseif ($characters !== '') {
+                        $characters = \preg_quote($characters);
+                        return \mb_ereg_replace(
+                            "^[$characters]+|[$characters]+\$", '', $this->value);
+                    }
+                    return $this->value;
+                });
+            }
+        }
+        return new CString($trimmed, $this->encoding);
+    }
+
+    /**
+     * Trims whitespace or specified characters from the start (left) of the
+     * string.
+     *
+     * @param ?string $characters (Optional)
+     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @return CString
+     *   A new `CString` instance with the trimmed string.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function TrimLeft(?string $characters = null): CString
+    {
+        if ($this->isSingleByte) {
+            if ($characters === null) {
+                $trimmed = \ltrim($this->value);
+            } else {
+                $trimmed = \ltrim($this->value, $characters);
+            }
+        } else {
+            if (PHP_VERSION_ID >= 80400) {
+                $trimmed = \mb_ltrim($this->value, $characters, $this->encoding);
+            } else {
+                $trimmed = $this->withRegexEncoding(function () use($characters) {
+                    if ($characters === null) {
+                        return \mb_ereg_replace(
+                            '^[[:space:]]+', '', $this->value);
+                    } elseif ($characters !== '') {
+                        $characters = \preg_quote($characters);
+                        return \mb_ereg_replace(
+                            "^[$characters]+", '', $this->value);
+                    }
+                    return $this->value;
+                });
+            }
+        }
+        return new CString($trimmed, $this->encoding);
+    }
+
+    /**
+     * Trims whitespace or specified characters from the end (right) of the
+     * string.
+     *
+     * @param ?string $characters (Optional)
+     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @return CString
+     *   A new `CString` instance with the trimmed string.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function TrimRight(?string $characters = null): CString
+    {
+        if ($this->isSingleByte) {
+            if ($characters === null) {
+                $trimmed = \rtrim($this->value);
+            } else {
+                $trimmed = \rtrim($this->value, $characters);
+            }
+        } else {
+            if (PHP_VERSION_ID >= 80400) {
+                $trimmed = \mb_rtrim($this->value, $characters, $this->encoding);
+            } else {
+                $trimmed = $this->withRegexEncoding(function () use($characters) {
+                    if ($characters === null) {
+                        return \mb_ereg_replace(
+                            '[[:space:]]+$', '', $this->value);
+                    } elseif ($characters !== '') {
+                        $characters = \preg_quote($characters);
+                        return \mb_ereg_replace(
+                            "[$characters]+\$", '', $this->value);
+                    }
+                    return $this->value;
+                });
+            }
+        }
+        return new CString($trimmed, $this->encoding);
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
@@ -486,6 +602,30 @@ class CString implements \Stringable
             }
         }
         return new CString($string, $this->encoding);
+    }
+
+    /**
+     * Temporarily sets the instance's encoding for regex operations.
+     *
+     * This method sets the regex encoding to the instance's encoding, performs
+     * the callback, and restores the previous encoding afterward.
+     *
+     * @param callable $callback
+     *   The function to execute.
+     * @return mixed
+     *   The return value of the callback.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    private function withRegexEncoding(callable $callback): mixed
+    {
+        $previousEncoding = \mb_regex_encoding();
+        \mb_regex_encoding($this->encoding);
+        try {
+            return $callback();
+        } finally {
+            \mb_regex_encoding($previousEncoding);
+        }
     }
 
     #endregion private
