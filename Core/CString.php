@@ -548,6 +548,31 @@ class CString implements \Stringable
     }
 
     /**
+     * Checks if this string is equal to another string.
+     *
+     * @param string|CString $other
+     *   The string to compare with.
+     * @param bool $caseSensitive (Optional)
+     *   Whether the comparison should be case-sensitive. By default, it is
+     *   case-sensitive.
+     * @return bool
+     *   Returns `true` if the strings are equal, `false` otherwise.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function Equals(string|CString $other, bool $caseSensitive = true): bool
+    {
+        if ($caseSensitive) {
+            return (string)$this === (string)$other;
+        } else {
+            if (!($other instanceof self)) {
+                $other = $this->wrap($other);
+            }
+            return (string)$this->Lowercase() === (string)$other->Lowercase();
+        }
+    }
+
+    /**
      * Checks if the string starts with the specified search string.
      *
      * @param string $searchString
@@ -568,12 +593,8 @@ class CString implements \Stringable
         if ($searchStringLength > $this->Length()) {
             return false;
         }
-        $sideString = $this->Left($searchStringLength);
-        if ($caseSensitive) {
-            return (string)$sideString === (string)$searchString;
-        } else {
-            return (string)$sideString->Lowercase() === (string)$searchString->Lowercase();
-        }
+        return $this->Left($searchStringLength)
+                    ->Equals($searchString, $caseSensitive);
     }
 
     /**
@@ -597,12 +618,8 @@ class CString implements \Stringable
         if ($searchStringLength > $this->Length()) {
             return false;
         }
-        $sideString = $this->Right($searchStringLength);
-        if ($caseSensitive) {
-            return (string)$sideString === (string)$searchString;
-        } else {
-            return (string)$sideString->Lowercase() === (string)$searchString->Lowercase();
-        }
+        return $this->Right($searchStringLength)
+                    ->Equals($searchString, $caseSensitive);
     }
 
     #endregion public
