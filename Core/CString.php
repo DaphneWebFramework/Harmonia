@@ -547,6 +547,64 @@ class CString implements \Stringable
         return new CString($uppercased, $this->encoding);
     }
 
+    /**
+     * Checks if the string starts with the specified search string.
+     *
+     * @param string $searchString
+     *   The string to check if the instance starts with it.
+     * @param bool $caseSensitive (Optional)
+     *   Whether the comparison should be case-sensitive. By default, it is
+     *   case-sensitive.
+     * @return bool
+     *   Returns `true` if the string starts with the given search string,
+     *   `false` otherwise.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function StartsWith(string $searchString, bool $caseSensitive = true): bool
+    {
+        $searchString = $this->wrap($searchString);
+        $searchStringLength = $searchString->Length();
+        if ($searchStringLength > $this->Length()) {
+            return false;
+        }
+        $sideString = $this->Left($searchStringLength);
+        if ($caseSensitive) {
+            return (string)$sideString === (string)$searchString;
+        } else {
+            return (string)$sideString->Lowercase() === (string)$searchString->Lowercase();
+        }
+    }
+
+    /**
+     * Checks if the string ends with the specified search string.
+     *
+     * @param string $searchString
+     *   The string to check if the instance ends with it.
+     * @param bool $caseSensitive (Optional)
+     *   Whether the comparison should be case-sensitive. By default, it is
+     *   case-sensitive.
+     * @return bool
+     *   Returns `true` if the string ends with the given search string,
+     *   `false` otherwise.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function EndsWith(string $searchString, bool $caseSensitive = true): bool
+    {
+        $searchString = $this->wrap($searchString);
+        $searchStringLength = $searchString->Length();
+        if ($searchStringLength > $this->Length()) {
+            return false;
+        }
+        $sideString = $this->Right($searchStringLength);
+        if ($caseSensitive) {
+            return (string)$sideString === (string)$searchString;
+        } else {
+            return (string)$sideString->Lowercase() === (string)$searchString->Lowercase();
+        }
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
