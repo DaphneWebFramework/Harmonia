@@ -18,7 +18,7 @@ namespace Harmonia\Core;
  *
  * This class requires PHP's `mbstring` extension for multibyte encoding support.
  */
-class CString implements \Stringable
+class CString implements \Stringable, \ArrayAccess
 {
     /**
      * The string value stored in the instance.
@@ -74,17 +74,6 @@ class CString implements \Stringable
             $this->encoding = $encoding ?: \mb_internal_encoding();
             $this->isSingleByte = self::isSingleByteEncoding($this->encoding);
         }
-    }
-
-    /**
-     * Converts the CString instance to a string.
-     *
-     * @return string
-     *   The string value stored in the instance.
-     */
-    public function __toString(): string
-    {
-        return $this->value;
     }
 
     /**
@@ -621,6 +610,102 @@ class CString implements \Stringable
         return $this->Right($searchStringLength)
                     ->Equals($searchString, $caseSensitive);
     }
+
+    #region Interface: Stringable ----------------------------------------------
+
+    /**
+     * Converts the CString instance to a string.
+     *
+     * @return string
+     *   The string value stored in the instance.
+     */
+    public function __toString(): string
+    {
+        return $this->value;
+    }
+
+    #endregion Interface: Stringable
+
+    #region Interface: ArrayAccess ---------------------------------------------
+
+    /**
+     * Checks if the offset exists within the bounds of the string.
+     *
+     * @param int $offset
+     *   The zero-based offset to check.
+     * @return bool
+     *   Returns `true` if the offset is within the string length, `false`
+     *   otherwise.
+     * @throws \InvalidArgumentException
+     *   If the offset is not an integer or is negative.
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        if (!\is_int($offset)) {
+            throw new \InvalidArgumentException('Offset must be an integer.');
+        }
+        if ($offset < 0) {
+            throw new \InvalidArgumentException('Offset must be a non-negative integer.');
+        }
+        return $offset < $this->Length();
+    }
+
+    /**
+     * Returns the character at a specified offset.
+     *
+     * @param mixed $offset
+     *   The zero-based offset of the character to return.
+     * @return mixed
+     *   The character at the specified offset, or an empty string if the offset
+     *   is out of bounds.
+     * @throws \TypeError
+     *   If the offset is not an integer.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->At($offset);
+    }
+
+    /**
+     * Sets the character at the specified offset.
+     *
+     * @param mixed $offset
+     *   The zero-based offset where the character will be set. If the offset is
+     *   negative or greater than or equal to the length of the string, no
+     *   changes will be made.
+     * @param mixed $value
+     *   The character to set at the specified offset. If more than one character
+     *   is provided, no changes will be made.
+     * @throws \TypeError
+     *   If the offset is not an integer or the value is not a string.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->SetAt($offset, $value);
+    }
+
+    /**
+     * Deletes the character at the specified offset.
+     *
+     * @param mixed $offset
+     *   The zero-based offset where the character will be removed. If the
+     *   offset is negative or greater than or equal to the length of the
+     *   string, no changes will be made.
+     * @throws \TypeError
+     *   If the offset is not an integer.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        $this->DeleteAt($offset);
+    }
+
+    #endregion Interface: ArrayAccess
 
     #endregion public
 
