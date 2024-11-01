@@ -18,7 +18,7 @@ namespace Harmonia\Core;
  *
  * This class requires PHP's `mbstring` extension for multibyte encoding support.
  */
-class CString implements \Stringable, \ArrayAccess
+class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 {
     /**
      * The string value stored in the instance.
@@ -611,7 +611,7 @@ class CString implements \Stringable, \ArrayAccess
                     ->Equals($searchString, $caseSensitive);
     }
 
-    #region Interface: Stringable ----------------------------------------------
+    #region Interface: Stringable
 
     /**
      * Converts the CString instance to a string.
@@ -626,12 +626,12 @@ class CString implements \Stringable, \ArrayAccess
 
     #endregion Interface: Stringable
 
-    #region Interface: ArrayAccess ---------------------------------------------
+    #region Interface: ArrayAccess
 
     /**
      * Checks if the offset exists within the bounds of the string.
      *
-     * @param int $offset
+     * @param mixed $offset
      *   The zero-based offset to check.
      * @return bool
      *   Returns `true` if the offset is within the string length, `false`
@@ -706,6 +706,24 @@ class CString implements \Stringable, \ArrayAccess
     }
 
     #endregion Interface: ArrayAccess
+
+    #region Interface: IteratorAggregate
+
+    /**
+     * Returns an iterator for traversing each character in the string.
+     *
+     * @return \Traversable
+     *   An iterator yielding each character in the string.
+     */
+    public function getIterator(): \Traversable
+    {
+        $length = $this->Length();
+        for ($i = 0; $i < $length; ++$i) {
+            yield $this->At($i);
+        }
+    }
+
+    #endregion Interface: IteratorAggregate
 
     #endregion public
 
