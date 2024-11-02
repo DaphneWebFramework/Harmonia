@@ -611,6 +611,45 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                     ->Equals($searchString, $caseSensitive);
     }
 
+    /**
+     * Finds the offset of the first occurrence of a string.
+     *
+     * @param string $searchString
+     *   The string to search for.
+     * @param int $startOffset (Optional)
+     *   The zero-based offset from which to start the search. Defaults to 0.
+     * @param bool $caseSensitive (Optional)
+     *   Whether the comparison should be case-sensitive. By default, it is
+     *   case-sensitive.
+     * @return int|null
+     *   The zero-based offset of the search string, or `null` if not found.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function IndexOf(string $searchString, int $startOffset = 0,
+        bool $caseSensitive = true): ?int
+    {
+        if ($this->isSingleByte) {
+            if ($caseSensitive) {
+                $foundOffset = \strpos($this->value, $searchString, $startOffset);
+            } else {
+                $foundOffset = \stripos($this->value, $searchString, $startOffset);
+            }
+        } else {
+            if ($caseSensitive) {
+                $foundOffset = \mb_strpos($this->value, $searchString, $startOffset,
+                    $this->encoding);
+            } else {
+                $foundOffset = \mb_stripos($this->value, $searchString, $startOffset,
+                    $this->encoding);
+            }
+        }
+        if ($foundOffset === false) {
+            return null;
+        }
+        return $foundOffset;
+    }
+
     #region Interface: Stringable
 
     /**
