@@ -74,4 +74,54 @@ class CArray
         }
         return $this->value[$key];
     }
+
+    /**
+     * Adds an element to the end of the array.
+     *
+     * @param mixed $element
+     *   The element to add to the array.
+     * @return CArray
+     *   The current instance.
+     */
+    public function PushBack(mixed $element): CArray
+    {
+        $this->value[] = $element;
+        return $this;
+    }
+
+    /**
+     * Adds an element to the beginning of the array.
+     *
+     * @param mixed $element
+     *   The element to add to the array.
+     * @return CArray
+     *   The current instance.
+     */
+    public function PushFront(mixed $element): CArray
+    {
+        \array_unshift($this->value, $element);
+        return $this;
+    }
+
+    /**
+     * Removes and returns the last element of the array.
+     *
+     * @return mixed
+     *   The last element, or `null` if the array is empty.
+     */
+    public function PopBack(): mixed
+    {
+        return \array_pop($this->value);
+    }
+
+    /**
+     * Removes and returns the first element of the array.
+     *
+     * @return mixed
+     *   The first element, or `null` if the array is empty.
+     */
+    public function PopFront(): mixed
+    {
+        return \array_shift($this->value);
+    }
 }
