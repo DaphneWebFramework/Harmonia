@@ -54,4 +54,24 @@ class CArray
     {
         return \array_key_exists($key, $this->value);
     }
+
+    /**
+     * Returns the value at the specified key, or a default value if the key
+     * does not exist in the array.
+     *
+     * @param string|int $key
+     *   The key to look up in the array.
+     * @param mixed $defaultValue (Optional)
+     *   The value to return if the key does not exist. Defaults to `null`.
+     * @return mixed
+     *   The value at the specified key if it exists, or the default value if
+     *   the key is not found.
+     */
+    public function ValueOrDefault(string|int $key, mixed $defaultValue = null): mixed
+    {
+        if (!$this->ContainsKey($key)) {
+            return $defaultValue;
+        }
+        return $this->value[$key];
+    }
 }
