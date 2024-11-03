@@ -658,6 +658,46 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         return $foundOffset;
     }
 
+    /**
+     * Replaces all occurrences of a specified search string with a replacement
+     * string.
+     *
+     * @param string $searchString
+     *   The substring to search for.
+     * @param string $replacement
+     *   The substring to replace each occurrence of the search string.
+     * @param bool $caseSensitive (Optional)
+     *   Whether the comparison should be case-sensitive. By default, it is
+     *   case-sensitive.
+     * @return CString
+     *   A new `CString` instance with the replacements made.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function Replace(string $searchString, string $replacement,
+        bool $caseSensitive = true): CString
+    {
+        if ($this->isSingleByte) {
+            if ($caseSensitive) {
+                $replaced = \str_replace($searchString, $replacement, $this->value);
+            } else {
+                $replaced = \str_ireplace($searchString, $replacement, $this->value);
+            }
+        } else {
+            $replaced = $this->withMultibyteRegexEncoding(function()
+                use($searchString, $replacement, $caseSensitive)
+            {
+                $searchString = \preg_quote($searchString);
+                if ($caseSensitive) {
+                    return \mb_ereg_replace($searchString, $replacement, $this->value);
+                } else {
+                    return \mb_eregi_replace($searchString, $replacement, $this->value);
+                }
+             });
+        }
+        return new CString($replaced, $this->encoding);
+    }
+
     #region Interface: Stringable
 
     /**
