@@ -13,8 +13,9 @@
 namespace Harmonia\Core;
 
 /**
- * CString is a wrapper class for string manipulation, allowing the use of both
- * single-byte and multibyte encodings.
+ * CString is a wrapper for PHP's native `string` type, providing enhanced
+ * methods for string manipulation, with support for both single-byte and
+ * multibyte encodings.
  *
  * This class requires PHP's `mbstring` extension for multibyte encoding support.
  */
@@ -47,14 +48,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Constructs a new instance of CString.
      *
-     * @param string|\Stringable $value
-     *   The string value to store. If a `CString` instance is provided, the
-     *   value, encoding, and single-byte/multibyte status are copied from the
-     *   original instance.
-     * @param ?string $encoding
-     *   The encoding to use (e.g., 'UTF-8', 'ISO-8859-1'). If `null`, defaults
-     *   to the return value of `mb_internal_encoding`. This parameter is
-     *   ignored when the `$value` is an instance of `CString`.
+     * @param string|\Stringable $value (Optional)
+     *   The string value to store. If omitted, defaults to an empty string.
+     *   If a `CString` instance is provided, the value, encoding, and
+     *   single-byte/multibyte status are copied from the original instance.
+     * @param ?string $encoding (Optional)
+     *   The encoding to use (e.g., 'UTF-8', 'ISO-8859-1'). If omitted or set to
+     *   `null`, defaults to the return value of `mb_internal_encoding`. This
+     *   parameter is ignored when `$value` is an instance of `CString`. Note
+     *   that encoding names are case-insensitive.
      */
     public function __construct(
         string|\Stringable $value = '',
@@ -406,7 +408,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             if (PHP_VERSION_ID >= 80400) {
                 $trimmed = \mb_trim($this->value, $characters, $this->encoding);
             } else {
-                $trimmed = $this->withRegexEncoding(function() use($characters) {
+                $trimmed = $this->withMultibyteRegexEncoding(function()
+                    use($characters)
+                {
                     if ($characters === null) {
                         return \mb_ereg_replace(
                             '^[[:space:]]+|[[:space:]]+$', '', $this->value);
@@ -445,7 +449,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             if (PHP_VERSION_ID >= 80400) {
                 $trimmed = \mb_ltrim($this->value, $characters, $this->encoding);
             } else {
-                $trimmed = $this->withRegexEncoding(function () use($characters) {
+                $trimmed = $this->withMultibyteRegexEncoding(function()
+                    use($characters)
+                {
                     if ($characters === null) {
                         return \mb_ereg_replace(
                             '^[[:space:]]+', '', $this->value);
@@ -484,7 +490,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             if (PHP_VERSION_ID >= 80400) {
                 $trimmed = \mb_rtrim($this->value, $characters, $this->encoding);
             } else {
-                $trimmed = $this->withRegexEncoding(function () use($characters) {
+                $trimmed = $this->withMultibyteRegexEncoding(function()
+                    use($characters)
+                {
                     if ($characters === null) {
                         return \mb_ereg_replace(
                             '[[:space:]]+$', '', $this->value);
@@ -852,7 +860,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         if ($detectedEncoding === false) {
             throw new \ValueError("Unable to detect string's encoding.");
         }
-        if ($detectedEncoding !== $this->encoding) {
+        if (0 !== \strcasecmp($detectedEncoding, $this->encoding)) {
             $convertedString = \mb_convert_encoding($string, $this->encoding,
                 $detectedEncoding);
             if ($convertedString !== $string) {
@@ -864,10 +872,11 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Temporarily sets the instance's encoding for regex operations.
+     * Sets the global multibyte regex encoding name to be the instance's
+     * encoding and restores it to the original after executing the callback.
      *
-     * This method sets the regex encoding to the instance's encoding, performs
-     * the callback, and restores the previous encoding afterward.
+     * For efficiency, if the global encoding name is already the same as the
+     * instance's, it skips changing it and directly runs the callback.
      *
      * @param callable $callback
      *   The function to execute.
@@ -876,14 +885,17 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    private function withRegexEncoding(callable $callback): mixed
+    private function withMultibyteRegexEncoding(callable $callback): mixed
     {
-        $previousEncoding = \mb_regex_encoding();
+        $originalEncoding = \mb_regex_encoding();
+        if (0 === \strcasecmp($originalEncoding, $this->encoding)) {
+            return $callback();
+        }
         \mb_regex_encoding($this->encoding);
         try {
             return $callback();
         } finally {
-            \mb_regex_encoding($previousEncoding);
+            \mb_regex_encoding($originalEncoding);
         }
     }
 
