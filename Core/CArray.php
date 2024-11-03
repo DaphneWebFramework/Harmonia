@@ -41,4 +41,17 @@ class CArray
             $this->value = $value;
         }
     }
+
+    /**
+     * Checks if the specified key exists in the array.
+     *
+     * @param string|int $key
+     *   The key to check for existence within the array.
+     * @return bool
+     *   Returns `true` if the key exists in the array, `false` otherwise.
+     */
+    public function ContainsKey(string|int $key): bool
+    {
+        return \array_key_exists($key, $this->value);
+    }
 }
