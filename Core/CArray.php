@@ -124,4 +124,66 @@ class CArray
     {
         return \array_shift($this->value);
     }
+
+    /**
+     * Inserts a new element before an existing element at a specified offset.
+     *
+     * > This method is intended for use with sequentially indexed arrays.
+     * After insertion, the array is reindexed to maintain sequential order.
+     * If applied to associative arrays, existing string keys are preserved, and
+     * the new element is added with the next available zero-based integer key.
+     *
+     * @param int $offset
+     *   The zero-based offset before which the new element should be inserted.
+     * @param mixed $element
+     *   The new element to insert.
+     * @return CArray
+     *   The current instance.
+     * @throws \OutOfRangeException
+     *   If the offset is out of range.
+     *
+     * @see InsertAfter
+     */
+    public function InsertBefore(int $offset, mixed $element): CArray
+    {
+        if ($offset < 0) {
+            throw new \OutOfRangeException('Offset cannot be negative.');
+        }
+        if ($offset > \count($this->value)) {
+            throw new \OutOfRangeException('Offset exceeds array size.');
+        }
+        \array_splice($this->value, $offset, 0, [$element]);
+        return $this;
+    }
+
+    /**
+     * Inserts a new element after an existing element at a specified offset.
+     *
+     * > This method is intended for use with sequentially indexed arrays.
+     * After insertion, the array is reindexed to maintain sequential order.
+     * If applied to associative arrays, existing string keys are preserved, and
+     * the new element is added with the next available zero-based integer key.
+     *
+     * @param int $offset
+     *   The zero-based offset after which the new element should be inserted.
+     * @param mixed $element
+     *   The new element to insert.
+     * @return CArray
+     *   The current instance.
+     * @throws \OutOfRangeException
+     *   If the offset is out of range.
+     *
+     * @see InsertBefore
+     */
+    public function InsertAfter(int $offset, mixed $element): CArray
+    {
+        if ($offset < 0) {
+            throw new \OutOfRangeException('Offset cannot be negative.');
+        }
+        if ($offset >= \count($this->value)) {
+            throw new \OutOfRangeException('Offset exceeds array size.');
+        }
+        \array_splice($this->value, $offset + 1, 0, [$element]);
+        return $this;
+    }
 }
