@@ -724,7 +724,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   Returns `true` if the offset is within the string length, `false`
      *   otherwise.
      * @throws \InvalidArgumentException
-     *   If the offset is not an integer or is negative.
+     *   If the offset is not an integer.
+     * @throws \OutOfRangeException
+     *   If the offset is negative.
      */
     public function offsetExists(mixed $offset): bool
     {
@@ -732,7 +734,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             throw new \InvalidArgumentException('Offset must be an integer.');
         }
         if ($offset < 0) {
-            throw new \InvalidArgumentException('Offset must be a non-negative integer.');
+            throw new \OutOfRangeException('Offset cannot be negative.');
         }
         return $offset < $this->Length();
     }
