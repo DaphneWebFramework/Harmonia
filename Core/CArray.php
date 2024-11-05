@@ -74,4 +74,18 @@ class CArray
         }
         return $this->value[$key];
     }
+
+    /**
+     * Removes an element by its key.
+     *
+     * @param string|int $key
+     *   The key of the element to remove.
+     * @return CArray
+     *   The current instance.
+     */
+    public function Delete(string|int $key): CArray
+    {
+        unset($this->value[$key]);
+        return $this;
+    }
 }

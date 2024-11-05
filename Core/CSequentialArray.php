@@ -119,13 +119,12 @@ class CSequentialArray extends CArray
     /**
      * Removes an element at the specified index.
      *
-     * The `$index` parameter accepts both integer and string types to ensure
-     * signature compatibility with the base class `CArray`, allowing this
-     * method to override `CArray::Delete`. However, if a string is given, an
-     * exception is thrown, as `CSequentialArray` is intended for integer-based
-     * indexing only.
+     * The `$index` parameter accepts both strings and integers to comply with
+     * the `CArray::Delete` signature. However, if a string is provided, an
+     * exception is thrown because `CSequentialArray` only supports integer
+     * indexing.
      *
-     * @param int|string $index
+     * @param string|int $index
      *   The zero-based index of the element to remove. If a string is given,
      *   an exception is thrown.
      * @return CSequentialArray
@@ -135,7 +134,7 @@ class CSequentialArray extends CArray
      * @throws \OutOfRangeException
      *   If the index is out of range.
      */
-    public function Delete(int|string $index): CSequentialArray
+    public function Delete(string|int $index): CSequentialArray
     {
         if (\is_string($index)) {
             throw new \InvalidArgumentException('Index cannot be a string.');
