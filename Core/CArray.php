@@ -50,7 +50,7 @@ class CArray
      * @return bool
      *   Returns `true` if the key exists in the array, `false` otherwise.
      */
-    public function ContainsKey(string|int $key): bool
+    public function Has(string|int $key): bool
     {
         return \array_key_exists($key, $this->value);
     }
@@ -67,9 +67,9 @@ class CArray
      *   The value at the specified key if it exists, or the default value if
      *   the key is not found.
      */
-    public function ValueOrDefault(string|int $key, mixed $defaultValue = null): mixed
+    public function Get(string|int $key, mixed $defaultValue = null): mixed
     {
-        if (!$this->ContainsKey($key)) {
+        if (!$this->Has($key)) {
             return $defaultValue;
         }
         return $this->value[$key];
