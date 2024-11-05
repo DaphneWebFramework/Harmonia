@@ -16,7 +16,7 @@ namespace Harmonia\Core;
  * CArray is a wrapper for PHP's native `array` type, offering additional
  * methods for array manipulation and consistency in array operations.
  */
-class CArray
+class CArray implements \ArrayAccess
 {
     /**
      * The array value stored in the instance.
@@ -56,22 +56,6 @@ class CArray
     }
 
     /**
-     * Adds or updates the value at the specified key.
-     *
-     * @param string|int $key
-     *   The key at which to set the value.
-     * @param mixed $value
-     *   The value to set at the specified key.
-     * @return CArray
-     *   The current instance.
-     */
-    public function Set(string|int $key, mixed $value): CArray
-    {
-        $this->value[$key] = $value;
-        return $this;
-    }
-
-    /**
      * Returns the value at the specified key, or a default value if the key
      * does not exist.
      *
@@ -92,6 +76,22 @@ class CArray
     }
 
     /**
+     * Adds or updates the value at the specified key.
+     *
+     * @param string|int $key
+     *   The key at which to set the value.
+     * @param mixed $value
+     *   The value to set at the specified key.
+     * @return CArray
+     *   The current instance.
+     */
+    public function Set(string|int $key, mixed $value): CArray
+    {
+        $this->value[$key] = $value;
+        return $this;
+    }
+
+    /**
      * Removes an element by its key.
      *
      * @param string|int $key
@@ -104,4 +104,66 @@ class CArray
         unset($this->value[$key]);
         return $this;
     }
+
+    #region Interface: ArrayAccess
+
+    /**
+     * Checks if the specified offset exists.
+     *
+     * @param mixed $offset
+     *   The offset to check for existence within the array.
+     * @return bool
+     *   Returns `true` if the offset exists, `false` otherwise.
+     * @throws \TypeError
+     *   If the offset is not a string or integer.
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        return $this->Has($offset);
+    }
+
+    /**
+     * Returns the value at the specified offset.
+     *
+     * @param mixed $offset
+     *   The offset to look up.
+     * @return mixed
+     *   The value at the specified offset, or `null` if the offset is not found.
+     * @throws \TypeError
+     *   If the offset is not a string or integer.
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->Get($offset);
+    }
+
+    /**
+     * Sets the value at the specified offset.
+     *
+     * @param mixed $offset
+     *   The offset at which to set the value.
+     * @param mixed $value
+     *   The value to set at the specified offset.
+     * @throws \TypeError
+     *   If the offset is not a string or integer.
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->Set($offset, $value);
+    }
+
+    /**
+     * Unsets the value at the specified offset.
+     *
+     * @param mixed $offset
+     *   The offset of the element to unset.
+     * @throws \TypeError
+     *   If the offset is not a string or integer.
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+        $this->Delete($offset);
+    }
+
+    #endregion Interface: ArrayAccess
 }
