@@ -43,12 +43,12 @@ class CArray
     }
 
     /**
-     * Checks if the specified key exists in the array.
+     * Checks if the specified key exists.
      *
      * @param string|int $key
      *   The key to check for existence within the array.
      * @return bool
-     *   Returns `true` if the key exists in the array, `false` otherwise.
+     *   Returns `true` if the key exists, `false` otherwise.
      */
     public function Has(string|int $key): bool
     {
@@ -56,11 +56,27 @@ class CArray
     }
 
     /**
-     * Returns the value at the specified key, or a default value if the key
-     * does not exist in the array.
+     * Adds or updates the value at the specified key.
      *
      * @param string|int $key
-     *   The key to look up in the array.
+     *   The key at which to set the value.
+     * @param mixed $value
+     *   The value to set at the specified key.
+     * @return CArray
+     *   The current instance.
+     */
+    public function Set(string|int $key, mixed $value): CArray
+    {
+        $this->value[$key] = $value;
+        return $this;
+    }
+
+    /**
+     * Returns the value at the specified key, or a default value if the key
+     * does not exist.
+     *
+     * @param string|int $key
+     *   The key to look up.
      * @param mixed $defaultValue (Optional)
      *   The value to return if the key does not exist. Defaults to `null`.
      * @return mixed
