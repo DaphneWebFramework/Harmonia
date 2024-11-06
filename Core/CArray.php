@@ -43,6 +43,17 @@ class CArray implements \ArrayAccess
     }
 
     /**
+     * Retrieves a copy of the array stored in the instance.
+     *
+     * @return array
+     *   A copy of the array stored in the instance.
+     */
+    public function ToArray(): array
+    {
+        return $this->value;
+    }
+
+    /**
      * Checks if the specified key exists.
      *
      * @param string|int $key
