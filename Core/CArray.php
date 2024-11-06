@@ -23,7 +23,7 @@ class CArray implements \ArrayAccess
      *
      * @var array
      */
-    protected array $value = [];
+    protected array $value;
 
     /**
      * Constructs a new instance of CArray.
@@ -46,7 +46,7 @@ class CArray implements \ArrayAccess
      * Checks if the specified key exists.
      *
      * @param string|int $key
-     *   The key to check for existence within the array.
+     *   The key to check for existence.
      * @return bool
      *   Returns `true` if the key exists, `false` otherwise.
      */
@@ -111,7 +111,7 @@ class CArray implements \ArrayAccess
      * Checks if the specified offset exists.
      *
      * @param mixed $offset
-     *   The offset to check for existence within the array.
+     *   The offset to check for existence.
      * @return bool
      *   Returns `true` if the offset exists, `false` otherwise.
      * @throws \TypeError
