@@ -155,7 +155,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The zero-based offset of the character to return.
      * @return string
      *   The character at the specified offset, or an empty string if the offset
-     *   is out of bounds.
+     *   is out of range.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
@@ -314,7 +314,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   length of the string, the entire string is returned.
      * @return CString
      *   A new `CString` instance with the leftmost characters, or an empty
-     *   instance if the count is not a positive value.
+     *   instance if `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
@@ -340,7 +340,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   length of the string, the entire string is returned.
      * @return CString
      *   A new `CString` instance with the rightmost characters, or an empty
-     *   instance if the count is not a positive value.
+     *   instance if `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
@@ -369,7 +369,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   characters are returned.
      * @return CString
      *   A new `CString` instance with the specified middle characters, or an
-     *   empty instance if the offset or count is not a positive value.
+     *   empty instance if `$offset` is out of range or `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
@@ -716,27 +716,21 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     #region Interface: ArrayAccess
 
     /**
-     * Checks if the offset exists within the bounds of the string.
+     * Checks if the offset exists within the range of the string.
      *
      * @param mixed $offset
      *   The zero-based offset to check.
      * @return bool
-     *   Returns `true` if the offset is within the string length, `false`
-     *   otherwise.
+     *   Returns `true` if the offset is within range, `false` otherwise.
      * @throws \InvalidArgumentException
      *   If the offset is not an integer.
-     * @throws \OutOfRangeException
-     *   If the offset is negative.
      */
     public function offsetExists(mixed $offset): bool
     {
         if (!\is_int($offset)) {
             throw new \InvalidArgumentException('Offset must be an integer.');
         }
-        if ($offset < 0) {
-            throw new \OutOfRangeException('Offset cannot be negative.');
-        }
-        return $offset < $this->Length();
+        return 0 <= $offset && $offset < $this->Length();
     }
 
     /**
@@ -746,7 +740,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The zero-based offset of the character to return.
      * @return mixed
      *   The character at the specified offset, or an empty string if the offset
-     *   is out of bounds.
+     *   is out of range.
      * @throws \TypeError
      *   If the offset is not an integer.
      * @throws \ValueError
