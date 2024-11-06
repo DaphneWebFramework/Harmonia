@@ -29,7 +29,7 @@ class CSequentialArray extends CArray
      *   is copied. Only arrays with sequential, zero-based integer indexes
      *   are accepted.
      * @throws \InvalidArgumentException
-     *   If provided an array with non-sequential, non-zero-based, or
+     *   If the provided array is non-sequential, not zero-based, or contains
      *   non-integer indexes.
      */
     public function __construct(array|CArray $value = [])
@@ -64,7 +64,7 @@ class CSequentialArray extends CArray
         if (\is_string($index)) {
             throw new \InvalidArgumentException('Index cannot be a string.');
         }
-        return $index >= 0 && $index < count($this->value);
+        return 0 <= $index && $index < count($this->value);
     }
 
     /**
@@ -107,22 +107,21 @@ class CSequentialArray extends CArray
      *
      * @param string|int $index
      *   The zero-based index at which to set the value. If a string is given,
-     *   an exception is thrown.
+     *   an exception is thrown. If the index is out of range, no changes are
+     *   made.
      * @param mixed $value
      *   The value to set at the specified index.
      * @return CSequentialArray
      *   The current instance.
      * @throws \InvalidArgumentException
      *   If the index is a string.
-     * @throws \OutOfRangeException
-     *   If the index is out of range.
      *
      * @override
      */
     public function Set(string|int $index, mixed $value): CSequentialArray
     {
         if (!$this->Has($index)) {
-            throw new \OutOfRangeException('Index is out of range.');
+            return $this;
         }
         $this->value[$index] = $value;
         return $this;
@@ -138,20 +137,19 @@ class CSequentialArray extends CArray
      *
      * @param string|int $index
      *   The zero-based index of the element to remove. If a string is given,
-     *   an exception is thrown.
+     *   an exception is thrown. If the index is out of range, no changes are
+     *   made.
      * @return CSequentialArray
      *   The current instance.
      * @throws \InvalidArgumentException
      *   If the index is a string.
-     * @throws \OutOfRangeException
-     *   If the index is out of range.
      *
      * @override
      */
     public function Delete(string|int $index): CSequentialArray
     {
         if (!$this->Has($index)) {
-            throw new \OutOfRangeException('Index is out of range.');
+            return $this;
         }
         \array_splice($this->value, $index, 1);
         return $this;
@@ -212,20 +210,16 @@ class CSequentialArray extends CArray
      *
      * @param int $index
      *   The zero-based index before which the new element should be inserted.
+     *   If the index is out of range, no changes are made.
      * @param mixed $element
      *   The new element to insert.
      * @return CSequentialArray
      *   The current instance.
-     * @throws \OutOfRangeException
-     *   If the index is out of range.
      */
     public function InsertBefore(int $index, mixed $element): CSequentialArray
     {
-        if ($index < 0) {
-            throw new \OutOfRangeException('Index cannot be negative.');
-        }
-        if ($index > \count($this->value)) {
-            throw new \OutOfRangeException('Index exceeds array size.');
+        if ($index < 0 || $index >= \count($this->value)) {
+            return $this;
         }
         \array_splice($this->value, $index, 0, [$element]);
         return $this;
@@ -236,20 +230,16 @@ class CSequentialArray extends CArray
      *
      * @param int $index
      *   The zero-based index after which the new element should be inserted.
+     *   If the index is out of range, no changes are made.
      * @param mixed $element
      *   The new element to insert.
      * @return CSequentialArray
      *   The current instance.
-     * @throws \OutOfRangeException
-     *   If the index is out of range.
      */
     public function InsertAfter(int $index, mixed $element): CSequentialArray
     {
-        if ($index < 0) {
-            throw new \OutOfRangeException('Index cannot be negative.');
-        }
-        if ($index >= \count($this->value)) {
-            throw new \OutOfRangeException('Index exceeds array size.');
+        if ($index < 0 || $index >= \count($this->value)) {
+            return $this;
         }
         \array_splice($this->value, $index + 1, 0, [$element]);
         return $this;
