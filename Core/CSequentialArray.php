@@ -18,6 +18,145 @@ namespace Harmonia\Core;
  */
 class CSequentialArray extends CArray
 {
+    #region public -------------------------------------------------------------
+
+    /**
+     * Constructs a new instance of CSequentialArray.
+     *
+     * @param array|CArray $value (Optional)
+     *   The array value to store. If omitted, defaults to an empty array. If a
+     *   `CArray` or `CSequentialArray` instance is provided, its array value
+     *   is copied. Only arrays with sequential, zero-based integer indexes
+     *   are accepted.
+     * @throws \InvalidArgumentException
+     *   If provided an array with non-sequential, non-zero-based, or
+     *   non-integer indexes.
+     */
+    public function __construct(array|CArray $value = [])
+    {
+        if (!self::isSequentialArray($value)) {
+            throw new \InvalidArgumentException(
+                'Array must have sequential, zero-based integer indexes.');
+        }
+        parent::__construct($value);
+    }
+
+    /**
+     * Checks if the specified index exists.
+     *
+     * The `$index` parameter accepts both strings and integers to comply with
+     * the `CArray::Has` signature. However, if a string is provided, an
+     * exception is thrown because `CSequentialArray` only supports integer
+     * indexing.
+     *
+     * @param string|int $index
+     *   The index to check for existence. If a string is given, an exception is
+     *   thrown.
+     * @return bool
+     *   Returns `true` if the index is within range, `false` otherwise.
+     * @throws \InvalidArgumentException
+     *   If the index is a string.
+     *
+     * @override
+     */
+    public function Has(string|int $index): bool
+    {
+        if (\is_string($index)) {
+            throw new \InvalidArgumentException('Index cannot be a string.');
+        }
+        return $index >= 0 && $index < count($this->value);
+    }
+
+    /**
+     * Returns the value at the specified index, or a default value if the
+     * index does not exist.
+     *
+     * The `$index` parameter accepts both strings and integers to comply with
+     * the `CArray::Get` signature. However, if a string is provided, an
+     * exception is thrown because `CSequentialArray` only supports integer
+     * indexing.
+     *
+     * @param string|int $index
+     *   The zero-based index to look up. If a string is given, an exception
+     *   is thrown.
+     * @param mixed $defaultValue (Optional)
+     *   The value to return if the index does not exist. Defaults to `null`.
+     * @return mixed
+     *   The value at the specified index if it exists, or the default value if
+     *   the index is out of range.
+     * @throws \InvalidArgumentException
+     *   If the index is a string.
+     *
+     * @override
+     */
+    public function Get(string|int $index, mixed $defaultValue = null): mixed
+    {
+        if (!$this->Has($index)) {
+            return $defaultValue;
+        }
+        return $this->value[$index];
+    }
+
+    /**
+     * Updates the value at the specified index.
+     *
+     * The `$index` parameter accepts both strings and integers to comply with
+     * the `CArray::Set` signature. However, if a string is provided, an
+     * exception is thrown because `CSequentialArray` only supports integer
+     * indexing.
+     *
+     * @param string|int $index
+     *   The zero-based index at which to set the value. If a string is given,
+     *   an exception is thrown.
+     * @param mixed $value
+     *   The value to set at the specified index.
+     * @return CSequentialArray
+     *   The current instance.
+     * @throws \InvalidArgumentException
+     *   If the index is a string.
+     * @throws \OutOfRangeException
+     *   If the index is out of range.
+     *
+     * @override
+     */
+    public function Set(string|int $index, mixed $value): CSequentialArray
+    {
+        if (!$this->Has($index)) {
+            throw new \OutOfRangeException('Index is out of range.');
+        }
+        $this->value[$index] = $value;
+        return $this;
+    }
+
+    /**
+     * Removes an element at the specified index.
+     *
+     * The `$index` parameter accepts both strings and integers to comply with
+     * the `CArray::Delete` signature. However, if a string is provided, an
+     * exception is thrown because `CSequentialArray` only supports integer
+     * indexing.
+     *
+     * @param string|int $index
+     *   The zero-based index of the element to remove. If a string is given,
+     *   an exception is thrown.
+     * @return CSequentialArray
+     *   The current instance.
+     * @throws \InvalidArgumentException
+     *   If the index is a string.
+     * @throws \OutOfRangeException
+     *   If the index is out of range.
+     *
+     * @override
+     */
+    public function Delete(string|int $index): CSequentialArray
+    {
+        if (!$this->Has($index)) {
+            throw new \OutOfRangeException('Index is out of range.');
+        }
+        \array_splice($this->value, $index, 1);
+        return $this;
+    }
+
     /**
      * Adds an element to the end of the array.
      *
@@ -116,36 +255,38 @@ class CSequentialArray extends CArray
         return $this;
     }
 
+    #endregion public
+
+    #region private ------------------------------------------------------------
+
     /**
-     * Removes an element at the specified index.
+     * Determines if the array or `CArray` instance has sequential, zero-based
+     * integer indexes.
      *
-     * The `$index` parameter accepts both strings and integers to comply with
-     * the `CArray::Delete` signature. However, if a string is provided, an
-     * exception is thrown because `CSequentialArray` only supports integer
-     * indexing.
+     * If a `CSequentialArray` instance is provided, it is assumed to be
+     * sequential and `true` is returned immediately. If a `CArray` instance is
+     * provided, the underlying array is checked. An empty array is considered
+     * sequential by default.
      *
-     * @param string|int $index
-     *   The zero-based index of the element to remove. If a string is given,
-     *   an exception is thrown.
-     * @return CSequentialArray
-     *   The current instance.
-     * @throws \InvalidArgumentException
-     *   If the index is a string.
-     * @throws \OutOfRangeException
-     *   If the index is out of range.
+     * @param array|CArray $array
+     *   The array or `CArray` instance to check for sequential integer indexing.
+     * @return bool
+     *   Returns `true` if the array has sequential, zero-based integer indexes,
+     *   or if it is empty; `false` otherwise.
      */
-    public function Delete(string|int $index): CSequentialArray
+    private static function isSequentialArray(array|CArray $array): bool
     {
-        if (\is_string($index)) {
-            throw new \InvalidArgumentException('Index cannot be a string.');
+        if ($array instanceof CSequentialArray) {
+            return true;
         }
-        if ($index < 0) {
-            throw new \OutOfRangeException('Index cannot be negative.');
+        if ($array instanceof CArray) {
+            $array = $array->value;
         }
-        if ($index >= \count($this->value)) {
-            throw new \OutOfRangeException('Index exceeds array size.');
+        if ($array === []) {
+            return true;
         }
-        \array_splice($this->value, $index, 1);
-        return $this;
+        return \array_keys($array) === \range(0, \count($array) - 1);
     }
+
+    #endregion private
 }
