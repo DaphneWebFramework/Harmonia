@@ -16,7 +16,7 @@ namespace Harmonia\Core;
  * CArray is a wrapper for PHP's native `array` type, offering additional
  * methods for array manipulation and consistency in array operations.
  */
-class CArray implements \ArrayAccess, \Countable
+class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * The array value stored in the instance.
@@ -207,4 +207,19 @@ class CArray implements \ArrayAccess, \Countable
     }
 
     #endregion Interface: Countable
+
+    #region Interface: IteratorAggregate
+
+    /**
+     * Returns an iterator for traversing each element in the array.
+     *
+     * @return \Traversable
+     *   An iterator yielding each element in the array.
+     */
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator($this->value);
+    }
+
+    #endregion Interface: IteratorAggregate
 }
