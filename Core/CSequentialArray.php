@@ -218,7 +218,7 @@ class CSequentialArray extends CArray
      */
     public function InsertBefore(int $index, mixed $element): CSequentialArray
     {
-        if ($index < 0 || $index >= \count($this->value)) {
+        if ($index < 0 || $index >= $this->Count()) {
             return $this;
         }
         \array_splice($this->value, $index, 0, [$element]);
@@ -238,7 +238,7 @@ class CSequentialArray extends CArray
      */
     public function InsertAfter(int $index, mixed $element): CSequentialArray
     {
-        if ($index < 0 || $index >= \count($this->value)) {
+        if ($index < 0 || $index >= $this->Count()) {
             return $this;
         }
         \array_splice($this->value, $index + 1, 0, [$element]);
@@ -272,7 +272,7 @@ class CSequentialArray extends CArray
         if ($array instanceof CArray) {
             $array = $array->value;
         }
-        if ($array === []) {
+        if (empty($array)) {
             return true;
         }
         return \array_keys($array) === \range(0, \count($array) - 1);

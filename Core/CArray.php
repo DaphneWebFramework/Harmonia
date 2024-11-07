@@ -16,7 +16,7 @@ namespace Harmonia\Core;
  * CArray is a wrapper for PHP's native `array` type, offering additional
  * methods for array manipulation and consistency in array operations.
  */
-class CArray implements \ArrayAccess
+class CArray implements \ArrayAccess, \Countable
 {
     /**
      * The array value stored in the instance.
@@ -51,6 +51,17 @@ class CArray implements \ArrayAccess
     public function ToArray(): array
     {
         return $this->value;
+    }
+
+    /**
+     * Checks if the array is empty.
+     *
+     * @return bool
+     *   Returns `true` if the array is empty, `false` otherwise.
+     */
+    public function IsEmpty(): bool
+    {
+        return empty($this->value);
     }
 
     /**
@@ -177,4 +188,23 @@ class CArray implements \ArrayAccess
     }
 
     #endregion Interface: ArrayAccess
+
+    #region Interface: Countable
+
+    /**
+     * Returns the number of elements in the array.
+     *
+     * Can be accessed interchangeably as `count($instance)`, `$instance->count()`,
+     * or `$instance->Count()` due to PHP's case insensitivity and the `\Countable`
+     * interface.
+     *
+     * @return int
+     *   The number of elements in the array.
+     */
+    public function count(): int
+    {
+        return \count($this->value);
+    }
+
+    #endregion Interface: Countable
 }
