@@ -859,19 +859,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Returns a `CString` instance whose value is an empty string.
+     * Returns a new `CString` instance whose value is an empty string.
      *
      * @return CString
-     *   A `CString` instance that contains an empty string and has the same
+     *   A new `CString` instance that contains an empty string and has the same
      *   encoding as the current instance.
      */
     private function empty(): CString
     {
-        static $emptyInstance = null;
-        if ($emptyInstance === null) {
-            $emptyInstance = new CString('', $this->encoding);
-        }
-        return $emptyInstance;
+        return new CString('', $this->encoding);
     }
 
     /**
