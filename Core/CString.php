@@ -622,7 +622,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Finds the offset of the first occurrence of a string.
      *
-     * @param string $searchString
+     * @param string|CString $searchString
      *   The string to search for.
      * @param int $startOffset (Optional)
      *   The zero-based offset from which to start the search. Defaults to 0.
@@ -634,22 +634,25 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function IndexOf(string $searchString, int $startOffset = 0,
+    public function IndexOf(string|CString $searchString, int $startOffset = 0,
         bool $caseSensitive = true): ?int
     {
+        $searchString = $this->wrap($searchString);
         if ($this->isSingleByte) {
             if ($caseSensitive) {
-                $foundOffset = \strpos($this->value, $searchString, $startOffset);
+                $foundOffset = \strpos($this->value, (string)$searchString,
+                    $startOffset);
             } else {
-                $foundOffset = \stripos($this->value, $searchString, $startOffset);
+                $foundOffset = \stripos($this->value, (string)$searchString,
+                    $startOffset);
             }
         } else {
             if ($caseSensitive) {
-                $foundOffset = \mb_strpos($this->value, $searchString, $startOffset,
-                    $this->encoding);
+                $foundOffset = \mb_strpos($this->value, (string)$searchString,
+                    $startOffset, $this->encoding);
             } else {
-                $foundOffset = \mb_stripos($this->value, $searchString, $startOffset,
-                    $this->encoding);
+                $foundOffset = \mb_stripos($this->value, (string)$searchString,
+                    $startOffset, $this->encoding);
             }
         }
         if ($foundOffset === false) {
