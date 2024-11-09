@@ -637,7 +637,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     public function IndexOf(string|CString $searchString, int $startOffset = 0,
         bool $caseSensitive = true): ?int
     {
-        $searchString = $this->wrap($searchString);
+        $this->checkEncoding($searchString);
         if ($this->isSingleByte) {
             if ($caseSensitive) {
                 $foundOffset = \strpos($this->value, (string)$searchString,
@@ -874,18 +874,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Converts a native string or `CString` to a `CString` instance, ensuring
-     * compatibility with the instance's encoding.
+     * Checks that the given string is compatible with the encoding of the
+     * current instance.
      *
      * @param string|CString $string
-     *   The native string or `CString` to validate and convert to a `CString`.
-     * @return CString
-     *   A `CString` instance with the same encoding as the current instance.
+     *   A native string or `CString` to check for encoding compatibility.
      * @throws \ValueError
-     *   If the string's encoding is not compatible with the current `CString`
-     *   instance.
+     *   If the string's encoding is incompatible with the current instance.
      */
-    private function wrap(string|CString $string): CString
+    private function checkEncoding(string|CString $string): void
     {
         $encoding = null;
         if ($string instanceof self) {
@@ -907,6 +904,29 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 throw new \ValueError(
                     "String could not be converted to encoding '{$this->encoding}'.");
             }
+        }
+    }
+
+    /**
+     * Returns a new `CString` instance with the given string as its value.
+     *
+     * @param string $string
+     *   The native string value to wrap in a `CString`.
+     * @param bool $checkEncoding (Optional)
+     *   If `true`, validates that the string's encoding is compatible with the
+     *   current instance; if `false`, wraps without validation. Defaults to
+     *   `true`.
+     * @return CString
+     *   A new `CString` instance containing the provided string and having the
+     *   same encoding as the current instance.
+     * @throws \ValueError
+     *   If `checkEncoding` is `true` and the string's encoding is incompatible
+     *   with the current instance.
+     */
+    private function wrap(string $string, bool $checkEncoding = true): CString
+    {
+        if ($checkEncoding) {
+            $this->checkEncoding($string);
         }
         return new CString($string, $this->encoding);
     }
