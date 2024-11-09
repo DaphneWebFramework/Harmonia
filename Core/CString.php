@@ -871,34 +871,36 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Converts a native string to a `CString` instance, ensuring compatibility
-     * with the instance's encoding.
+     * Converts a native string or `CString` to a `CString` instance, ensuring
+     * compatibility with the instance's encoding.
      *
-     * @param string $string
-     *   The native string to validate and convert to a `CString`.
+     * @param string|CString $string
+     *   The native string or `CString` to validate and convert to a `CString`.
      * @return CString
      *   A `CString` instance with the same encoding as the current instance.
      * @throws \ValueError
      *   If the string's encoding is not compatible with the current `CString`
      *   instance.
      */
-    private function wrap(string $string): CString
+    private function wrap(string|CString $string): CString
     {
+        $encoding = null;
+        if ($string instanceof self) {
+            $encoding = $string->encoding;
+            $string = (string)$string;
+        }
         if (!\mb_check_encoding($string, $this->encoding)) {
             throw new \ValueError(
                 "String is not compatible with encoding '{$this->encoding}'.");
         }
-        $detectedEncoding = \mb_detect_encoding($string);
-        if ($detectedEncoding === false) {
-            throw new \ValueError("Unable to detect string's encoding.");
+        if ($encoding === null) {
+            $encoding = \mb_detect_encoding($string);
+            if ($encoding === false) {
+                throw new \ValueError("Unable to detect string's encoding.");
+            }
         }
-        if (0 !== \strcasecmp($detectedEncoding, $this->encoding)) {
-            $convertedString = \mb_convert_encoding(
-                $string,
-                $this->encoding,
-                $detectedEncoding
-            );
-            if ($convertedString !== $string) {
+        if (0 !== \strcasecmp($encoding, $this->encoding)) {
+            if ($string !== \mb_convert_encoding($string, $this->encoding, $encoding)) {
                 throw new \ValueError(
                     "String could not be converted to encoding '{$this->encoding}'.");
             }
