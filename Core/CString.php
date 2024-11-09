@@ -884,46 +884,25 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      */
     private function wrap(string $string): CString
     {
-        // Step 1: Check that $string can be safely interpreted in $this->encoding
-        // to prevent data loss.
         if (!\mb_check_encoding($string, $this->encoding)) {
             throw new \ValueError(
                 "String is not compatible with encoding '{$this->encoding}'.");
         }
-        // Step 2: Detect the actual encoding of $string.
         $detectedEncoding = \mb_detect_encoding($string);
         if ($detectedEncoding === false) {
             throw new \ValueError("Unable to detect string's encoding.");
         }
-        // Step 3: If $detectedEncoding differs from $this->encoding, proceed
-        // with conversion. Since encoding names are case-insensitive, we use
-        // `\strcasecmp` for comparison.
         if (0 !== \strcasecmp($detectedEncoding, $this->encoding)) {
-            // Step 4: Convert $string from $detectedEncoding to $this->encoding.
             $convertedString = \mb_convert_encoding(
                 $string,
                 $this->encoding,
                 $detectedEncoding
             );
-            // Step 5: Check if $string (in $detectedEncoding) and $convertedString
-            // (in $this->encoding) are byte-identical.
-            if ($string !== $convertedString) {
-                // Step 6: Convert both strings to UTF-8, a mediator encoding,
-                // to verify they are visually identical despite encoding
-                // differences.
-                $s1 = \mb_convert_encoding($string, 'UTF-8', $detectedEncoding);
-                $s2 = \mb_convert_encoding($convertedString, 'UTF-8', $this->encoding);
-                if ($s1 !== $s2) {
-                    throw new \ValueError(
-                        "String cannot be represented in encoding '{$this->encoding}'.");
-                }
-                // Step 7: Use $convertedString (in $this->encoding), confirmed
-                // visually identical to $string.
-                $string = $convertedString;
+            if ($convertedString !== $string) {
+                throw new \ValueError(
+                    "String could not be converted to encoding '{$this->encoding}'.");
             }
         }
-        // Step 8: Return a new CString instance with a validated or converted
-        // string, now in $this->encoding.
         return new CString($string, $this->encoding);
     }
 
