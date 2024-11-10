@@ -562,7 +562,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         if ($caseSensitive) {
             return (string)$this === (string)$other;
         } else {
-            if (!($other instanceof self)) {
+            if (\is_string($other)) {
                 $other = $this->wrap($other);
             }
             return (string)$this->Lowercase() === (string)$other->Lowercase();
@@ -637,22 +637,20 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     public function IndexOf(string|CString $searchString, int $startOffset = 0,
         bool $caseSensitive = true): ?int
     {
-        $this->checkEncoding($searchString);
+        if ($searchString instanceof self) {
+            $searchString = (string)$searchString;
+        }
         if ($this->isSingleByte) {
             if ($caseSensitive) {
-                $foundOffset = \strpos($this->value, (string)$searchString,
-                    $startOffset);
+                $foundOffset = \strpos($this->value, $searchString, $startOffset);
             } else {
-                $foundOffset = \stripos($this->value, (string)$searchString,
-                    $startOffset);
+                $foundOffset = \stripos($this->value, $searchString, $startOffset);
             }
         } else {
             if ($caseSensitive) {
-                $foundOffset = \mb_strpos($this->value, (string)$searchString,
-                    $startOffset, $this->encoding);
+                $foundOffset = \mb_strpos($this->value, $searchString, $startOffset, $this->encoding);
             } else {
-                $foundOffset = \mb_stripos($this->value, (string)$searchString,
-                    $startOffset, $this->encoding);
+                $foundOffset = \mb_stripos($this->value, $searchString, $startOffset, $this->encoding);
             }
         }
         if ($foundOffset === false) {
@@ -874,60 +872,16 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Checks that the given string is compatible with the encoding of the
-     * current instance.
-     *
-     * @param string|CString $string
-     *   A native string or `CString` to check for encoding compatibility.
-     * @throws \ValueError
-     *   If the string's encoding is incompatible with the current instance.
-     */
-    private function checkEncoding(string|CString $string): void
-    {
-        $encoding = null;
-        if ($string instanceof self) {
-            $encoding = $string->encoding;
-            $string = (string)$string;
-        }
-        if (!\mb_check_encoding($string, $this->encoding)) {
-            throw new \ValueError(
-                "String is not compatible with encoding '{$this->encoding}'.");
-        }
-        if ($encoding === null) {
-            $encoding = \mb_detect_encoding($string);
-            if ($encoding === false) {
-                throw new \ValueError("Unable to detect string's encoding.");
-            }
-        }
-        if (0 !== \strcasecmp($encoding, $this->encoding)) {
-            if ($string !== \mb_convert_encoding($string, $this->encoding, $encoding)) {
-                throw new \ValueError(
-                    "String could not be converted to encoding '{$this->encoding}'.");
-            }
-        }
-    }
-
-    /**
      * Returns a new `CString` instance with the given string as its value.
      *
      * @param string $string
      *   The native string value to wrap in a `CString`.
-     * @param bool $checkEncoding (Optional)
-     *   If `true`, validates that the string's encoding is compatible with the
-     *   current instance; if `false`, wraps without validation. Defaults to
-     *   `true`.
      * @return CString
      *   A new `CString` instance containing the provided string and having the
      *   same encoding as the current instance.
-     * @throws \ValueError
-     *   If `checkEncoding` is `true` and the string's encoding is incompatible
-     *   with the current instance.
      */
-    private function wrap(string $string, bool $checkEncoding = true): CString
+    private function wrap(string $string): CString
     {
-        if ($checkEncoding) {
-            $this->checkEncoding($string);
-        }
         return new CString($string, $this->encoding);
     }
 
