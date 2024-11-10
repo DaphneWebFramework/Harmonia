@@ -22,6 +22,30 @@ namespace Harmonia\Core;
 class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 {
     /**
+     * Bitwise flag for `Split` options, performing a straightforward split with
+     * no additional processing.
+     */
+    public const SPLIT_OPTION_NONE = 0;
+
+    /**
+     * Bitwise flag for `Split` options, trimming whitespace from each resulting
+     * substring.
+     */
+    public const SPLIT_OPTION_TRIM = 1 << 0;
+
+    /**
+     * Bitwise flag for `Split` options, excluding empty substrings from the
+     * result.
+     *
+     * Note: `SPLIT_OPTION_EXCLUDE_EMPTY` interacts with `SPLIT_OPTION_TRIM`.
+     * When both are present, a substring can become empty after trimming and
+     * will then be excluded. Without `SPLIT_OPTION_TRIM`, `SPLIT_OPTION_EXCLUDE_EMPTY`
+     * only applies to substrings that are already empty as they appear in the
+     * original string.
+     */
+    public const SPLIT_OPTION_EXCLUDE_EMPTY = 1 << 1;
+
+    /**
      * The string value stored in the instance.
      *
      * @var string
@@ -697,6 +721,99 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
              });
         }
         return new CString($replaced, $this->encoding);
+    }
+
+    /**
+     * Splits the string by a given delimiter, yielding each substring as a
+     * `CString` instance.
+     *
+     * This method splits the string based on a specified delimiter and yields
+     * each substring as it's processed, which is memory-efficient for large
+     * strings.
+     *
+     * By default, it performs a straightforward split without trimming or
+     * excluding empty results. These behaviors can be customized with options.
+     *
+     * ### Usage:
+     * ```
+     * $text = new CString("  Line 1\n\nLine 2 \nLine 3\n\n");
+     * $options = CString::SPLIT_OPTION_TRIM | CString::SPLIT_OPTION_EXCLUDE_EMPTY;
+     * $lines = $text->Split("\n", $options);
+     * foreach ($lines as $line) {
+     *     echo $line . PHP_EOL;
+     * }
+     * ```
+     *
+     * @param string $delimiter
+     *   The delimiter indicating the points at which each split should occur.
+     * @param int $options (Optional)
+     *   Bitwise options for splitting behavior. Supports:
+     *     - `CString::SPLIT_OPTION_TRIM` to trim whitespaces in substrings.
+     *     - `CString::SPLIT_OPTION_EXCLUDE_EMPTY` to exclude empty substrings.
+     *   Defaults to `SPLIT_OPTION_NONE`, applying no trimming or exclusion.
+     * @return \Generator
+     *   A generator yielding `CString` instances for each substring.
+     */
+    public function Split(string $delimiter, int $options = self::SPLIT_OPTION_NONE): \Generator
+    {
+        $delimiter = $this->wrap($delimiter);
+        $delimiterLength = $delimiter->Length();
+        if ($delimiterLength === 0) {
+            return;
+        }
+        $yieldIfEligible = function(CString $substring) use($options): \Generator {
+            if ($options & self::SPLIT_OPTION_TRIM) {
+                $substring = $substring->Trim();
+            }
+            if (!($options & self::SPLIT_OPTION_EXCLUDE_EMPTY) || !$substring->IsEmpty()) {
+                yield $substring;
+            }
+        };
+        $start = 0;
+        while (($offset = $this->IndexOf($delimiter, $start)) !== null) {
+            yield from $yieldIfEligible($this->Middle($start, $offset - $start));
+            $start = $offset + $delimiterLength;
+        }
+        yield from $yieldIfEligible($this->Middle($start));
+    }
+
+    /**
+     * Splits the string by a given delimiter and returns the result as an array
+     * of `CString` instances.
+     *
+     * This method provides a convenient way to receive split results directly
+     * in array form, rather than as an iterable.
+     *
+     * By default, it performs a straightforward split without trimming or
+     * excluding empty results. These behaviors can be customized with options.
+     *
+     * ### Usage:
+     * ```
+     * $text = new CString("  Line 1\n\nLine 2 \nLine 3\n\n");
+     * $options = CString::SPLIT_OPTION_TRIM | CString::SPLIT_OPTION_EXCLUDE_EMPTY;
+     * $lines = $text->SplitToArray("\n", $options);
+     * if ($lines[0] === 'Line 1') {
+     *     // Do something...
+     * }
+     * ```
+     *
+     * @param string $delimiter
+     *   The delimiter indicating the points at which each split should occur.
+     * @param int $options (Optional)
+     *   Bitwise options for splitting behavior. Supports:
+     *     - `CString::SPLIT_OPTION_TRIM` to trim whitespaces in substrings.
+     *     - `CString::SPLIT_OPTION_EXCLUDE_EMPTY` to exclude empty substrings.
+     *   Defaults to `SPLIT_OPTION_NONE`, applying no trimming or exclusion.
+     * @return CString[]
+     *   An array of `CString` instances for each substring.
+     */
+    public function SplitToArray(string $delimiter, int $options = self::SPLIT_OPTION_NONE): array
+    {
+        // Setting `false` prevents `iterator_to_array` from preserving keys.
+        // Since `yield from` in `Split` retains keys, using `false` avoids key
+        // collisions that would otherwise overwrite earlier elements, returning
+        // only the last item.
+        return \iterator_to_array($this->Split($delimiter, $options), false);
     }
 
     #region Interface: Stringable
