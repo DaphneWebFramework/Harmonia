@@ -130,14 +130,24 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     #region Interface: ArrayAccess
 
     /**
-     * Checks if the specified offset exists.
+     * Provides array-like access to check if a value exists at a given key.
+     *
+     * #### Example
+     * ```php
+     * $arr = new CArray(['key' => 'value']);
+     * if (isset($arr['key'])) {
+     *     // ...
+     * }
+     * ```
      *
      * @param mixed $offset
-     *   The offset to check for existence.
+     *   The key to check for existence.
      * @return bool
-     *   Returns `true` if the offset exists, `false` otherwise.
+     *   Returns `true` if the key exists, `false` otherwise.
      * @throws \TypeError
-     *   If the offset is not a string or integer.
+     *   If the key is not a string or integer.
+     *
+     * @override
      */
     public function offsetExists(mixed $offset): bool
     {
@@ -145,14 +155,22 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * Returns the value at the specified offset.
+     * Provides array-like access to retrieve the value at a given key.
+     *
+     * #### Example
+     * ```php
+     * $arr = new CArray(['key' => 'value']);
+     * $value = $arr['key'];
+     * ```
      *
      * @param mixed $offset
-     *   The offset to look up.
+     *   The key to look up.
      * @return mixed
-     *   The value at the specified offset, or `null` if the offset is not found.
+     *   The value at the specified key, or `null` if the key is not found.
      * @throws \TypeError
-     *   If the offset is not a string or integer.
+     *   If the key is not a string or integer.
+     *
+     * @override
      */
     public function offsetGet(mixed $offset): mixed
     {
@@ -160,14 +178,22 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * Sets the value at the specified offset.
+     * Provides array-like access to set a value at a specified key.
+     *
+     * #### Example
+     * ```php
+     * $arr = new CArray();
+     * $arr['key'] = 'value';
+     * ```
      *
      * @param mixed $offset
-     *   The offset at which to set the value.
+     *   The key at which to set the value.
      * @param mixed $value
-     *   The value to set at the specified offset.
+     *   The value to set at the specified key.
      * @throws \TypeError
-     *   If the offset is not a string or integer.
+     *   If the key is not a string or integer.
+     *
+     * @override
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -175,12 +201,20 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * Unsets the value at the specified offset.
+     * Provides array-like access to unset a value at a specified key.
+     *
+     * #### Example
+     * ```php
+     * $arr = new CArray(['key' => 'value']);
+     * unset($arr['key']);
+     * ```
      *
      * @param mixed $offset
-     *   The offset of the element to unset.
+     *   The key of the element to unset.
      * @throws \TypeError
-     *   If the offset is not a string or integer.
+     *   If the key is not a string or integer.
+     *
+     * @override
      */
     public function offsetUnset(mixed $offset): void
     {
@@ -192,14 +226,16 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     #region Interface: Countable
 
     /**
-     * Returns the number of elements in the array.
+     * Returns the number of elements.
      *
      * Can be accessed interchangeably as `count($instance)`, `$instance->count()`,
      * or `$instance->Count()` due to PHP's case insensitivity and the `\Countable`
      * interface.
      *
      * @return int
-     *   The number of elements in the array.
+     *   The number of elements.
+     *
+     * @override
      */
     public function count(): int
     {
@@ -211,10 +247,20 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     #region Interface: IteratorAggregate
 
     /**
-     * Returns an iterator for traversing each element in the array.
+     * Provides array-like traversal over each element.
+     *
+     * #### Example
+     * ```php
+     * $arr = new CArray(['a' => 1, 'b' => 2]);
+     * foreach ($arr as $key => $value) {
+     *     // ...
+     * }
+     * ```
      *
      * @return \Traversable
-     *   An iterator yielding each element in the array.
+     *   An iterator yielding each element.
+     *
+     * @override
      */
     public function getIterator(): \Traversable
     {

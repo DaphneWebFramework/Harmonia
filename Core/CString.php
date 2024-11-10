@@ -117,7 +117,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Returns the length of the string.
      *
      * @return int
-     *   The number of characters in the string.
+     *   The number of characters.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
@@ -138,6 +138,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   is empty.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Last
      */
     public function First(): string
     {
@@ -159,6 +161,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   is empty.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see First
      */
     public function Last(): string
     {
@@ -182,6 +186,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   is out of range.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see SetAt
      */
     public function At(int $offset): string
     {
@@ -212,6 +218,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see At
      */
     public function SetAt(int $offset, string $character): CString
     {
@@ -341,6 +349,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   instance if `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Right
+     * @see Middle
      */
     public function Left(int $count): CString
     {
@@ -367,6 +378,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   instance if `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Left
+     * @see Middle
      */
     public function Right(int $count): CString
     {
@@ -383,19 +397,21 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 
     /**
      * Extracts a specified number of characters starting from a specified
-     * offset in the string.
+     * offset.
      *
      * @param int $offset
      *   The zero-based starting offset of the characters to return.
      * @param int $count (Optional)
      *   The number of characters to return. If omitted, or if fewer characters
-     *   are available in the string from the offset, only the available
-     *   characters are returned.
+     *   are available from the offset, only the available characters are returned.
      * @return CString
      *   A new `CString` instance with the specified middle characters, or an
      *   empty instance if `$offset` is out of range or `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Left
+     * @see Right
      */
     public function Middle(int $offset, int $count = PHP_INT_MAX): CString
     {
@@ -419,6 +435,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with the trimmed string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see TrimLeft
+     * @see TrimRight
      */
     public function Trim(?string $characters = null): CString
     {
@@ -460,6 +479,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with the trimmed string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Trim
+     * @see TrimRight
      */
     public function TrimLeft(?string $characters = null): CString
     {
@@ -501,6 +523,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with the trimmed string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Trim
+     * @see TrimLeft
      */
     public function TrimRight(?string $characters = null): CString
     {
@@ -539,6 +564,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with all characters converted to lowercase.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Uppercase
      */
     public function Lowercase(): CString
     {
@@ -557,6 +584,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with all characters converted to uppercase.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Lowercase
      */
     public function Uppercase(): CString
     {
@@ -606,6 +635,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   `false` otherwise.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see EndsWith
      */
     public function StartsWith(string $searchString, bool $caseSensitive = true): bool
     {
@@ -631,6 +662,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   `false` otherwise.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see StartsWith
      */
     public function EndsWith(string $searchString, bool $caseSensitive = true): bool
     {
@@ -727,19 +760,17 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Splits the string by a given delimiter, yielding each substring as a
      * `CString` instance.
      *
-     * This method splits the string based on a specified delimiter and yields
-     * each substring as it's processed, which is memory-efficient for large
-     * strings.
+     * This method provides memory-efficient processing by yielding each
+     * substring one at a time, making it suitable for large strings.
      *
      * By default, it performs a straightforward split without trimming or
      * excluding empty results. These behaviors can be customized with options.
      *
-     * ### Usage:
-     * ```
+     * #### Example
+     * ```php
      * $text = new CString("  Line 1\n\nLine 2 \nLine 3\n\n");
      * $options = CString::SPLIT_OPTION_TRIM | CString::SPLIT_OPTION_EXCLUDE_EMPTY;
-     * $lines = $text->Split("\n", $options);
-     * foreach ($lines as $line) {
+     * foreach ($text->Split("\n", $options) as $line) {
      *     echo $line . PHP_EOL;
      * }
      * ```
@@ -747,12 +778,14 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param string $delimiter
      *   The delimiter indicating the points at which each split should occur.
      * @param int $options (Optional)
-     *   Bitwise options for splitting behavior. Supports:
-     *     - `CString::SPLIT_OPTION_TRIM` to trim whitespaces in substrings.
-     *     - `CString::SPLIT_OPTION_EXCLUDE_EMPTY` to exclude empty substrings.
-     *   Defaults to `SPLIT_OPTION_NONE`, applying no trimming or exclusion.
+     *   Bitwise options for splitting behavior. `CString::SPLIT_OPTION_TRIM` trims
+     *   whitespace from each substring, and `CString::SPLIT_OPTION_EXCLUDE_EMPTY`
+     *   excludes empty substrings from the result. The default is `SPLIT_OPTION_NONE`,
+     *   which applies no trimming or exclusion.
      * @return \Generator
      *   A generator yielding `CString` instances for each substring.
+     *
+     * @see SplitToArray
      */
     public function Split(string $delimiter, int $options = self::SPLIT_OPTION_NONE): \Generator
     {
@@ -781,31 +814,33 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Splits the string by a given delimiter and returns the result as an array
      * of `CString` instances.
      *
-     * This method provides a convenient way to receive split results directly
-     * in array form, rather than as an iterable.
+     * This method is a convenient alternative to `Split`, returning the results
+     * directly as an array of `CString` instances.
      *
      * By default, it performs a straightforward split without trimming or
      * excluding empty results. These behaviors can be customized with options.
      *
-     * ### Usage:
-     * ```
+     * #### Example
+     * ```php
      * $text = new CString("  Line 1\n\nLine 2 \nLine 3\n\n");
      * $options = CString::SPLIT_OPTION_TRIM | CString::SPLIT_OPTION_EXCLUDE_EMPTY;
      * $lines = $text->SplitToArray("\n", $options);
      * if ($lines[0] === 'Line 1') {
-     *     // Do something...
+     *     // ...
      * }
      * ```
      *
      * @param string $delimiter
      *   The delimiter indicating the points at which each split should occur.
      * @param int $options (Optional)
-     *   Bitwise options for splitting behavior. Supports:
-     *     - `CString::SPLIT_OPTION_TRIM` to trim whitespaces in substrings.
-     *     - `CString::SPLIT_OPTION_EXCLUDE_EMPTY` to exclude empty substrings.
-     *   Defaults to `SPLIT_OPTION_NONE`, applying no trimming or exclusion.
+     *   Bitwise options for splitting behavior. `CString::SPLIT_OPTION_TRIM` trims
+     *   whitespace from each substring, and `CString::SPLIT_OPTION_EXCLUDE_EMPTY`
+     *   excludes empty substrings from the result. The default is `SPLIT_OPTION_NONE`,
+     *   which applies no trimming or exclusion.
      * @return CString[]
      *   An array of `CString` instances for each substring.
+     *
+     * @see Split
      */
     public function SplitToArray(string $delimiter, int $options = self::SPLIT_OPTION_NONE): array
     {
@@ -819,10 +854,18 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     #region Interface: Stringable
 
     /**
-     * Converts the CString instance to a string.
+     * Returns the string representation of the object for use in string contexts.
+     *
+     * #### Example
+     * ```php
+     * $str = new CString('Welcome');
+     * $message = (string)$str;
+     * ```
      *
      * @return string
      *   The string value stored in the instance.
+     *
+     * @override
      */
     public function __toString(): string
     {
@@ -834,7 +877,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     #region Interface: ArrayAccess
 
     /**
-     * Checks if the offset exists within the range of the string.
+     * Provides array-like access to check if a character exists at a given offset.
+     *
+     * #### Example
+     * ```php
+     * $str = new CString('Hello');
+     * if (isset($str[1])) {
+     *     // ...
+     * }
+     * ```
      *
      * @param mixed $offset
      *   The zero-based offset to check.
@@ -842,6 +893,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   Returns `true` if the offset is within range, `false` otherwise.
      * @throws \InvalidArgumentException
      *   If the offset is not an integer.
+     *
+     * @override
      */
     public function offsetExists(mixed $offset): bool
     {
@@ -852,7 +905,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Returns the character at a specified offset.
+     * Provides array-like access to retrieve the character at a given offset.
+     *
+     * #### Example
+     * ```php
+     * $str = new CString('Hello');
+     * $char = $str[1];
+     * ```
      *
      * @param mixed $offset
      *   The zero-based offset of the character to return.
@@ -863,6 +922,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   If the offset is not an integer.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @override
      */
     public function offsetGet(mixed $offset): mixed
     {
@@ -870,7 +931,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Sets the character at the specified offset.
+     * Provides array-like access to set the character at a specified offset.
+     *
+     * #### Example
+     * ```php
+     * $str = new CString('Hello');
+     * $str[1] = 'a';
+     * ```
      *
      * @param mixed $offset
      *   The zero-based offset where the character will be set. If the offset is
@@ -883,6 +950,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   If the offset is not an integer or the value is not a string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @override
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -890,7 +959,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Deletes the character at the specified offset.
+     * Provides array-like access to delete the character at a specified offset.
+     *
+     * #### Example
+     * ```php
+     * $str = new CString('Hello');
+     * unset($str[1]);
+     * ```
      *
      * @param mixed $offset
      *   The zero-based offset where the character will be removed. If the
@@ -900,6 +975,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   If the offset is not an integer.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @override
      */
     public function offsetUnset(mixed $offset): void
     {
@@ -911,10 +988,20 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     #region Interface: IteratorAggregate
 
     /**
-     * Returns an iterator for traversing each character in the string.
+     * Provides array-like traversal over each character.
+     *
+     * #### Example
+     * ```php
+     * $str = new CString('Hello');
+     * foreach ($str as $char) {
+     *     // ...
+     * }
+     * ```
      *
      * @return \Traversable
-     *   An iterator yielding each character in the string.
+     *   An iterator yielding each character.
+     *
+     * @override
      */
     public function getIterator(): \Traversable
     {
