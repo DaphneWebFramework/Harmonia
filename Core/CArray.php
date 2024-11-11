@@ -26,7 +26,7 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     protected array $value;
 
     /**
-     * Constructs a new instance of CArray.
+     * Constructs a new instance.
      *
      * @param array|CArray $value (Optional)
      *   The array value to store. If omitted, defaults to an empty array. If a

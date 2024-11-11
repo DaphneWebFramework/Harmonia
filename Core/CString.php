@@ -70,7 +70,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     #region public -------------------------------------------------------------
 
     /**
-     * Constructs a new instance of CString.
+     * Constructs a new instance.
      *
      * @param string|\Stringable $value (Optional)
      *   The string value to store. If omitted, defaults to an empty string.
@@ -114,7 +114,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Returns the length of the string.
+     * Returns the length.
      *
      * @return int
      *   The number of characters.
@@ -131,11 +131,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Returns the first character of the string.
+     * Returns the first character.
      *
      * @return string
-     *   The first character of the string, or an empty string if the string
-     *   is empty.
+     *   The first character, or an empty string if the string is empty.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
@@ -154,11 +153,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Returns the last character of the string.
+     * Returns the last character.
      *
      * @return string
-     *   The last character of the string, or an empty string if the string
-     *   is empty.
+     *   The last character, or an empty string if the string is empty.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
@@ -558,7 +556,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Converts the string to lowercase.
+     * Converts to lowercase.
      *
      * @return CString
      *   A new `CString` instance with all characters converted to lowercase.
@@ -578,7 +576,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Converts the string to uppercase.
+     * Converts to uppercase.
      *
      * @return CString
      *   A new `CString` instance with all characters converted to uppercase.
@@ -854,7 +852,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     #region Interface: Stringable
 
     /**
-     * Returns the string representation of the object for use in string contexts.
+     * Returns the string representation for use in string contexts.
      *
      * #### Example
      * ```php

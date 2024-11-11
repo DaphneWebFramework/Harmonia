@@ -21,7 +21,7 @@ class CSequentialArray extends CArray
     #region public -------------------------------------------------------------
 
     /**
-     * Constructs a new instance of CSequentialArray.
+     * Constructs a new instance.
      *
      * @param array|CArray $value (Optional)
      *   The array value to store. If omitted, defaults to an empty array. If a
