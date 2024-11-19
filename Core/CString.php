@@ -253,7 +253,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param int $offset
      *   The zero-based offset where the insertion will start. If the offset is
      *   negative or greater than the length of the string, no changes will be
-     *   made.
+     *   made. If the offset equals the length, the substring will be appended.
      * @param string $substring
      *   The substring to insert. If an empty string is provided, no changes
      *   will be made.
@@ -261,6 +261,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see Append
      */
     public function InsertAt(int $offset, string $substring): CString
     {
@@ -271,23 +273,22 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         if ($offset > $length) {
             return $this;
         }
-        $substring = $this->wrap($substring);
-        if ($substring->IsEmpty()) {
+        if ($substring === '') {
             return $this;
         }
         if ($offset === $length) {
-            $this->value .= (string)$substring;
+            $this->value .= $substring;
             return $this;
         }
         if ($this->isSingleByte) {
             $this->value =
                 \substr($this->value, 0, $offset)
-              . (string)$substring
+              . $substring
               . \substr($this->value, $offset);
         } else {
             $this->value =
                 \mb_substr($this->value, 0, $offset, $this->encoding)
-              . (string)$substring
+              . $substring
               . \mb_substr($this->value, $offset, null, $this->encoding);
         }
         return $this;
@@ -332,6 +333,26 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 \mb_substr($this->value, 0, $offset, $this->encoding)
               . \mb_substr($this->value, $endOffset, null, $this->encoding);
         }
+        return $this;
+    }
+
+    /**
+     * Appends the specified string.
+     *
+     * @param string|CString $substring
+     *   The string to append. If a `CString` instance is provided, its value
+     *   will be used.
+     * @return CString
+     *   The current instance.
+     *
+     * @see InsertAt
+     */
+    public function Append(string|CString $substring): CString
+    {
+        if ($substring instanceof self) {
+            $substring = $substring->value;
+        }
+        $this->value .= $substring;
         return $this;
     }
 
