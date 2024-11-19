@@ -70,6 +70,35 @@ class CPath implements \Stringable
     }
 
     /**
+     * Joins multiple path segments into a single path.
+     *
+     * @param string ...$segments
+     *   A list of path segments to join.
+     * @return CPath
+     *   A new `CPath` instance representing the joined path.
+     */
+    public static function Join(string ...$segments): CPath
+    {
+        $segments = array_values(array_filter($segments, function(string $segment): bool {
+            $segment = new CString($segment);
+            return !$segment->Trim(self::getSlashes())->IsEmpty();
+        }));
+        $joined = new CPath();
+        $lastIndex = count($segments) - 1;
+        foreach ($segments as $index => $segment) {
+            $segment = new CPath($segment);
+            if ($index > 0) {
+                $segment->TrimLeadingSlashes();
+            }
+            if ($index < $lastIndex) {
+                $segment->EnsureTrailingSlash();
+            }
+            $joined->value->Append((string)$segment);
+        }
+        return $joined;
+    }
+
+    /**
      * Ensures the path starts with a leading slash.
      *
      * If the path does not already start with a valid slash (forward slash or
@@ -159,16 +188,15 @@ class CPath implements \Stringable
     /**
      * Returns the valid slash character(s) for the current operating system.
      *
+     * On Linux, it returns the forward slash. On Windows, it returns both the
+     * forward slash and the backslash.
+     *
      * @return string
      *   The valid slash character(s) for the current operating system.
      */
     private static function getSlashes(): string
     {
-        if (self::SLASH === DIRECTORY_SEPARATOR) {
-            return self::SLASH;
-        } else {
-            return self::BOTH_SLASHES;
-        }
+        return self::SLASH === DIRECTORY_SEPARATOR ? self::SLASH : self::BOTH_SLASHES;
     }
 
     /**
