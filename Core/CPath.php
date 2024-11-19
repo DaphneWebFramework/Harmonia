@@ -20,6 +20,28 @@ use \Harmonia\Core\CString;
 class CPath implements \Stringable
 {
     /**
+     * The forward slash used as the directory separator on Linux and supported
+     * on Windows.
+     *
+     * @var string
+     */
+    private const SLASH = '/';
+
+    /**
+     * The backslash used as the directory separator on Windows.
+     *
+     * @var string
+     */
+    private const BACKSLASH = '\\';
+
+    /**
+     * A combination of forward and backslashes, valid on both Linux and Windows.
+     *
+     * @var string
+     */
+    private const BOTH_SLASHES = '/\\';
+
+    /**
      * The path value stored in the instance.
      *
      * @var CString
@@ -47,6 +69,72 @@ class CPath implements \Stringable
         };
     }
 
+    /**
+     * Ensures the path starts with a leading slash.
+     *
+     * If the path does not already start with a valid slash (forward slash or
+     * backslash, depending on the operating system), a directory separator is
+     * inserted at the start of the path.
+     *
+     * @return CPath
+     *   The current instance.
+     */
+    public function EnsureLeadingSlash(): self
+    {
+        if (!self::isSlash($this->value->First())) {
+            $this->value->InsertAt(0, DIRECTORY_SEPARATOR);
+        }
+        return $this;
+    }
+
+    /**
+     * Ensures the path ends with a trailing slash.
+     *
+     * If the path does not already end with a valid slash (forward slash or
+     * backslash, depending on the operating system), a directory separator is
+     * appended to the end of the path.
+     *
+     * @return CPath
+     *   The current instance.
+     */
+    public function EnsureTrailingSlash(): self
+    {
+        if (!self::isSlash($this->value->Last())) {
+            $this->value->Append(DIRECTORY_SEPARATOR);
+        }
+        return $this;
+    }
+
+    /**
+     * Removes all leading slashes.
+     *
+     * Leading slashes include both forward slashes and backslashes depending on
+     * the operating system.
+     *
+     * @return CPath
+     *   The current instance.
+     */
+    public function TrimLeadingSlashes(): self
+    {
+        $this->value = $this->value->TrimLeft(self::getSlashes());
+        return $this;
+    }
+
+    /**
+     * Removes all trailing slashes.
+     *
+     * Trailing slashes include both forward slashes and backslashes depending
+     * on the operating system.
+     *
+     * @return CPath
+     *   The current instance.
+     */
+    public function TrimTrailingSlashes(): self
+    {
+        $this->value = $this->value->TrimRight(self::getSlashes());
+        return $this;
+    }
+
     #region Interface: Stringable
 
     /**
@@ -65,4 +153,41 @@ class CPath implements \Stringable
     #endregion Interface: Stringable
 
     #endregion public
+
+    #region private ------------------------------------------------------------
+
+    /**
+     * Returns the valid slash character(s) for the current operating system.
+     *
+     * @return string
+     *   The valid slash character(s) for the current operating system.
+     */
+    private static function getSlashes(): string
+    {
+        if (self::SLASH === DIRECTORY_SEPARATOR) {
+            return self::SLASH;
+        } else {
+            return self::BOTH_SLASHES;
+        }
+    }
+
+    /**
+     * Determines whether a given character is a valid slash for the current
+     * operating system.
+     *
+     * This function checks if the given character matches a forward slash on
+     * Linux or either a forward slash or backslash on Windows.
+     *
+     * @param string $char
+     *   The character to check.
+     * @return bool
+     *   Returns `true` if the character is a valid slash for the current
+     *   operating system; otherwise, `false`.
+     */
+    private static function isSlash(string $char): bool
+    {
+        return $char === self::SLASH || $char === DIRECTORY_SEPARATOR;
+    }
+
+    #endregion private
 }
