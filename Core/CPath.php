@@ -88,7 +88,7 @@ class CPath implements \Stringable
             if ($index < $lastIndex) {
                 $segment->EnsureTrailingSlash();
             }
-            $joined->value->Append((string)$segment);
+            $joined->value->Append($segment);
         }
         return $joined;
     }

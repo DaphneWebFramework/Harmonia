@@ -338,18 +338,17 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Appends the specified string.
      *
-     * @param string|CString $substring
-     *   The string to append. If a `CString` instance is provided, its value
-     *   will be used.
+     * @param string|\Stringable $substring
+     *   The string to append.
      * @return CString
      *   The current instance.
      *
      * @see InsertAt
      */
-    public function Append(string|CString $substring): self
+    public function Append(string|\Stringable $substring): self
     {
-        if ($substring instanceof self) {
-            $substring = $substring->value;
+        if ($substring instanceof \Stringable) {
+            $substring = (string)$substring;
         }
         $this->value .= $substring;
         return $this;
