@@ -29,22 +29,16 @@ class CPath implements \Stringable
 
     /**
      * The backslash used as the directory separator on Windows.
-     *
-     * @var string
      */
     private const BACKSLASH = '\\';
 
     /**
      * A combination of forward and backslashes, valid on both Linux and Windows.
-     *
-     * @var string
      */
     private const BOTH_SLASHES = '/\\';
 
     /**
      * The path value stored in the instance.
-     *
-     * @var CString
      */
     private CString $value;
 
@@ -54,10 +48,11 @@ class CPath implements \Stringable
      * Constructs a new instance.
      *
      * @param string|\Stringable $value (Optional)
-     *   The path value to store. If omitted, defaults to an empty string.
-     *   If a `CPath` or `CString` instance is provided, its value is cloned.
-     *   If a native string is provided, it is directly used. For other
-     *   `Stringable` instances, their string representations are used.
+     *   The path value to store. If omitted, defaults to an empty string. If
+     *   given a `CPath` instance, its value is cloned. If given a `CString`
+     *   instance, it is cloned as-is. For a `Stringable` instance, its string
+     *   representation is used, and for a native string, the value is used
+     *   directly.
      */
     public function __construct(string|\Stringable $value = '')
     {

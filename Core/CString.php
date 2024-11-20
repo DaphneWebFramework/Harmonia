@@ -73,29 +73,28 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Constructs a new instance.
      *
      * @param string|\Stringable $value (Optional)
-     *   The string value to store. If omitted, defaults to an empty string.
-     *   If a `CString` instance is provided, the value, encoding, and
-     *   single-byte/multibyte status are copied from the original instance.
+     *   The string value to store. If omitted, defaults to an empty string. If
+     *   given a `CString` instance, its value, encoding, and single-byte/multibyte
+     *   status are copied. If given a `Stringable` instance, its string
+     *   representation is used, and for a native string, the value is used
+     *   directly.
      * @param ?string $encoding (Optional)
      *   The encoding to use (e.g., 'UTF-8', 'ISO-8859-1'). If omitted or set to
      *   `null`, defaults to the return value of `mb_internal_encoding`. This
      *   parameter is ignored when `$value` is an instance of `CString`. Note
      *   that encoding names are case-insensitive.
      */
-    public function __construct(
-        string|\Stringable $value = '',
-        ?string $encoding = null
-        )
+    public function __construct(string|\Stringable $value = '', ?string $encoding = null)
     {
         if ($value instanceof self) {
             $this->value = $value->value;
             $this->encoding = $value->encoding;
             $this->isSingleByte = $value->isSingleByte;
         } else {
-            if (\is_string($value)) {
-                $this->value = $value;
-            } else { // $value instanceof \Stringable
+            if ($value instanceof \Stringable) {
                 $this->value = (string)$value;
+            } else { // \is_string($value)
+                $this->value = $value;
             }
             $this->encoding = $encoding ?: \mb_internal_encoding();
             $this->isSingleByte = self::isSingleByteEncoding($this->encoding);
@@ -219,7 +218,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see At
      */
-    public function SetAt(int $offset, string $character): CString
+    public function SetAt(int $offset, string $character): self
     {
         if ($offset < 0) {
             return $this;
@@ -264,7 +263,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see Append
      */
-    public function InsertAt(int $offset, string $substring): CString
+    public function InsertAt(int $offset, string $substring): self
     {
         if ($offset < 0) {
             return $this;
@@ -310,7 +309,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function DeleteAt(int $offset, int $count = 1): CString
+    public function DeleteAt(int $offset, int $count = 1): self
     {
         if ($offset < 0) {
             return $this;
@@ -347,7 +346,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see InsertAt
      */
-    public function Append(string|CString $substring): CString
+    public function Append(string|CString $substring): self
     {
         if ($substring instanceof self) {
             $substring = $substring->value;
@@ -705,7 +704,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param bool $caseSensitive (Optional)
      *   Whether the comparison should be case-sensitive. By default, it is
      *   case-sensitive.
-     * @return int|null
+     * @return ?int
      *   The zero-based offset of the search string, or `null` if not found.
      * @throws \ValueError
      *   If an error occurs due to encoding.
@@ -724,9 +723,11 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             }
         } else {
             if ($caseSensitive) {
-                $foundOffset = \mb_strpos($this->value, $searchString, $startOffset, $this->encoding);
+                $foundOffset = \mb_strpos($this->value, $searchString, $startOffset,
+                    $this->encoding);
             } else {
-                $foundOffset = \mb_stripos($this->value, $searchString, $startOffset, $this->encoding);
+                $foundOffset = \mb_stripos($this->value, $searchString, $startOffset,
+                    $this->encoding);
             }
         }
         if ($foundOffset === false) {

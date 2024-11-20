@@ -107,7 +107,7 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
      * @return CArray
      *   The current instance.
      */
-    public function Set(string|int $key, mixed $value): CArray
+    public function Set(string|int $key, mixed $value): self
     {
         $this->value[$key] = $value;
         return $this;
@@ -121,7 +121,7 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
      * @return CArray
      *   The current instance.
      */
-    public function Delete(string|int $key): CArray
+    public function Delete(string|int $key): self
     {
         unset($this->value[$key]);
         return $this;

@@ -97,7 +97,7 @@ class CFile
      *   The name of the file to open.
      * @param string $mode (Optional)
      *   The mode for opening the file. Defaults to `CFile::MODE_READ`.
-     * @return CFile|null
+     * @return ?CFile
      *   A `CFile` instance if successful, or `null` on failure.
      */
     public static function Open(string $filename, string $mode = self::MODE_READ): ?CFile
@@ -243,7 +243,7 @@ class CFile
     /**
      * Returns the current cursor position.
      *
-     * @return int|null
+     * @return ?int
      *   The current position of the file cursor, or `null` on failure.
      */
     public function Cursor(): ?int

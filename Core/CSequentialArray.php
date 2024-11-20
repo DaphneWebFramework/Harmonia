@@ -118,7 +118,7 @@ class CSequentialArray extends CArray
      *
      * @override
      */
-    public function Set(string|int $index, mixed $value): CSequentialArray
+    public function Set(string|int $index, mixed $value): self
     {
         if (!$this->Has($index)) {
             return $this;
@@ -146,7 +146,7 @@ class CSequentialArray extends CArray
      *
      * @override
      */
-    public function Delete(string|int $index): CSequentialArray
+    public function Delete(string|int $index): self
     {
         if (!$this->Has($index)) {
             return $this;
@@ -163,7 +163,7 @@ class CSequentialArray extends CArray
      * @return CSequentialArray
      *   The current instance.
      */
-    public function PushBack(mixed $element): CSequentialArray
+    public function PushBack(mixed $element): self
     {
         $this->value[] = $element;
         return $this;
@@ -177,7 +177,7 @@ class CSequentialArray extends CArray
      * @return CSequentialArray
      *   The current instance.
      */
-    public function PushFront(mixed $element): CSequentialArray
+    public function PushFront(mixed $element): self
     {
         \array_unshift($this->value, $element);
         return $this;
@@ -216,7 +216,7 @@ class CSequentialArray extends CArray
      * @return CSequentialArray
      *   The current instance.
      */
-    public function InsertBefore(int $index, mixed $element): CSequentialArray
+    public function InsertBefore(int $index, mixed $element): self
     {
         if ($index < 0 || $index >= $this->Count()) {
             return $this;
@@ -236,7 +236,7 @@ class CSequentialArray extends CArray
      * @return CSequentialArray
      *   The current instance.
      */
-    public function InsertAfter(int $index, mixed $element): CSequentialArray
+    public function InsertAfter(int $index, mixed $element): self
     {
         if ($index < 0 || $index >= $this->Count()) {
             return $this;
