@@ -785,15 +785,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * By default, it performs a straightforward split without trimming or
      * excluding empty results. These behaviors can be customized with options.
      *
-     * #### Example
-     * ```php
-     * $text = new CString("  Line 1\n\nLine 2 \nLine 3\n\n");
-     * $options = CString::SPLIT_OPTION_TRIM | CString::SPLIT_OPTION_EXCLUDE_EMPTY;
-     * foreach ($text->Split("\n", $options) as $line) {
-     *     echo $line . PHP_EOL;
-     * }
-     * ```
-     *
      * @param string $delimiter
      *   The delimiter indicating the points at which each split should occur.
      * @param int $options (Optional)
@@ -839,16 +830,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * By default, it performs a straightforward split without trimming or
      * excluding empty results. These behaviors can be customized with options.
      *
-     * #### Example
-     * ```php
-     * $text = new CString("  Line 1\n\nLine 2 \nLine 3\n\n");
-     * $options = CString::SPLIT_OPTION_TRIM | CString::SPLIT_OPTION_EXCLUDE_EMPTY;
-     * $lines = $text->SplitToArray("\n", $options);
-     * if ($lines[0] === 'Line 1') {
-     *     // ...
-     * }
-     * ```
-     *
      * @param string $delimiter
      *   The delimiter indicating the points at which each split should occur.
      * @param int $options (Optional)
@@ -875,12 +856,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Returns the string representation for use in string contexts.
      *
-     * #### Example
-     * ```php
-     * $str = new CString('Welcome');
-     * $message = (string)$str;
-     * ```
-     *
      * @return string
      *   The string value stored in the instance.
      *
@@ -897,14 +872,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 
     /**
      * Provides array-like access to check if a character exists at a given offset.
-     *
-     * #### Example
-     * ```php
-     * $str = new CString('Hello');
-     * if (isset($str[1])) {
-     *     // ...
-     * }
-     * ```
      *
      * @param mixed $offset
      *   The zero-based offset to check.
@@ -926,12 +893,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Provides array-like access to retrieve the character at a given offset.
      *
-     * #### Example
-     * ```php
-     * $str = new CString('Hello');
-     * $char = $str[1];
-     * ```
-     *
      * @param mixed $offset
      *   The zero-based offset of the character to return.
      * @return mixed
@@ -951,12 +912,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 
     /**
      * Provides array-like access to set the character at a specified offset.
-     *
-     * #### Example
-     * ```php
-     * $str = new CString('Hello');
-     * $str[1] = 'a';
-     * ```
      *
      * @param mixed $offset
      *   The zero-based offset where the character will be set. If the offset is
@@ -980,12 +935,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Provides array-like access to delete the character at a specified offset.
      *
-     * #### Example
-     * ```php
-     * $str = new CString('Hello');
-     * unset($str[1]);
-     * ```
-     *
      * @param mixed $offset
      *   The zero-based offset where the character will be removed. If the
      *   offset is negative or greater than or equal to the length of the
@@ -1008,14 +957,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 
     /**
      * Provides array-like traversal over each character.
-     *
-     * #### Example
-     * ```php
-     * $str = new CString('Hello');
-     * foreach ($str as $char) {
-     *     // ...
-     * }
-     * ```
      *
      * @return \Traversable
      *   An iterator yielding each character.

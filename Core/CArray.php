@@ -132,14 +132,6 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Provides array-like access to check if a value exists at a given key.
      *
-     * #### Example
-     * ```php
-     * $arr = new CArray(['key' => 'value']);
-     * if (isset($arr['key'])) {
-     *     // ...
-     * }
-     * ```
-     *
      * @param mixed $offset
      *   The key to check for existence.
      * @return bool
@@ -156,12 +148,6 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Provides array-like access to retrieve the value at a given key.
-     *
-     * #### Example
-     * ```php
-     * $arr = new CArray(['key' => 'value']);
-     * $value = $arr['key'];
-     * ```
      *
      * @param mixed $offset
      *   The key to look up.
@@ -180,12 +166,6 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Provides array-like access to set a value at a specified key.
      *
-     * #### Example
-     * ```php
-     * $arr = new CArray();
-     * $arr['key'] = 'value';
-     * ```
-     *
      * @param mixed $offset
      *   The key at which to set the value.
      * @param mixed $value
@@ -202,12 +182,6 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Provides array-like access to unset a value at a specified key.
-     *
-     * #### Example
-     * ```php
-     * $arr = new CArray(['key' => 'value']);
-     * unset($arr['key']);
-     * ```
      *
      * @param mixed $offset
      *   The key of the element to unset.
@@ -248,14 +222,6 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Provides array-like traversal over each element.
-     *
-     * #### Example
-     * ```php
-     * $arr = new CArray(['a' => 1, 'b' => 2]);
-     * foreach ($arr as $key => $value) {
-     *     // ...
-     * }
-     * ```
      *
      * @return \Traversable
      *   An iterator yielding each element.
