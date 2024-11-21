@@ -20,24 +20,6 @@ use \Harmonia\Core\CString;
 class CPath implements \Stringable
 {
     /**
-     * The forward slash used as the directory separator on Linux and supported
-     * on Windows.
-     *
-     * @var string
-     */
-    private const SLASH = '/';
-
-    /**
-     * The backslash used as the directory separator on Windows.
-     */
-    private const BACKSLASH = '\\';
-
-    /**
-     * A combination of forward and backslashes, valid on both Linux and Windows.
-     */
-    private const BOTH_SLASHES = '/\\';
-
-    /**
      * The path value stored in the instance.
      */
     private CString $value;
@@ -96,9 +78,8 @@ class CPath implements \Stringable
     /**
      * Ensures the path starts with a leading slash.
      *
-     * If the path does not already start with a valid slash (forward slash or
-     * backslash, depending on the operating system), a directory separator is
-     * inserted at the start of the path.
+     * If the path does not already start with a slash, one is inserted at the
+     * beginning.
      *
      * @return CPath
      *   The current instance.
@@ -114,9 +95,8 @@ class CPath implements \Stringable
     /**
      * Ensures the path ends with a trailing slash.
      *
-     * If the path does not already end with a valid slash (forward slash or
-     * backslash, depending on the operating system), a directory separator is
-     * appended to the end of the path.
+     * If the path does not already end with a slash, one is appended at the
+     * end.
      *
      * @return CPath
      *   The current instance.
@@ -191,7 +171,7 @@ class CPath implements \Stringable
      */
     private static function getSlashes(): string
     {
-        return self::SLASH === DIRECTORY_SEPARATOR ? self::SLASH : self::BOTH_SLASHES;
+        return DIRECTORY_SEPARATOR === '/' ? '/' : '/\\';
     }
 
     /**
@@ -209,7 +189,7 @@ class CPath implements \Stringable
      */
     private static function isSlash(string $char): bool
     {
-        return $char === self::SLASH || $char === DIRECTORY_SEPARATOR;
+        return $char === '/' || $char === DIRECTORY_SEPARATOR;
     }
 
     #endregion private
