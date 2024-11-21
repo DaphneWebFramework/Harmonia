@@ -253,7 +253,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The zero-based offset where the insertion will start. If the offset is
      *   negative or greater than the length of the string, no changes will be
      *   made. If the offset equals the length, the substring will be appended.
-     * @param string $substring
+     * @param string|\Stringable $substring
      *   The substring to insert. If an empty string is provided, no changes
      *   will be made.
      * @return CString
@@ -263,7 +263,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see Append
      */
-    public function InsertAt(int $offset, string $substring): self
+    public function InsertAt(int $offset, string|\Stringable $substring): self
     {
         if ($offset < 0) {
             return $this;
@@ -272,23 +272,26 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         if ($offset > $length) {
             return $this;
         }
+        if ($substring instanceof \Stringable) {
+            $substring = (string)$substring;
+        }
         if ($substring === '') {
             return $this;
         }
         if ($offset === $length) {
             $this->value .= $substring;
-            return $this;
-        }
-        if ($this->isSingleByte) {
-            $this->value =
-                \substr($this->value, 0, $offset)
-              . $substring
-              . \substr($this->value, $offset);
         } else {
-            $this->value =
-                \mb_substr($this->value, 0, $offset, $this->encoding)
-              . $substring
-              . \mb_substr($this->value, $offset, null, $this->encoding);
+            if ($this->isSingleByte) {
+                $this->value =
+                    \substr($this->value, 0, $offset)
+                  . $substring
+                  . \substr($this->value, $offset);
+            } else {
+                $this->value =
+                    \mb_substr($this->value, 0, $offset, $this->encoding)
+                  . $substring
+                  . \mb_substr($this->value, $offset, null, $this->encoding);
+            }
         }
         return $this;
     }
@@ -617,7 +620,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Checks if this string is equal to another string.
      *
-     * @param string|CString $other
+     * @param string|\Stringable $other
      *   The string to compare with.
      * @param bool $caseSensitive (Optional)
      *   Whether the comparison should be case-sensitive. By default, it is
@@ -627,13 +630,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function Equals(string|CString $other, bool $caseSensitive = true): bool
+    public function Equals(string|\Stringable $other, bool $caseSensitive = true): bool
     {
         if ($caseSensitive) {
-            return (string)$this === (string)$other;
+            return $this->value === (string)$other;
         } else {
-            if (\is_string($other)) {
-                $other = $this->wrap($other);
+            if (!$other instanceof self) {
+                $other = $this->wrap((string)$other);
             }
             return (string)$this->Lowercase() === (string)$other->Lowercase();
         }
@@ -642,7 +645,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Checks if the string starts with the specified search string.
      *
-     * @param string $searchString
+     * @param string|\Stringable $searchString
      *   The string to check if the instance starts with it.
      * @param bool $caseSensitive (Optional)
      *   Whether the comparison should be case-sensitive. By default, it is
@@ -655,9 +658,12 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see EndsWith
      */
-    public function StartsWith(string $searchString, bool $caseSensitive = true): bool
+    public function StartsWith(string|\Stringable $searchString,
+        bool $caseSensitive = true): bool
     {
-        $searchString = $this->wrap($searchString);
+        if (!$searchString instanceof self) {
+            $searchString = $this->wrap((string)$searchString);
+        }
         $searchStringLength = $searchString->Length();
         if ($searchStringLength > $this->Length()) {
             return false;
@@ -669,7 +675,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Checks if the string ends with the specified search string.
      *
-     * @param string $searchString
+     * @param string|\Stringable $searchString
      *   The string to check if the instance ends with it.
      * @param bool $caseSensitive (Optional)
      *   Whether the comparison should be case-sensitive. By default, it is
@@ -682,9 +688,12 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see StartsWith
      */
-    public function EndsWith(string $searchString, bool $caseSensitive = true): bool
+    public function EndsWith(string|\Stringable $searchString,
+        bool $caseSensitive = true): bool
     {
-        $searchString = $this->wrap($searchString);
+        if (!$searchString instanceof self) {
+            $searchString = $this->wrap((string)$searchString);
+        }
         $searchStringLength = $searchString->Length();
         if ($searchStringLength > $this->Length()) {
             return false;
@@ -696,7 +705,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Finds the offset of the first occurrence of a string.
      *
-     * @param string|CString $searchString
+     * @param string|\Stringable $searchString
      *   The string to search for.
      * @param int $startOffset (Optional)
      *   The zero-based offset from which to start the search. Defaults to 0.
@@ -708,10 +717,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function IndexOf(string|CString $searchString, int $startOffset = 0,
+    public function IndexOf(string|\Stringable $searchString, int $startOffset = 0,
         bool $caseSensitive = true): ?int
     {
-        if ($searchString instanceof self) {
+        if ($searchString instanceof \Stringable) {
             $searchString = (string)$searchString;
         }
         if ($this->isSingleByte) {
@@ -739,9 +748,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Replaces all occurrences of a specified search string with a replacement
      * string.
      *
-     * @param string $searchString
+     * @param string|\Stringable $searchString
      *   The substring to search for.
-     * @param string $replacement
+     * @param string|\Stringable $replacement
      *   The substring to replace each occurrence of the search string.
      * @param bool $caseSensitive (Optional)
      *   Whether the comparison should be case-sensitive. By default, it is
@@ -751,9 +760,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function Replace(string $searchString, string $replacement,
-        bool $caseSensitive = true): CString
+    public function Replace(string|\Stringable $searchString,
+        string|\Stringable $replacement, bool $caseSensitive = true): CString
     {
+        if ($searchString instanceof \Stringable) {
+            $searchString = (string)$searchString;
+        }
+        if ($replacement instanceof \Stringable) {
+            $replacement = (string)$replacement;
+        }
         if ($this->isSingleByte) {
             if ($caseSensitive) {
                 $replaced = \str_replace($searchString, $replacement, $this->value);
@@ -770,7 +785,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 } else {
                     return \mb_eregi_replace($searchString, $replacement, $this->value);
                 }
-             });
+            });
         }
         return new CString($replaced, $this->encoding);
     }
