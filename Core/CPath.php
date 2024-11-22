@@ -12,8 +12,6 @@
 
 namespace Harmonia\Core;
 
-use \Harmonia\Core\CString;
-
 /**
  * CPath is a class for manipulating file system paths.
  */
@@ -21,29 +19,33 @@ class CPath implements \Stringable
 {
     /**
      * The path value stored in the instance.
+     *
+     * @var string
      */
-    private CString $value;
+    private string $value;
 
     #region public -------------------------------------------------------------
 
     /**
      * Constructs a new instance.
      *
+     * Leading and trailing whitespace are trimmed when storing the specified
+     * path value.
+     *
      * @param string|\Stringable $value (Optional)
      *   The path value to store. If omitted, defaults to an empty string. If
-     *   given a `CPath` instance, its value is cloned. If given a `CString`
-     *   instance, it is cloned as-is. For a `Stringable` instance, its string
-     *   representation is used, and for a native string, the value is used
-     *   directly.
+     *   given a `CPath` instance, its value is copied. For a `Stringable`
+     *   instance, its string representation is used, and for a native string,
+     *   the value is used directly.
      */
     public function __construct(string|\Stringable $value = '')
     {
-        $this->value = match (true) {
-            $value instanceof self        => clone $value->value,
-            $value instanceof CString     => clone $value,
-            $value instanceof \Stringable => new CString((string)$value),
-            default                       => new CString($value)
-        };
+        if ($value instanceof self) {
+            $value = $value->value;
+        } elseif ($value instanceof \Stringable) {
+            $value = (string)$value;
+        }
+        $this->value = \trim($value);
     }
 
     /**
@@ -57,10 +59,9 @@ class CPath implements \Stringable
     public static function Join(string ...$segments): CPath
     {
         $segments = array_values(array_filter($segments, function(string $segment): bool {
-            $segment = new CString($segment);
-            return !$segment->Trim(self::getSlashes())->IsEmpty();
+            return '' !== \trim($segment, self::getSlashes());
         }));
-        $joined = new CPath();
+        $path = new CPath();
         $lastIndex = count($segments) - 1;
         foreach ($segments as $index => $segment) {
             $segment = new CPath($segment);
@@ -70,9 +71,9 @@ class CPath implements \Stringable
             if ($index < $lastIndex) {
                 $segment->EnsureTrailingSlash();
             }
-            $joined->value->Append($segment);
+            $path->value .= $segment->value;
         }
-        return $joined;
+        return $path;
     }
 
     /**
@@ -86,8 +87,8 @@ class CPath implements \Stringable
      */
     public function EnsureLeadingSlash(): self
     {
-        if (!self::isSlash($this->value->First())) {
-            $this->value->InsertAt(0, DIRECTORY_SEPARATOR);
+        if ($this->value === '' || !self::isSlash($this->value[0])) {
+            $this->value = DIRECTORY_SEPARATOR . $this->value;
         }
         return $this;
     }
@@ -103,8 +104,8 @@ class CPath implements \Stringable
      */
     public function EnsureTrailingSlash(): self
     {
-        if (!self::isSlash($this->value->Last())) {
-            $this->value->Append(DIRECTORY_SEPARATOR);
+        if ($this->value === '' || !self::isSlash($this->value[-1])) {
+            $this->value .= DIRECTORY_SEPARATOR;
         }
         return $this;
     }
@@ -120,7 +121,7 @@ class CPath implements \Stringable
      */
     public function TrimLeadingSlashes(): self
     {
-        $this->value = $this->value->TrimLeft(self::getSlashes());
+        $this->value = \ltrim($this->value, self::getSlashes());
         return $this;
     }
 
@@ -135,7 +136,7 @@ class CPath implements \Stringable
      */
     public function TrimTrailingSlashes(): self
     {
-        $this->value = $this->value->TrimRight(self::getSlashes());
+        $this->value = \rtrim($this->value, self::getSlashes());
         return $this;
     }
 
@@ -151,7 +152,7 @@ class CPath implements \Stringable
      */
     public function __toString(): string
     {
-        return (string)$this->value;
+        return $this->value;
     }
 
     #endregion Interface: Stringable
