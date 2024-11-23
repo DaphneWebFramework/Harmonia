@@ -12,18 +12,13 @@
 
 namespace Harmonia\Core;
 
+use \Harmonia\Core\CString;
+
 /**
  * CPath is a class for manipulating file system paths.
  */
-class CPath implements \Stringable
+class CPath extends CString
 {
-    /**
-     * The path value stored in the instance.
-     *
-     * @var string
-     */
-    private string $value;
-
     #region public -------------------------------------------------------------
 
     /**
@@ -40,12 +35,8 @@ class CPath implements \Stringable
      */
     public function __construct(string|\Stringable $value = '')
     {
-        if ($value instanceof self) {
-            $value = $value->value;
-        } elseif ($value instanceof \Stringable) {
-            $value = (string)$value;
-        }
-        $this->value = \trim($value);
+        parent::__construct($value);
+        $this->TrimInPlace();
     }
 
     /**
@@ -58,9 +49,12 @@ class CPath implements \Stringable
      */
     public static function Join(string ...$segments): CPath
     {
-        $segments = array_values(array_filter($segments, function(string $segment): bool {
-            return '' !== \trim($segment, self::getSlashes());
-        }));
+        $segments = array_values(array_filter($segments,
+            function(string $segment): bool {
+                $segment = new CString($segment);
+                return !$segment->TrimInPlace(self::getSlashes())->IsEmpty();
+            }
+        ));
         $path = new CPath();
         $lastIndex = count($segments) - 1;
         foreach ($segments as $index => $segment) {
@@ -71,7 +65,7 @@ class CPath implements \Stringable
             if ($index < $lastIndex) {
                 $segment->EnsureTrailingSlash();
             }
-            $path->value .= $segment->value;
+            $path->AppendInPlace($segment);
         }
         return $path;
     }
@@ -82,13 +76,15 @@ class CPath implements \Stringable
      * If the path does not already start with a slash, one is inserted at the
      * beginning.
      *
-     * @return CPath
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function EnsureLeadingSlash(): self
     {
-        if ($this->value === '' || !self::isSlash($this->value[0])) {
-            $this->value = DIRECTORY_SEPARATOR . $this->value;
+        if (!self::isSlash($this->First())) {
+            $this->PrependInPlace(DIRECTORY_SEPARATOR);
         }
         return $this;
     }
@@ -99,13 +95,15 @@ class CPath implements \Stringable
      * If the path does not already end with a slash, one is appended at the
      * end.
      *
-     * @return CPath
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function EnsureTrailingSlash(): self
     {
-        if ($this->value === '' || !self::isSlash($this->value[-1])) {
-            $this->value .= DIRECTORY_SEPARATOR;
+        if (!self::isSlash($this->Last())) {
+            $this->AppendInPlace(DIRECTORY_SEPARATOR);
         }
         return $this;
     }
@@ -116,12 +114,14 @@ class CPath implements \Stringable
      * Leading slashes include both forward slashes and backslashes depending on
      * the operating system.
      *
-     * @return CPath
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function TrimLeadingSlashes(): self
     {
-        $this->value = \ltrim($this->value, self::getSlashes());
+        $this->TrimLeftInPlace(self::getSlashes());
         return $this;
     }
 
@@ -131,31 +131,16 @@ class CPath implements \Stringable
      * Trailing slashes include both forward slashes and backslashes depending
      * on the operating system.
      *
-     * @return CPath
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function TrimTrailingSlashes(): self
     {
-        $this->value = \rtrim($this->value, self::getSlashes());
+        $this->TrimRightInPlace(self::getSlashes());
         return $this;
     }
-
-    #region Interface: Stringable
-
-    /**
-     * Returns the string representation for use in string contexts.
-     *
-     * @return string
-     *   The path value stored in the instance.
-     *
-     * @override
-     */
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
-    #endregion Interface: Stringable
 
     #endregion public
 
