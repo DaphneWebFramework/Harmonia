@@ -654,21 +654,66 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Converts to lowercase.
      *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @return self
+     *   The current instance.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     *
+     * @see UppercaseInPlace
+     * @see Lowercase
+     */
+    public function LowercaseInPlace(): self
+    {
+        if ($this->isSingleByte) {
+            $this->value = \strtolower($this->value);
+        } else {
+            $this->value = \mb_strtolower($this->value, $this->encoding);
+        }
+        return $this;
+    }
+
+    /**
+     * Converts to lowercase.
+     *
      * @return CString
      *   A new `CString` instance with all characters converted to lowercase.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
+     * @see LowercaseInPlace
      * @see Uppercase
      */
     public function Lowercase(): CString
     {
+        $clone = clone $this;
+        return $clone->LowercaseInPlace();
+    }
+
+    /**
+     * Converts to uppercase.
+     *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @return self
+     *   The current instance.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     *
+     * @see LowercaseInPlace
+     * @see Uppercase
+     */
+    public function UppercaseInPlace(): self
+    {
         if ($this->isSingleByte) {
-            $lowercased = \strtolower($this->value);
+            $this->value = \strtoupper($this->value);
         } else {
-            $lowercased = \mb_strtolower($this->value, $this->encoding);
+            $this->value = \mb_strtoupper($this->value, $this->encoding);
         }
-        return new CString($lowercased, $this->encoding);
+        return $this;
     }
 
     /**
@@ -679,16 +724,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
+     * @see UppercaseInPlace
      * @see Lowercase
      */
     public function Uppercase(): CString
     {
-        if ($this->isSingleByte) {
-            $uppercased = \strtoupper($this->value);
-        } else {
-            $uppercased = \mb_strtoupper($this->value, $this->encoding);
-        }
-        return new CString($uppercased, $this->encoding);
+        $clone = clone $this;
+        return $clone->UppercaseInPlace();
     }
 
     /**
