@@ -12,18 +12,13 @@
 
 namespace Harmonia\Core;
 
+use \Harmonia\Core\CString;
+
 /**
  * CUrl is a class for manipulating URLs.
  */
-class CUrl implements \Stringable
+class CUrl extends CString
 {
-    /**
-     * The URL value stored in the instance.
-     *
-     * @var string
-     */
-    private string $value;
-
     #region public -------------------------------------------------------------
 
     /**
@@ -40,12 +35,8 @@ class CUrl implements \Stringable
      */
     public function __construct(string|\Stringable $value = '')
     {
-        if ($value instanceof self) {
-            $value = $value->value;
-        } elseif ($value instanceof \Stringable) {
-            $value = (string)$value;
-        }
-        $this->value = \trim($value);
+        parent::__construct($value);
+        $this->TrimInPlace();
     }
 
     /**
@@ -58,9 +49,12 @@ class CUrl implements \Stringable
      */
     public static function Join(string ...$segments): CUrl
     {
-        $segments = array_values(array_filter($segments, function(string $segment): bool {
-            return '' !== \trim($segment, '/');
-        }));
+        $segments = array_values(array_filter($segments,
+            function(string $segment): bool {
+                $segment = new CString($segment);
+                return !$segment->TrimInPlace('/')->IsEmpty();
+            }
+        ));
         $url = new CUrl();
         $lastIndex = count($segments) - 1;
         foreach ($segments as $index => $segment) {
@@ -71,7 +65,7 @@ class CUrl implements \Stringable
             if ($index < $lastIndex) {
                 $segment->EnsureTrailingSlash();
             }
-            $url->value .= $segment->value;
+            $url->AppendInPlace($segment);
         }
         return $url;
     }
@@ -82,13 +76,15 @@ class CUrl implements \Stringable
      * If the URL does not already start with a slash, one is inserted at the
      * beginning.
      *
-     * @return CUrl
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function EnsureLeadingSlash(): self
     {
-        if ($this->value === '' || $this->value[0] !== '/') {
-            $this->value = '/' . $this->value;
+        if ($this->First() !== '/') {
+            $this->PrependInPlace('/');
         }
         return $this;
     }
@@ -99,13 +95,15 @@ class CUrl implements \Stringable
      * If the URL does not already end with a slash, one is appended at the
      * end.
      *
-     * @return CUrl
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function EnsureTrailingSlash(): self
     {
-        if ($this->value === '' || $this->value[-1] !== '/') {
-            $this->value .= '/';
+        if ($this->Last() !== '/') {
+            $this->AppendInPlace('/');
         }
         return $this;
     }
@@ -113,43 +111,30 @@ class CUrl implements \Stringable
     /**
      * Removes all leading slashes.
      *
-     * @return CUrl
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function TrimLeadingSlashes(): self
     {
-        $this->value = \ltrim($this->value, '/');
+        $this->TrimLeftInPlace('/');
         return $this;
     }
 
     /**
      * Removes all trailing slashes.
      *
-     * @return CUrl
+     * This method directly modifies the current instance.
+     *
+     * @return self
      *   The current instance.
      */
     public function TrimTrailingSlashes(): self
     {
-        $this->value = \rtrim($this->value, '/');
+        $this->TrimRightInPlace('/');
         return $this;
     }
-
-    #region Interface: Stringable
-
-    /**
-     * Returns the string representation for use in string contexts.
-     *
-     * @return string
-     *   The URL value stored in the instance.
-     *
-     * @override
-     */
-    public function __toString(): string
-    {
-        return $this->value;
-    }
-
-    #endregion Interface: Stringable
 
     #endregion public
 }
