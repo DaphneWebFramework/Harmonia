@@ -211,7 +211,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param string $character
      *   The character to set at the specified offset. If more than one character
      *   is provided, no changes will be made.
-     * @return CString
+     * @return self
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
@@ -256,7 +256,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param string|\Stringable $substring
      *   The substring to insert. If an empty string is provided, no changes
      *   will be made.
-     * @return CString
+     * @return self
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
@@ -307,7 +307,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The number of characters to delete. If this value is less than 1, no
      *   changes will be made. If it exceeds the remaining characters, it will
      *   delete up to the end. Defaults to 1.
-     * @return CString
+     * @return self
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
@@ -343,7 +343,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $substring
      *   The string to append.
-     * @return CString
+     * @return self
      *   The current instance.
      *
      * @see InsertAt
@@ -449,29 +449,33 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Trims whitespace or specified characters from both sides of the string.
      *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
      * @param ?string $characters (Optional)
      *   Characters to trim. Defaults to trimming whitespace characters.
-     * @return CString
-     *   A new `CString` instance with the trimmed string.
+     * @return self
+     *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
-     * @see TrimLeft
-     * @see TrimRight
+     * @see Trim
+     * @see TrimLeftInPlace
+     * @see TrimRightInPlace
      */
-    public function Trim(?string $characters = null): CString
+    public function TrimInPlace(?string $characters = null): self
     {
         if ($this->isSingleByte) {
             if ($characters === null) {
-                $trimmed = \trim($this->value);
+                $this->value = \trim($this->value);
             } else {
-                $trimmed = \trim($this->value, $characters);
+                $this->value = \trim($this->value, $characters);
             }
         } else {
             if (PHP_VERSION_ID >= 80400) {
-                $trimmed = \mb_trim($this->value, $characters, $this->encoding);
+                $this->value = \mb_trim($this->value, $characters, $this->encoding);
             } else {
-                $trimmed = $this->withMultibyteRegexEncoding(function()
+                $this->value = $this->withMultibyteRegexEncoding(function()
                     use($characters)
                 {
                     if ($characters === null) {
@@ -486,12 +490,11 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 });
             }
         }
-        return new CString($trimmed, $this->encoding);
+        return $this;
     }
 
     /**
-     * Trims whitespace or specified characters from the start (left) of the
-     * string.
+     * Trims whitespace or specified characters from both sides of the string.
      *
      * @param ?string $characters (Optional)
      *   Characters to trim. Defaults to trimming whitespace characters.
@@ -500,22 +503,47 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
-     * @see Trim
+     * @see TrimInPlace
+     * @see TrimLeft
      * @see TrimRight
      */
-    public function TrimLeft(?string $characters = null): CString
+    public function Trim(?string $characters = null): CString
+    {
+        $clone = clone $this;
+        return $clone->TrimInPlace($characters);
+    }
+
+    /**
+     * Trims whitespace or specified characters from the start (left) of the
+     * string.
+     *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @param ?string $characters (Optional)
+     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @return self
+     *   The current instance.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     *
+     * @see TrimLeft
+     * @see TrimInPlace
+     * @see TrimRightInPlace
+     */
+    public function TrimLeftInPlace(?string $characters = null): self
     {
         if ($this->isSingleByte) {
             if ($characters === null) {
-                $trimmed = \ltrim($this->value);
+                $this->value = \ltrim($this->value);
             } else {
-                $trimmed = \ltrim($this->value, $characters);
+                $this->value = \ltrim($this->value, $characters);
             }
         } else {
             if (PHP_VERSION_ID >= 80400) {
-                $trimmed = \mb_ltrim($this->value, $characters, $this->encoding);
+                $this->value = \mb_ltrim($this->value, $characters, $this->encoding);
             } else {
-                $trimmed = $this->withMultibyteRegexEncoding(function()
+                $this->value = $this->withMultibyteRegexEncoding(function()
                     use($characters)
                 {
                     if ($characters === null) {
@@ -530,11 +558,11 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 });
             }
         }
-        return new CString($trimmed, $this->encoding);
+        return $this;
     }
 
     /**
-     * Trims whitespace or specified characters from the end (right) of the
+     * Trims whitespace or specified characters from the start (left) of the
      * string.
      *
      * @param ?string $characters (Optional)
@@ -544,22 +572,47 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
+     * @see TrimLeftInPlace
      * @see Trim
-     * @see TrimLeft
+     * @see TrimRight
      */
-    public function TrimRight(?string $characters = null): CString
+    public function TrimLeft(?string $characters = null): CString
+    {
+        $clone = clone $this;
+        return $clone->TrimLeftInPlace($characters);
+    }
+
+    /**
+     * Trims whitespace or specified characters from the end (right) of the
+     * string.
+     *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @param ?string $characters (Optional)
+     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @return self
+     *   The current instance.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     *
+     * @see TrimRight
+     * @see TrimInPlace
+     * @see TrimLeftInPlace
+     */
+    public function TrimRightInPlace(?string $characters = null): self
     {
         if ($this->isSingleByte) {
             if ($characters === null) {
-                $trimmed = \rtrim($this->value);
+                $this->value = \rtrim($this->value);
             } else {
-                $trimmed = \rtrim($this->value, $characters);
+                $this->value = \rtrim($this->value, $characters);
             }
         } else {
             if (PHP_VERSION_ID >= 80400) {
-                $trimmed = \mb_rtrim($this->value, $characters, $this->encoding);
+                $this->value = \mb_rtrim($this->value, $characters, $this->encoding);
             } else {
-                $trimmed = $this->withMultibyteRegexEncoding(function()
+                $this->value = $this->withMultibyteRegexEncoding(function()
                     use($characters)
                 {
                     if ($characters === null) {
@@ -574,7 +627,28 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 });
             }
         }
-        return new CString($trimmed, $this->encoding);
+        return $this;
+    }
+
+    /**
+     * Trims whitespace or specified characters from the end (right) of the
+     * string.
+     *
+     * @param ?string $characters (Optional)
+     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @return CString
+     *   A new `CString` instance with the trimmed string.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     *
+     * @see TrimRightInPlace
+     * @see Trim
+     * @see TrimLeft
+     */
+    public function TrimRight(?string $characters = null): CString
+    {
+        $clone = clone $this;
+        return $clone->TrimRightInPlace($characters);
     }
 
     /**
