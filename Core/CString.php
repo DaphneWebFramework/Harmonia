@@ -262,6 +262,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   If an error occurs due to encoding.
      *
      * @see Append
+     * @see AppendInPlace
      */
     public function InsertAt(int $offset, string|\Stringable $substring): self
     {
@@ -339,22 +340,43 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Appends the specified string.
+     * Inserts the specified string at the end.
+     *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
      *
      * @param string|\Stringable $substring
      *   The string to append.
      * @return self
      *   The current instance.
      *
+     * @see Append
      * @see InsertAt
      */
-    public function Append(string|\Stringable $substring): self
+    public function AppendInPlace(string|\Stringable $substring): self
     {
         if ($substring instanceof \Stringable) {
             $substring = (string)$substring;
         }
         $this->value .= $substring;
         return $this;
+    }
+
+    /**
+     * Inserts the specified string at the end.
+     *
+     * @param string|\Stringable $substring
+     *   The string to append.
+     * @return CString
+     *   A new `CString` instance with the substring appended.
+     *
+     * @see AppendInPlace
+     * @see InsertAt
+     */
+    public function Append(string|\Stringable $substring): CString
+    {
+        $clone = clone $this;
+        return $clone->AppendInPlace($substring);
     }
 
     /**
