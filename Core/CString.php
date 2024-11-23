@@ -340,6 +340,46 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
+     * Inserts the specified string at the beginning.
+     *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @param string|\Stringable $substring
+     *   The string to prepend.
+     * @return self
+     *   The current instance.
+     *
+     * @see Prepend
+     * @see InsertAt
+     */
+    public function PrependInPlace(string|\Stringable $substring): self
+    {
+        if ($substring instanceof \Stringable) {
+            $substring = (string)$substring;
+        }
+        $this->value = $substring . $this->value;
+        return $this;
+    }
+
+    /**
+     * Inserts the specified string at the beginning.
+     *
+     * @param string|\Stringable $substring
+     *   The string to prepend.
+     * @return CString
+     *   A new `CString` instance with the string prepended.
+     *
+     * @see PrependInPlace
+     * @see InsertAt
+     */
+    public function Prepend(string|\Stringable $substring): CString
+    {
+        $clone = clone $this;
+        return $clone->PrependInPlace($substring);
+    }
+
+    /**
      * Inserts the specified string at the end.
      *
      * This version of the method directly modifies the current instance,
