@@ -142,6 +142,53 @@ class CPath extends CString
         return $this;
     }
 
+    /**
+     * Determines whether the path points to an existing file.
+     *
+     * @return bool
+     *   Returns `true` if the path points to a file; otherwise, `false`.
+     */
+    public function IsFile(): bool
+    {
+        return \is_file((string)$this);
+    }
+
+    /**
+     * Determines whether the path points to an existing directory.
+     *
+     * @return bool
+     *   Returns `true` if the path points to a directory; otherwise, `false`.
+     */
+    public function IsDirectory(): bool
+    {
+        return \is_dir((string)$this);
+    }
+
+    /**
+     * Returns the canonical absolute form of the path.
+     *
+     * Resolves the path to its absolute and canonical form by expanding all
+     * symbolic links, resolving `/./`, `/../`, and extra `/` characters.
+     * On success, trailing slashes are also removed.
+     *
+     * The method fails if the path does not exist or if the script lacks
+     * sufficient permissions to access directories in the hierarchy.
+     *
+     * If the path is empty, it is interpreted as the current directory.
+     *
+     * @return ?CPath
+     *   A new `CPath` instance containing the canonical absolute path if
+     *   successful, or `null` if the method fails.
+     */
+    public function ToAbsolute(): ?CPath
+    {
+        $absolutePath = \realpath((string)$this);
+        if ($absolutePath === false) {
+            return null;
+        }
+        return new CPath($absolutePath);
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
