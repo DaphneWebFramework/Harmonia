@@ -864,6 +864,60 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Replaces all occurrences of a specified search string with a replacement
      * string.
      *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @param string|\Stringable $searchString
+     *   The substring to search for.
+     * @param string|\Stringable $replacement
+     *   The substring to replace each occurrence of the search string.
+     * @param bool $caseSensitive (Optional)
+     *   Whether the comparison should be case-sensitive. By default, it is
+     *   case-sensitive.
+     * @return self
+     *   The current instance.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     *
+     * @see Replace
+     */
+    public function ReplaceInPlace(
+        string|\Stringable $searchString,
+        string|\Stringable $replacement,
+        bool $caseSensitive = true
+        ): self
+    {
+        if ($searchString instanceof \Stringable) {
+            $searchString = (string)$searchString;
+        }
+        if ($replacement instanceof \Stringable) {
+            $replacement = (string)$replacement;
+        }
+        if ($this->isSingleByte) {
+            if ($caseSensitive) {
+                $this->value = \str_replace($searchString, $replacement, $this->value);
+            } else {
+                $this->value = \str_ireplace($searchString, $replacement, $this->value);
+            }
+        } else {
+            $this->value = $this->withMultibyteRegexEncoding(function()
+                use($searchString, $replacement, $caseSensitive)
+            {
+                $searchString = \preg_quote($searchString);
+                if ($caseSensitive) {
+                    return \mb_ereg_replace($searchString, $replacement, $this->value);
+                } else {
+                    return \mb_eregi_replace($searchString, $replacement, $this->value);
+                }
+            });
+        }
+        return $this;
+    }
+
+    /**
+     * Replaces all occurrences of a specified search string with a replacement
+     * string.
+     *
      * @param string|\Stringable $searchString
      *   The substring to search for.
      * @param string|\Stringable $replacement
@@ -875,35 +929,17 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with the replacements made.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @see ReplaceInPlace
      */
-    public function Replace(string|\Stringable $searchString,
-        string|\Stringable $replacement, bool $caseSensitive = true): CString
+    public function Replace(
+        string|\Stringable $searchString,
+        string|\Stringable $replacement,
+        bool $caseSensitive = true
+        ): CString
     {
-        if ($searchString instanceof \Stringable) {
-            $searchString = (string)$searchString;
-        }
-        if ($replacement instanceof \Stringable) {
-            $replacement = (string)$replacement;
-        }
-        if ($this->isSingleByte) {
-            if ($caseSensitive) {
-                $replaced = \str_replace($searchString, $replacement, $this->value);
-            } else {
-                $replaced = \str_ireplace($searchString, $replacement, $this->value);
-            }
-        } else {
-            $replaced = $this->withMultibyteRegexEncoding(function()
-                use($searchString, $replacement, $caseSensitive)
-            {
-                $searchString = \preg_quote($searchString);
-                if ($caseSensitive) {
-                    return \mb_ereg_replace($searchString, $replacement, $this->value);
-                } else {
-                    return \mb_eregi_replace($searchString, $replacement, $this->value);
-                }
-            });
-        }
-        return new CString($replaced, $this->encoding);
+        $clone = clone $this;
+        return $clone->ReplaceInPlace($searchString, $replacement, $caseSensitive);
     }
 
     /**
