@@ -1119,7 +1119,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      */
     public function Apply(callable $function, mixed ...$args): CString
     {
-        return new CString((string)$function($this->value, ...$args));
+        $clone = clone $this;
+        return $clone->ApplyInPlace($function, ...$args);
     }
 
     #region Interface: Stringable
