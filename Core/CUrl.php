@@ -13,6 +13,7 @@
 namespace Harmonia\Core;
 
 use \Harmonia\Core\CString;
+use \Harmonia\Core\CArray;
 
 /**
  * CUrl is a class for manipulating URLs.
@@ -134,6 +135,22 @@ class CUrl extends CString
     {
         $this->TrimRightInPlace('/');
         return $this;
+    }
+
+    /**
+     * Parses the URL into its components.
+     *
+     * @return ?CArray
+     *   A `CArray` instance containing the URL components if parsing is
+     *   successful, or `null` if parsing fails.
+     */
+    public function Components(): ?CArray
+    {
+        $components = \parse_url((string)$this);
+        if ($components === false) {
+            return null;
+        }
+        return new CArray($components);
     }
 
     #endregion public
