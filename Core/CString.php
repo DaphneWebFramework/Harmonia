@@ -1080,6 +1080,48 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         return \iterator_to_array($this->Split($delimiter, $options), false);
     }
 
+    /**
+     * Applies a callable function to the current value.
+     *
+     * This version of the method directly modifies the current instance,
+     * instead of creating and returning a new one.
+     *
+     * @param callable $function
+     *   The function to apply to the current value. The function must accept a
+     *   `string` as its first parameter. Any additional arguments passed to
+     *   this method will be forwarded to the callable.
+     * @param mixed ...$args
+     *   Additional arguments to pass to the callable.
+     * @return self
+     *   The current instance.
+     *
+     * @see Apply
+     */
+    public function ApplyInPlace(callable $function, mixed ...$args): self
+    {
+        $this->value = (string)$function($this->value, ...$args);
+        return $this;
+    }
+
+    /**
+     * Applies a callable function to the current value.
+     *
+     * @param callable $function
+     *   The function to apply to the current value. The function must accept a
+     *   `string` as its first parameter. Any additional arguments passed to
+     *   this method will be forwarded to the callable.
+     * @param mixed ...$args
+     *   Additional arguments to pass to the callable.
+     * @return CString
+     *   A new `CString` instance containing the result of the callable.
+     *
+     * @see ApplyInPlace
+     */
+    public function Apply(callable $function, mixed ...$args): CString
+    {
+        return new CString((string)$function($this->value, ...$args));
+    }
+
     #region Interface: Stringable
 
     /**
