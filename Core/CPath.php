@@ -171,18 +171,26 @@ class CPath extends CString
      * symbolic links, resolving `/./`, `/../`, and extra `/` characters.
      * On success, trailing slashes are also removed.
      *
-     * The method fails if the path does not exist or if the script lacks
+     * This method fails if the path does not exist or if the script lacks
      * sufficient permissions to access directories in the hierarchy.
      *
-     * If the path is empty, it is interpreted as the current directory.
+     * If the path is empty, it is interpreted as the current working directory.
      *
+     * @param string|\Stringable|null $basePath (Optional)
+     *   Base directory to resolve the path relative to.
      * @return ?CPath
      *   A new `CPath` instance containing the canonical absolute path if
      *   successful, or `null` if the method fails.
      */
-    public function ToAbsolute(): ?CPath
+    public function ToAbsolute(string|\Stringable|null $basePath = null): ?CPath
     {
-        $absolutePath = \realpath((string)$this);
+        if ($basePath !== null) {
+            $absolutePath = $this->withWorkingDirectory($basePath, function() {
+                return \realpath((string)$this);
+            });
+        } else {
+            $absolutePath = \realpath((string)$this);
+        }
         if ($absolutePath === false) {
             return null;
         }
@@ -223,6 +231,43 @@ class CPath extends CString
     private static function isSlash(string $char): bool
     {
         return $char === '/' || $char === DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Temporarily sets a specified directory as the current working directory,
+     * executes a callback, and then restores the original working directory.
+     *
+     * @param string|\Stringable $workingDirectory
+     *   The directory to temporarily set as the current working directory.
+     * @param callable $callback
+     *   The function to execute while the specified directory is set as the
+     *   current working directory.
+     * @return mixed|false
+     *   The return value of the callback if successful, or `false` if the
+     *   the current working directory cannot be determined, the specified
+     *   directory cannot be set as the current working directory, or the
+     *   original working directory cannot be restored.
+     */
+    private function withWorkingDirectory(string|\Stringable $workingDirectory,
+        callable $callback): mixed
+    {
+        $originalWorkingDirectory = \getcwd();
+        if ($originalWorkingDirectory === false) {
+            return false;
+        }
+        if ($workingDirectory instanceof \Stringable) {
+            $workingDirectory = (string)$workingDirectory;
+        }
+        if (!@\chdir($workingDirectory)) {
+            return false;
+        }
+        try {
+            return $callback();
+        } finally {
+            if (!\chdir($originalWorkingDirectory)) {
+                return false;
+            }
+        }
     }
 
     #endregion private
