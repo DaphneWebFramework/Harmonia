@@ -153,5 +153,79 @@ class CUrl extends CString
         return new CArray($components);
     }
 
+    /**
+     * Returns the canonical absolute form of the URL.
+     *
+     * If the instance represents a relative URL, it will be converted into an
+     * absolute URL using the provided base URL. The path resolution is performed
+     * relative to the current working directory of the script (`getcwd()`).
+     *
+     * @param string|\Stringable $baseUrl
+     *   The base URL which serves as the prefix of the resulting absolute URL.
+     * @param string|\Stringable $basePath
+     *   The base directory path used both to validate and compute the resolved
+     *   absolute URL.
+     * @return CUrl
+     *   A new `CUrl` instance representing the absolute URL. If the URL is
+     *   already in absolute form, if parsing fails, if the resolved path is
+     *   invalid or outside the base path, or if the base path cannot be resolved,
+     *   the original URL instance is returned unchanged.
+     */
+    public function ToAbsolute(string|\Stringable $baseUrl,
+                               string|\Stringable $basePath): CUrl
+    {
+        // 1
+        $components = $this->Components();
+        if ($components === null
+         || $components->Has('scheme') || $components->Has('host')
+         || !$components->Has('path'))
+        {
+            return clone $this;
+        }
+        // 2
+        $pathComponent = new CPath($components->Get('path'));
+        $absolutePath = $pathComponent->TrimLeadingSlashes()
+                                      ->ApplyInPlace('rawurldecode')
+                                      ->ToAbsolute();
+        if ($absolutePath === null) {
+            return clone $this;
+        }
+        // 3
+        $isWindowsOS = PHP_OS_FAMILY === 'Windows';
+        // 4
+        if ($absolutePath->IsDirectory()) {
+            $absolutePath->EnsureTrailingSlash(); // avoid 301 redirects
+        }
+        if ($isWindowsOS) {
+            $absolutePath->ReplaceInPlace('\\', '/');
+        }
+        // 5
+        $basePath = new CPath($basePath);
+        $basePath = $basePath->ToAbsolute();
+        if ($basePath === null) {
+            return clone $this;
+        }
+        if ($isWindowsOS) {
+            $basePath->ReplaceInPlace('\\', '/');
+        }
+        if (!$absolutePath->StartsWith($basePath, $isWindowsOS ? false : true)) {
+            return clone $this;
+        }
+        // 6
+        $relativeUrl = $absolutePath->Middle($basePath->Length())
+                                    ->ApplyInPlace('rawurlencode')
+                                    ->ReplaceInPlace('%2F', '/'); // retain slashes
+        $absoluteUrl = CUrl::Join($baseUrl, (string)$relativeUrl);
+        // 7
+        if ($components->Has('query')) {
+            $absoluteUrl->AppendInPlace('?' . $components->Get('query'));
+        }
+        if ($components->Has('fragment')) {
+            $absoluteUrl->AppendInPlace('#' . $components->Get('fragment'));
+        }
+        // 8
+        return $absoluteUrl;
+    }
+
     #endregion public
 }
