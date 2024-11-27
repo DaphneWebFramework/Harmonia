@@ -52,22 +52,27 @@ abstract class Singleton
     /**
      * Replaces the singleton instance for the subclass.
      *
-     * This method replaces the current singleton instance with a new one. It
-     * is primarily intended for scenarios like testing, dynamic configuration
-     * updates, or context-specific overrides.
+     * This method replaces the current singleton instance with a new one or
+     * resets it if `null` is provided. It is primarily intended for scenarios
+     * like testing, dynamic configuration updates, or context-specific
+     * overrides.
      *
-     * @param self $newInstance
-     *   The new singleton instance to set.
-     * @return static|null
+     * @param ?self $newInstance
+     *   The new singleton instance to set, or `null` to reset the instance.
+     * @return ?static
      *   The previous instance before replacement, or `null` if no instance
      *   existed.
      */
-    public static function ReplaceInstance(self $newInstance): ?static
+    public static function ReplaceInstance(?self $newInstance): ?static
     {
         $key = static::class;
-        $previous = self::$instances[$key] ?? null;
-        self::$instances[$key] = $newInstance;
-        return $previous;
+        $previousInstance = self::$instances[$key] ?? null;
+        if ($newInstance !== null) {
+            self::$instances[$key] = $newInstance;
+        } else {
+            unset(self::$instances[$key]);
+        }
+        return $previousInstance;
     }
 
     /**
