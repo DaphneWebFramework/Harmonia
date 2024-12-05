@@ -47,7 +47,7 @@ class Server extends Singleton
      */
     public function IsSecure(): bool
     {
-        return in_array($this->data->Get('HTTPS'), ['on', '1'], true)
+        return \in_array($this->data->Get('HTTPS'), ['on', '1'], true)
             || $this->data->Get('SERVER_PORT') === '443'
             || $this->data->Get('REQUEST_SCHEME') === 'https'
             || $this->data->Get('HTTP_X_FORWARDED_PROTO') === 'https';

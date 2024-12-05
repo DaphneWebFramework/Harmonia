@@ -28,11 +28,11 @@ class CUrl extends CString
      * Leading and trailing whitespace are trimmed when storing the specified
      * URL value.
      *
-     * @param string|\Stringable $value (Optional)
-     *   The URL value to store. If omitted, defaults to an empty string. If
-     *   given a `CUrl` instance, its value is copied. For a `Stringable`
-     *   instance, its string representation is used, and for a native string,
-     *   the value is used directly.
+     * @param string|\Stringable $value
+     *   (Optional) The URL value to store. If omitted, defaults to an empty
+     *   string. If given a `CUrl` instance, its value is copied. For a
+     *   `Stringable` instance, its string representation is used, and for a
+     *   native string, the value is used directly.
      */
     public function __construct(string|\Stringable $value = '')
     {
@@ -50,14 +50,14 @@ class CUrl extends CString
      */
     public static function Join(string ...$segments): CUrl
     {
-        $segments = array_values(array_filter($segments,
+        $segments = \array_values(\array_filter($segments,
             function(string $segment): bool {
                 $segment = new CString($segment);
                 return !$segment->TrimInPlace('/')->IsEmpty();
             }
         ));
         $url = new CUrl();
-        $lastIndex = count($segments) - 1;
+        $lastIndex = \count($segments) - 1;
         foreach ($segments as $index => $segment) {
             $segment = new CUrl($segment);
             if ($index > 0) {
@@ -191,7 +191,7 @@ class CUrl extends CString
             return clone $this;
         }
         // 3
-        $isWindowsOS = PHP_OS_FAMILY === 'Windows';
+        $isWindowsOS = \PHP_OS_FAMILY === 'Windows';
         // 4
         if ($absolutePath->IsDirectory()) {
             $absolutePath->EnsureTrailingSlash(); // avoid 301 redirects

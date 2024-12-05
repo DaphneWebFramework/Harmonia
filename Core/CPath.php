@@ -27,11 +27,11 @@ class CPath extends CString
      * Leading and trailing whitespace are trimmed when storing the specified
      * path value.
      *
-     * @param string|\Stringable $value (Optional)
-     *   The path value to store. If omitted, defaults to an empty string. If
-     *   given a `CPath` instance, its value is copied. For a `Stringable`
-     *   instance, its string representation is used, and for a native string,
-     *   the value is used directly.
+     * @param string|\Stringable $value
+     *   (Optional) The path value to store. If omitted, defaults to an empty
+     *   string. If given a `CPath` instance, its value is copied. For a
+     *   `Stringable` instance, its string representation is used, and for a
+     *   native string, the value is used directly.
      */
     public function __construct(string|\Stringable $value = '')
     {
@@ -49,14 +49,14 @@ class CPath extends CString
      */
     public static function Join(string ...$segments): CPath
     {
-        $segments = array_values(array_filter($segments,
+        $segments = \array_values(\array_filter($segments,
             function(string $segment): bool {
                 $segment = new CString($segment);
                 return !$segment->TrimInPlace(self::getSlashes())->IsEmpty();
             }
         ));
         $path = new CPath();
-        $lastIndex = count($segments) - 1;
+        $lastIndex = \count($segments) - 1;
         foreach ($segments as $index => $segment) {
             $segment = new CPath($segment);
             if ($index > 0) {
@@ -176,8 +176,8 @@ class CPath extends CString
      *
      * If the path is empty, it is interpreted as the current working directory.
      *
-     * @param string|\Stringable|null $basePath (Optional)
-     *   Base directory to resolve the path relative to.
+     * @param string|\Stringable|null $basePath
+     *   (Optional) Base directory to resolve the path relative to.
      * @return ?CPath
      *   A new `CPath` instance containing the canonical absolute path if
      *   successful, or `null` if the method fails.

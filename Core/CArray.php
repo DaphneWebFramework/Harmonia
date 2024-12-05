@@ -28,10 +28,10 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Constructs a new instance.
      *
-     * @param array|CArray $value (Optional)
-     *   The array value to store. If omitted, defaults to an empty array. If a
-     *   `CArray` instance is provided, the array value is copied from the
-     *   original instance.
+     * @param array|CArray $value
+     *   (Optional) The array value to store. If omitted, defaults to an empty
+     *   array. If a `CArray` instance is provided, the array value is copied
+     *   from the original instance.
      */
     public function __construct(array|CArray $value = [])
     {

@@ -72,17 +72,17 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Constructs a new instance.
      *
-     * @param string|\Stringable $value (Optional)
-     *   The string value to store. If omitted, defaults to an empty string. If
-     *   given a `CString` instance, its value, encoding, and single-byte/multibyte
-     *   status are copied. If given a `Stringable` instance, its string
-     *   representation is used, and for a native string, the value is used
-     *   directly.
-     * @param ?string $encoding (Optional)
-     *   The encoding to use (e.g., 'UTF-8', 'ISO-8859-1'). If omitted or set to
-     *   `null`, defaults to the return value of `mb_internal_encoding`. This
-     *   parameter is ignored when `$value` is an instance of `CString`. Note
-     *   that encoding names are case-insensitive.
+     * @param string|\Stringable $value
+     *   (Optional) The string value to store. If omitted, defaults to an empty
+     *   string. If given a `CString` instance, its value, encoding, and
+     *   single-byte/multibyte status are copied. If given a `Stringable`
+     *   instance, its string representation is used, and for a native string,
+     *   the value is used directly.
+     * @param ?string $encoding
+     *   (Optional) The encoding to use (e.g., 'UTF-8', 'ISO-8859-1'). If
+     *   omitted or set to `null`, defaults to the return value of
+     *   `mb_internal_encoding`. This parameter is ignored when `$value` is an
+     *   instance of `CString`. Note that encoding names are case-insensitive.
      */
     public function __construct(string|\Stringable $value = '', ?string $encoding = null)
     {
@@ -304,10 +304,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The zero-based offset where the deletion will start. If the offset is
      *   negative or greater than or equal to the length of the string, no
      *   changes will be made.
-     * @param int $count (Optional)
-     *   The number of characters to delete. If this value is less than 1, no
-     *   changes will be made. If it exceeds the remaining characters, it will
-     *   delete up to the end. Defaults to 1.
+     * @param int $count
+     *   (Optional) The number of characters to delete. If this value is less
+     *   than 1, no changes will be made. If it exceeds the remaining characters,
+     *   it will delete up to the end. Defaults to 1.
      * @return self
      *   The current instance.
      * @throws \ValueError
@@ -483,9 +483,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param int $offset
      *   The zero-based starting offset of the characters to return.
-     * @param int $count (Optional)
-     *   The number of characters to return. If omitted, or if fewer characters
-     *   are available from the offset, only the available characters are returned.
+     * @param int $count
+     *   (Optional) The number of characters to return. If omitted, or if fewer
+     *   characters are available from the offset, only the available characters
+     *   are returned.
      * @return CString
      *   A new `CString` instance with the specified middle characters, or an
      *   empty instance if `$offset` is out of range or `$count` is not positive.
@@ -495,7 +496,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @see Left
      * @see Right
      */
-    public function Middle(int $offset, int $count = PHP_INT_MAX): CString
+    public function Middle(int $offset, int $count = \PHP_INT_MAX): CString
     {
         if ($offset < 0 || $count <= 0) {
             return $this->empty();
@@ -514,8 +515,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * This version of the method directly modifies the current instance,
      * instead of creating and returning a new one.
      *
-     * @param ?string $characters (Optional)
-     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @param ?string $characters
+     *   (Optional) Characters to trim. Defaults to trimming whitespace
+     *   characters.
      * @return self
      *   The current instance.
      * @throws \ValueError
@@ -534,7 +536,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 $this->value = \trim($this->value, $characters);
             }
         } else {
-            if (PHP_VERSION_ID >= 80400) {
+            if (\PHP_VERSION_ID >= 80400) {
                 $this->value = \mb_trim($this->value, $characters, $this->encoding);
             } else {
                 $this->value = $this->withMultibyteRegexEncoding(function()
@@ -558,8 +560,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Trims whitespace or specified characters from both sides of the string.
      *
-     * @param ?string $characters (Optional)
-     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @param ?string $characters
+     *   (Optional) Characters to trim. Defaults to trimming whitespace
+     *   characters.
      * @return CString
      *   A new `CString` instance with the trimmed string.
      * @throws \ValueError
@@ -582,8 +585,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * This version of the method directly modifies the current instance,
      * instead of creating and returning a new one.
      *
-     * @param ?string $characters (Optional)
-     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @param ?string $characters
+     *   (Optional) Characters to trim. Defaults to trimming whitespace
+     *   characters.
      * @return self
      *   The current instance.
      * @throws \ValueError
@@ -602,7 +606,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 $this->value = \ltrim($this->value, $characters);
             }
         } else {
-            if (PHP_VERSION_ID >= 80400) {
+            if (\PHP_VERSION_ID >= 80400) {
                 $this->value = \mb_ltrim($this->value, $characters, $this->encoding);
             } else {
                 $this->value = $this->withMultibyteRegexEncoding(function()
@@ -627,8 +631,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Trims whitespace or specified characters from the start (left) of the
      * string.
      *
-     * @param ?string $characters (Optional)
-     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @param ?string $characters
+     *   (Optional) Characters to trim. Defaults to trimming whitespace
+     *   characters.
      * @return CString
      *   A new `CString` instance with the trimmed string.
      * @throws \ValueError
@@ -651,8 +656,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * This version of the method directly modifies the current instance,
      * instead of creating and returning a new one.
      *
-     * @param ?string $characters (Optional)
-     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @param ?string $characters
+     *   (Optional) Characters to trim. Defaults to trimming whitespace
+     *   characters.
      * @return self
      *   The current instance.
      * @throws \ValueError
@@ -671,7 +677,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 $this->value = \rtrim($this->value, $characters);
             }
         } else {
-            if (PHP_VERSION_ID >= 80400) {
+            if (\PHP_VERSION_ID >= 80400) {
                 $this->value = \mb_rtrim($this->value, $characters, $this->encoding);
             } else {
                 $this->value = $this->withMultibyteRegexEncoding(function()
@@ -696,8 +702,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Trims whitespace or specified characters from the end (right) of the
      * string.
      *
-     * @param ?string $characters (Optional)
-     *   Characters to trim. Defaults to trimming whitespace characters.
+     * @param ?string $characters
+     *   (Optional) Characters to trim. Defaults to trimming whitespace
+     *   characters.
      * @return CString
      *   A new `CString` instance with the trimmed string.
      * @throws \ValueError
@@ -800,9 +807,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $other
      *   The string to compare with.
-     * @param bool $caseSensitive (Optional)
-     *   Whether the comparison should be case-sensitive. By default, it is
-     *   case-sensitive.
+     * @param bool $caseSensitive
+     *   (Optional) Whether the comparison should be case-sensitive. By default,
+     *   it is case-sensitive.
      * @return bool
      *   Returns `true` if the strings are equal, `false` otherwise.
      * @throws \ValueError
@@ -825,9 +832,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $searchString
      *   The string to check if the instance starts with it.
-     * @param bool $caseSensitive (Optional)
-     *   Whether the comparison should be case-sensitive. By default, it is
-     *   case-sensitive.
+     * @param bool $caseSensitive
+     *   (Optional) Whether the comparison should be case-sensitive. By default,
+     *   it is case-sensitive.
      * @return bool
      *   Returns `true` if the string starts with the given search string,
      *   `false` otherwise.
@@ -855,9 +862,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $searchString
      *   The string to check if the instance ends with it.
-     * @param bool $caseSensitive (Optional)
-     *   Whether the comparison should be case-sensitive. By default, it is
-     *   case-sensitive.
+     * @param bool $caseSensitive
+     *   (Optional) Whether the comparison should be case-sensitive. By default,
+     *   it is case-sensitive.
      * @return bool
      *   Returns `true` if the string ends with the given search string,
      *   `false` otherwise.
@@ -885,11 +892,12 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $searchString
      *   The string to search for.
-     * @param int $startOffset (Optional)
-     *   The zero-based offset from which to start the search. Defaults to 0.
-     * @param bool $caseSensitive (Optional)
-     *   Whether the comparison should be case-sensitive. By default, it is
-     *   case-sensitive.
+     * @param int $startOffset
+     *   (Optional) The zero-based offset from which to start the search.
+     *   Defaults to 0.
+     * @param bool $caseSensitive
+     *   (Optional) Whether the comparison should be case-sensitive. By default,
+     *   it is case-sensitive.
      * @return ?int
      *   The zero-based offset of the search string, or `null` if not found.
      * @throws \ValueError
@@ -933,9 +941,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The substring to search for.
      * @param string|\Stringable $replacement
      *   The substring to replace each occurrence of the search string.
-     * @param bool $caseSensitive (Optional)
-     *   Whether the comparison should be case-sensitive. By default, it is
-     *   case-sensitive.
+     * @param bool $caseSensitive
+     *   (Optional) Whether the comparison should be case-sensitive. By default,
+     *   it is case-sensitive.
      * @return self
      *   The current instance.
      * @throws \ValueError
@@ -984,9 +992,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The substring to search for.
      * @param string|\Stringable $replacement
      *   The substring to replace each occurrence of the search string.
-     * @param bool $caseSensitive (Optional)
-     *   Whether the comparison should be case-sensitive. By default, it is
-     *   case-sensitive.
+     * @param bool $caseSensitive
+     *   (Optional) Whether the comparison should be case-sensitive. By default,
+     *   it is case-sensitive.
      * @return CString
      *   A new `CString` instance with the replacements made.
      * @throws \ValueError
@@ -1016,11 +1024,12 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string $delimiter
      *   The delimiter indicating the points at which each split should occur.
-     * @param int $options (Optional)
-     *   Bitwise options for splitting behavior. `CString::SPLIT_OPTION_TRIM` trims
-     *   whitespace from each substring, and `CString::SPLIT_OPTION_EXCLUDE_EMPTY`
-     *   excludes empty substrings from the result. The default is `SPLIT_OPTION_NONE`,
-     *   which applies no trimming or exclusion.
+     * @param int $options
+     *   (Optional) Bitwise options for splitting behavior.
+     *   `CString::SPLIT_OPTION_TRIM` trims whitespace from each substring, and
+     *   `CString::SPLIT_OPTION_EXCLUDE_EMPTY` excludes empty substrings from
+     *   the result. The default is `SPLIT_OPTION_NONE`, which applies no
+     *   trimming or exclusion.
      * @return \Generator
      *   A generator yielding `CString` instances for each substring.
      *
@@ -1061,11 +1070,12 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string $delimiter
      *   The delimiter indicating the points at which each split should occur.
-     * @param int $options (Optional)
-     *   Bitwise options for splitting behavior. `CString::SPLIT_OPTION_TRIM` trims
-     *   whitespace from each substring, and `CString::SPLIT_OPTION_EXCLUDE_EMPTY`
-     *   excludes empty substrings from the result. The default is `SPLIT_OPTION_NONE`,
-     *   which applies no trimming or exclusion.
+     * @param int $options
+     *   (Optional) Bitwise options for splitting behavior.
+     *   `CString::SPLIT_OPTION_TRIM` trims whitespace from each substring, and
+     *   `CString::SPLIT_OPTION_EXCLUDE_EMPTY` excludes empty substrings from
+     *   the result. The default is `SPLIT_OPTION_NONE`, which applies no
+     *   trimming or exclusion.
      * @return CString[]
      *   An array of `CString` instances for each substring.
      *

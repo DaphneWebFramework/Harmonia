@@ -23,11 +23,11 @@ class CSequentialArray extends CArray
     /**
      * Constructs a new instance.
      *
-     * @param array|CArray $value (Optional)
-     *   The array value to store. If omitted, defaults to an empty array. If a
-     *   `CArray` or `CSequentialArray` instance is provided, its array value
-     *   is copied. Only arrays with sequential, zero-based integer indexes
-     *   are accepted.
+     * @param array|CArray $value
+     *   (Optional) The array value to store. If omitted, defaults to an empty
+     *   array. If a `CArray` or `CSequentialArray` instance is provided, its
+     *   array value is copied. Only arrays with sequential, zero-based integer
+     *   indexes are accepted.
      * @throws \InvalidArgumentException
      *   If the provided array is non-sequential, not zero-based, or contains
      *   non-integer indexes.
@@ -64,7 +64,7 @@ class CSequentialArray extends CArray
         if (\is_string($index)) {
             throw new \InvalidArgumentException('Index cannot be a string.');
         }
-        return 0 <= $index && $index < count($this->value);
+        return 0 <= $index && $index < \count($this->value);
     }
 
     /**

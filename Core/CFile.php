@@ -95,8 +95,8 @@ class CFile
      *
      * @param string $filename
      *   The name of the file to open.
-     * @param string $mode (Optional)
-     *   The mode for opening the file. Defaults to `CFile::MODE_READ`.
+     * @param string $mode
+     *   (Optional) The mode for opening the file. Defaults to `CFile::MODE_READ`.
      * @return ?CFile
      *   A `CFile` instance if successful, or `null` on failure.
      */
@@ -130,9 +130,9 @@ class CFile
      * reading is complete. If another process is currently writing to the file,
      * this call will efficiently wait until the write operation is finished.
      *
-     * @param ?int $length (Optional)
-     *   The number of bytes to read. If omitted, reads until the end of the
-     *   file.
+     * @param ?int $length
+     *   (Optional) The number of bytes to read. If omitted or set to `null`,
+     *   reads until the end of the file.
      * @return ?string
      *   The read bytes as a string, or `null` on failure.
      */
@@ -261,9 +261,10 @@ class CFile
      * @param int $offset
      *   The byte offset to move the cursor. This value is interpreted relative
      *   to the `$origin` parameter.
-     * @param int $origin (Optional)
-     *   The reference position for `$offset`. Must be one of `ORIGIN_BEGIN`,
-     *   `ORIGIN_CURRENT`, or `ORIGIN_END`. Defaults to `ORIGIN_BEGIN`.
+     * @param int $origin
+     *   (Optional) The reference position for `$offset`. Must be one of
+     *   `ORIGIN_BEGIN`, `ORIGIN_CURRENT`, or `ORIGIN_END`. Defaults to
+     *   `ORIGIN_BEGIN`.
      * @return bool
      *   Returns `true` if the cursor was successfully moved, `false` otherwise.
      */
