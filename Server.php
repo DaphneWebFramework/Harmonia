@@ -62,7 +62,7 @@ class Server extends Singleton
      */
     public function HostName(): string
     {
-        return $this->data->Get('SERVER_NAME', '');
+        return $this->data->GetOrDefault('SERVER_NAME', '');
     }
 
     /**
@@ -87,7 +87,7 @@ class Server extends Singleton
      */
     public function RootDirectory(): string
     {
-        return $this->data->Get('DOCUMENT_ROOT', '');
+        return $this->data->GetOrDefault('DOCUMENT_ROOT', '');
     }
 
     #endregion public

@@ -68,8 +68,7 @@ class CSequentialArray extends CArray
     }
 
     /**
-     * Returns the value at the specified index, or a default value if the
-     * index does not exist.
+     * Returns the value at the specified index.
      *
      * The `$index` parameter accepts both strings and integers to comply with
      * the `CArray::Get` signature. However, if a string is provided, an
@@ -79,8 +78,36 @@ class CSequentialArray extends CArray
      * @param string|int $index
      *   The zero-based index to look up. If a string is given, an exception
      *   is thrown.
-     * @param mixed $defaultValue (Optional)
-     *   The value to return if the index does not exist. Defaults to `null`.
+     * @return mixed
+     *   The value at the specified index if it exists, or `null` if the index
+     *   is out of range.
+     * @throws \InvalidArgumentException
+     *   If the index is a string.
+     *
+     * @override
+     */
+    public function Get(string|int $index): mixed
+    {
+        if (\is_string($index)) {
+            throw new \InvalidArgumentException('Index cannot be a string.');
+        }
+        return $this->value[$index] ?? null;
+    }
+
+    /**
+     * Returns the value at the specified index, or a default value if the
+     * index does not exist.
+     *
+     * The `$index` parameter accepts both strings and integers to comply with
+     * the `CArray::GetOrDefault` signature. However, if a string is provided,
+     * an exception is thrown because `CSequentialArray` only supports integer
+     * indexing.
+     *
+     * @param string|int $index
+     *   The zero-based index to look up. If a string is given, an exception
+     *   is thrown.
+     * @param mixed $defaultValue
+     *   The value to return if the index does not exist.
      * @return mixed
      *   The value at the specified index if it exists, or the default value if
      *   the index is out of range.
@@ -89,7 +116,7 @@ class CSequentialArray extends CArray
      *
      * @override
      */
-    public function Get(string|int $index, mixed $defaultValue = null): mixed
+    public function GetOrDefault(string|int $index, mixed $defaultValue): mixed
     {
         if (!$this->Has($index)) {
             return $defaultValue;
@@ -111,7 +138,7 @@ class CSequentialArray extends CArray
      *   made.
      * @param mixed $value
      *   The value to set at the specified index.
-     * @return CSequentialArray
+     * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
      *   If the index is a string.
@@ -139,7 +166,7 @@ class CSequentialArray extends CArray
      *   The zero-based index of the element to remove. If a string is given,
      *   an exception is thrown. If the index is out of range, no changes are
      *   made.
-     * @return CSequentialArray
+     * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
      *   If the index is a string.
@@ -160,7 +187,7 @@ class CSequentialArray extends CArray
      *
      * @param mixed $element
      *   The element to add to the array.
-     * @return CSequentialArray
+     * @return self
      *   The current instance.
      */
     public function PushBack(mixed $element): self
@@ -174,7 +201,7 @@ class CSequentialArray extends CArray
      *
      * @param mixed $element
      *   The element to add to the array.
-     * @return CSequentialArray
+     * @return self
      *   The current instance.
      */
     public function PushFront(mixed $element): self
@@ -213,7 +240,7 @@ class CSequentialArray extends CArray
      *   If the index is out of range, no changes are made.
      * @param mixed $element
      *   The new element to insert.
-     * @return CSequentialArray
+     * @return self
      *   The current instance.
      */
     public function InsertBefore(int $index, mixed $element): self
@@ -233,7 +260,7 @@ class CSequentialArray extends CArray
      *   If the index is out of range, no changes are made.
      * @param mixed $element
      *   The new element to insert.
-     * @return CSequentialArray
+     * @return self
      *   The current instance.
      */
     public function InsertAfter(int $index, mixed $element): self

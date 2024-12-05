@@ -78,18 +78,32 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
+     * Returns the value at the specified key.
+     *
+     * @param string|int $key
+     *   The key to look up.
+     * @return mixed
+     *   The value at the specified key if it exists, or `null` if the key is
+     *   not found.
+     */
+    public function Get(string|int $key): mixed
+    {
+        return $this->value[$key] ?? null;
+    }
+
+    /**
      * Returns the value at the specified key, or a default value if the key
      * does not exist.
      *
      * @param string|int $key
      *   The key to look up.
-     * @param mixed $defaultValue (Optional)
-     *   The value to return if the key does not exist. Defaults to `null`.
+     * @param mixed $defaultValue
+     *   The value to return if the key does not exist.
      * @return mixed
      *   The value at the specified key if it exists, or the default value if
      *   the key is not found.
      */
-    public function Get(string|int $key, mixed $defaultValue = null): mixed
+    public function GetOrDefault(string|int $key, mixed $defaultValue): mixed
     {
         if (!$this->Has($key)) {
             return $defaultValue;
@@ -104,7 +118,7 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
      *   The key at which to set the value.
      * @param mixed $value
      *   The value to set at the specified key.
-     * @return CArray
+     * @return self
      *   The current instance.
      */
     public function Set(string|int $key, mixed $value): self
@@ -118,7 +132,7 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
      *
      * @param string|int $key
      *   The key of the element to remove.
-     * @return CArray
+     * @return self
      *   The current instance.
      */
     public function Delete(string|int $key): self
