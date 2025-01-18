@@ -851,6 +851,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         bool $caseSensitive = true
     ): bool
     {
+        if ($this->isSingleByte && $caseSensitive) {
+            return \str_starts_with($this->value, (string)$searchString);
+        }
         if (!$searchString instanceof self) {
             $searchString = $this->wrap((string)$searchString);
         }
@@ -883,6 +886,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         bool $caseSensitive = true
     ): bool
     {
+        if ($this->isSingleByte && $caseSensitive) {
+            return \str_ends_with($this->value, (string)$searchString);
+        }
         if (!$searchString instanceof self) {
             $searchString = $this->wrap((string)$searchString);
         }
