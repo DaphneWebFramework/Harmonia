@@ -50,7 +50,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @var string
      */
-    private string $value;
+    protected string $value;
 
     /**
      * The string's encoding, which should be one of the mbstring module's

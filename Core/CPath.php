@@ -12,8 +12,6 @@
 
 namespace Harmonia\Core;
 
-use \Harmonia\Core\CString;
-
 /**
  * CPath is a class for manipulating file system paths.
  */
@@ -36,7 +34,9 @@ class CPath extends CString
     public function __construct(string|\Stringable $value = '')
     {
         parent::__construct($value);
-        $this->TrimInPlace();
+        if (!$this->IsEmpty()) {
+            $this->TrimInPlace();
+        }
     }
 
     /**
@@ -150,7 +150,7 @@ class CPath extends CString
      */
     public function IsFile(): bool
     {
-        return \is_file((string)$this);
+        return \is_file($this->value);
     }
 
     /**
@@ -161,7 +161,7 @@ class CPath extends CString
      */
     public function IsDirectory(): bool
     {
-        return \is_dir((string)$this);
+        return \is_dir($this->value);
     }
 
     /**
@@ -186,10 +186,10 @@ class CPath extends CString
     {
         if ($basePath !== null) {
             $absolutePath = $this->withWorkingDirectory($basePath, function() {
-                return \realpath((string)$this);
+                return \realpath($this->value);
             });
         } else {
-            $absolutePath = \realpath((string)$this);
+            $absolutePath = \realpath($this->value);
         }
         if ($absolutePath === false) {
             return null;

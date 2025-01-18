@@ -12,9 +12,6 @@
 
 namespace Harmonia\Core;
 
-use \Harmonia\Core\CString;
-use \Harmonia\Core\CArray;
-
 /**
  * CUrl is a class for manipulating URLs.
  */
@@ -37,7 +34,9 @@ class CUrl extends CString
     public function __construct(string|\Stringable $value = '')
     {
         parent::__construct($value);
-        $this->TrimInPlace();
+        if (!$this->IsEmpty()) {
+            $this->TrimInPlace();
+        }
     }
 
     /**
@@ -146,7 +145,7 @@ class CUrl extends CString
      */
     public function Components(): ?CArray
     {
-        $components = \parse_url((string)$this);
+        $components = \parse_url($this->value);
         if ($components === false) {
             return null;
         }
