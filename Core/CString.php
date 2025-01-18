@@ -312,10 +312,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
-     *
-     * @todo Rename to `DeleteInPlace`.
      */
-    public function DeleteAt(int $offset, int $count = 1): self
+    public function DeleteInPlace(int $offset, int $count = 1): self
     {
         if ($offset < 0) {
             return $this;
@@ -1232,7 +1230,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      */
     public function offsetUnset(mixed $offset): void
     {
-        $this->DeleteAt($offset);
+        $this->DeleteInPlace($offset);
     }
 
     #endregion Interface: ArrayAccess
