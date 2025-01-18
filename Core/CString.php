@@ -184,7 +184,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
-     * @see SetAt
+     * @see SetInPlace
      */
     public function At(int $offset): string
     {
@@ -218,7 +218,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see At
      */
-    public function SetAt(int $offset, string $character): self
+    public function SetInPlace(int $offset, string $character): self
     {
         if ($offset < 0) {
             return $this;
@@ -263,6 +263,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see Append
      * @see AppendInPlace
+     *
+     * @todo Rename to `InsertInPlace`.
      */
     public function InsertAt(int $offset, string|\Stringable $substring): self
     {
@@ -312,6 +314,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The current instance.
      * @throws \ValueError
      *   If an error occurs due to encoding.
+     *
+     * @todo Rename to `DeleteInPlace`.
      */
     public function DeleteAt(int $offset, int $count = 1): self
     {
@@ -1211,7 +1215,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->SetAt($offset, $value);
+        $this->SetInPlace($offset, $value);
     }
 
     /**
