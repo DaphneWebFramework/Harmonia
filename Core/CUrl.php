@@ -171,8 +171,10 @@ class CUrl extends CString
      *   invalid or outside the base path, or if the base path cannot be resolved,
      *   the original URL instance is returned unchanged.
      */
-    public function ToAbsolute(string|\Stringable $baseUrl,
-                               string|\Stringable $basePath): CUrl
+    public function ToAbsolute(
+        string|\Stringable $baseUrl,
+        string|\Stringable $basePath
+    ): CUrl
     {
         // 1
         $components = $this->Components();

@@ -815,7 +815,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function Equals(string|\Stringable $other, bool $caseSensitive = true): bool
+    public function Equals(
+        string|\Stringable $other,
+        bool $caseSensitive = true
+    ): bool
     {
         if ($caseSensitive) {
             return $this->value === (string)$other;
@@ -843,8 +846,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see EndsWith
      */
-    public function StartsWith(string|\Stringable $searchString,
-        bool $caseSensitive = true): bool
+    public function StartsWith(
+        string|\Stringable $searchString,
+        bool $caseSensitive = true
+    ): bool
     {
         if (!$searchString instanceof self) {
             $searchString = $this->wrap((string)$searchString);
@@ -873,8 +878,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see StartsWith
      */
-    public function EndsWith(string|\Stringable $searchString,
-        bool $caseSensitive = true): bool
+    public function EndsWith(
+        string|\Stringable $searchString,
+        bool $caseSensitive = true
+    ): bool
     {
         if (!$searchString instanceof self) {
             $searchString = $this->wrap((string)$searchString);
@@ -903,8 +910,11 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      */
-    public function IndexOf(string|\Stringable $searchString, int $startOffset = 0,
-        bool $caseSensitive = true): ?int
+    public function IndexOf(
+        string|\Stringable $searchString,
+        int $startOffset = 0,
+        bool $caseSensitive = true
+    ): ?int
     {
         if ($searchString instanceof \Stringable) {
             $searchString = (string)$searchString;
@@ -955,7 +965,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         string|\Stringable $searchString,
         string|\Stringable $replacement,
         bool $caseSensitive = true
-        ): self
+    ): self
     {
         if ($searchString instanceof \Stringable) {
             $searchString = (string)$searchString;
@@ -1006,7 +1016,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         string|\Stringable $searchString,
         string|\Stringable $replacement,
         bool $caseSensitive = true
-        ): CString
+    ): CString
     {
         $clone = clone $this;
         return $clone->ReplaceInPlace($searchString, $replacement, $caseSensitive);
@@ -1035,7 +1045,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see SplitToArray
      */
-    public function Split(string $delimiter, int $options = self::SPLIT_OPTION_NONE): \Generator
+    public function Split(
+        string $delimiter,
+        int $options = self::SPLIT_OPTION_NONE
+    ): \Generator
     {
         $delimiter = $this->wrap($delimiter);
         $delimiterLength = $delimiter->Length();
@@ -1081,7 +1094,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see Split
      */
-    public function SplitToArray(string $delimiter, int $options = self::SPLIT_OPTION_NONE): array
+    public function SplitToArray(
+        string $delimiter,
+        int $options = self::SPLIT_OPTION_NONE
+    ): array
     {
         // Setting `false` prevents `iterator_to_array` from preserving keys.
         // Since `yield from` in `Split` retains keys, using `false` avoids key

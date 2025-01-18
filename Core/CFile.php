@@ -100,7 +100,10 @@ class CFile
      * @return ?CFile
      *   A `CFile` instance if successful, or `null` on failure.
      */
-    public static function Open(string $filename, string $mode = self::MODE_READ): ?CFile
+    public static function Open(
+        string $filename,
+        string $mode = self::MODE_READ
+    ): ?CFile
     {
         $handle = self::_fopen($filename, $mode);
         if ($handle === false) {

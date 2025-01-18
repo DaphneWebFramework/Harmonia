@@ -248,8 +248,10 @@ class CPath extends CString
      *   directory cannot be set as the current working directory, or the
      *   original working directory cannot be restored.
      */
-    private function withWorkingDirectory(string|\Stringable $workingDirectory,
-        callable $callback): mixed
+    private function withWorkingDirectory(
+        string|\Stringable $workingDirectory,
+        callable $callback
+    ): mixed
     {
         $originalWorkingDirectory = \getcwd();
         if ($originalWorkingDirectory === false) {
