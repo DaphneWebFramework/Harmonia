@@ -168,16 +168,18 @@ class CPath extends CString
      * Returns the canonical absolute form of the path.
      *
      * Resolves the path to its absolute and canonical form by expanding all
-     * symbolic links, resolving `/./`, `/../`, and extra `/` characters.
-     * On success, trailing slashes are also removed.
+     * symbolic links, resolving `/./`, `/../`, and extra `/` characters. On
+     * success, trailing slashes are also removed.
+     *
+     * If the instance's value is empty, this method returns the current working
+     * directory.
      *
      * This method fails if the path does not exist or if the script lacks
      * sufficient permissions to access directories in the hierarchy.
      *
-     * If the path is empty, it is interpreted as the current working directory.
-     *
      * @param string|\Stringable|null $basePath
-     *   (Optional) Base directory to resolve the path relative to.
+     *   (Optional) Base directory to resolve the path relative to. If omitted,
+     *   the current working directory is used as the base path.
      * @return ?CPath
      *   A new `CPath` instance containing the canonical absolute path if
      *   successful, or `null` if the method fails.
