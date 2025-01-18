@@ -186,7 +186,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see SetInPlace
      */
-    public function At(int $offset): string
+    public function Get(int $offset): string
     {
         if ($offset < 0) {
             return '';
@@ -216,7 +216,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
-     * @see At
+     * @see Get
      */
     public function SetInPlace(int $offset, string $character): self
     {
@@ -1189,7 +1189,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      */
     public function offsetGet(mixed $offset): mixed
     {
-        return $this->At($offset);
+        return $this->Get($offset);
     }
 
     /**
@@ -1249,7 +1249,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     {
         $length = $this->Length();
         for ($i = 0; $i < $length; ++$i) {
-            yield $this->At($i);
+            yield $this->Get($i);
         }
     }
 
