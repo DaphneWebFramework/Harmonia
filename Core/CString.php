@@ -263,10 +263,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @see Append
      * @see AppendInPlace
-     *
-     * @todo Rename to `InsertInPlace`.
      */
-    public function InsertAt(int $offset, string|\Stringable $substring): self
+    public function InsertInPlace(int $offset, string|\Stringable $substring): self
     {
         if ($offset < 0) {
             return $this;
@@ -355,7 +353,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The current instance.
      *
      * @see Prepend
-     * @see InsertAt
+     * @see InsertInPlace
      */
     public function PrependInPlace(string|\Stringable $substring): self
     {
@@ -375,7 +373,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with the string prepended.
      *
      * @see PrependInPlace
-     * @see InsertAt
+     * @see InsertInPlace
      */
     public function Prepend(string|\Stringable $substring): CString
     {
@@ -395,7 +393,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   The current instance.
      *
      * @see Append
-     * @see InsertAt
+     * @see InsertInPlace
      */
     public function AppendInPlace(string|\Stringable $substring): self
     {
@@ -415,7 +413,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   A new `CString` instance with the substring appended.
      *
      * @see AppendInPlace
-     * @see InsertAt
+     * @see InsertInPlace
      */
     public function Append(string|\Stringable $substring): CString
     {
