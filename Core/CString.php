@@ -298,48 +298,6 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Deletes a range of characters starting from the specified offset.
-     *
-     * @param int $offset
-     *   The zero-based offset where the deletion will start. If the offset is
-     *   negative or greater than or equal to the length of the string, no
-     *   changes will be made.
-     * @param int $count
-     *   (Optional) The number of characters to delete. If this value is less
-     *   than 1, no changes will be made. If it exceeds the remaining characters,
-     *   it will delete up to the end. Defaults to 1.
-     * @return self
-     *   The current instance.
-     * @throws \ValueError
-     *   If an error occurs due to encoding.
-     */
-    public function DeleteInPlace(int $offset, int $count = 1): self
-    {
-        if ($offset < 0) {
-            return $this;
-        }
-        if ($count < 1) {
-            return $this;
-        }
-        $length = $this->Length();
-        if ($offset >= $length) {
-            return $this;
-        }
-        $availableLength = min($count, $length - $offset);
-        $endOffset = $offset + $availableLength;
-        if ($this->isSingleByte) {
-            $this->value =
-                \substr($this->value, 0, $offset)
-              . \substr($this->value, $endOffset);
-        } else {
-            $this->value =
-                \mb_substr($this->value, 0, $offset, $this->encoding)
-              . \mb_substr($this->value, $endOffset, null, $this->encoding);
-        }
-        return $this;
-    }
-
-    /**
      * Inserts the specified string at the beginning.
      *
      * This version of the method directly modifies the current instance,
@@ -417,6 +375,48 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     {
         $clone = clone $this;
         return $clone->AppendInPlace($substring);
+    }
+
+    /**
+     * Deletes a range of characters starting from the specified offset.
+     *
+     * @param int $offset
+     *   The zero-based offset where the deletion will start. If the offset is
+     *   negative or greater than or equal to the length of the string, no
+     *   changes will be made.
+     * @param int $count
+     *   (Optional) The number of characters to delete. If this value is less
+     *   than 1, no changes will be made. If it exceeds the remaining characters,
+     *   it will delete up to the end. Defaults to 1.
+     * @return self
+     *   The current instance.
+     * @throws \ValueError
+     *   If an error occurs due to encoding.
+     */
+    public function DeleteInPlace(int $offset, int $count = 1): self
+    {
+        if ($offset < 0) {
+            return $this;
+        }
+        if ($count < 1) {
+            return $this;
+        }
+        $length = $this->Length();
+        if ($offset >= $length) {
+            return $this;
+        }
+        $availableLength = min($count, $length - $offset);
+        $endOffset = $offset + $availableLength;
+        if ($this->isSingleByte) {
+            $this->value =
+                \substr($this->value, 0, $offset)
+              . \substr($this->value, $endOffset);
+        } else {
+            $this->value =
+                \mb_substr($this->value, 0, $offset, $this->encoding)
+              . \mb_substr($this->value, $endOffset, null, $this->encoding);
+        }
+        return $this;
     }
 
     /**
