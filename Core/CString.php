@@ -539,7 +539,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             if (\PHP_VERSION_ID >= 80400) {
                 $this->value = \mb_trim($this->value, $characters, $this->encoding);
             } else {
-                $this->value = $this->withMultibyteRegexEncoding(function()
+                $trimmed = $this->withMultibyteRegexEncoding(function()
                     use($characters)
                 {
                     if ($characters === null) {
@@ -552,6 +552,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                     }
                     return $this->value;
                 });
+                if (\is_string($trimmed)) {
+                    $this->value = $trimmed;
+                }
             }
         }
         return $this;
@@ -609,7 +612,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             if (\PHP_VERSION_ID >= 80400) {
                 $this->value = \mb_ltrim($this->value, $characters, $this->encoding);
             } else {
-                $this->value = $this->withMultibyteRegexEncoding(function()
+                $trimmed = $this->withMultibyteRegexEncoding(function()
                     use($characters)
                 {
                     if ($characters === null) {
@@ -622,6 +625,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                     }
                     return $this->value;
                 });
+                if (\is_string($trimmed)) {
+                    $this->value = $trimmed;
+                }
             }
         }
         return $this;
@@ -680,7 +686,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             if (\PHP_VERSION_ID >= 80400) {
                 $this->value = \mb_rtrim($this->value, $characters, $this->encoding);
             } else {
-                $this->value = $this->withMultibyteRegexEncoding(function()
+                $trimmed = $this->withMultibyteRegexEncoding(function()
                     use($characters)
                 {
                     if ($characters === null) {
@@ -693,6 +699,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                     }
                     return $this->value;
                 });
+                if (\is_string($trimmed)) {
+                    $this->value = $trimmed;
+                }
             }
         }
         return $this;
@@ -986,7 +995,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                 $this->value = \str_ireplace($searchString, $replacement, $this->value);
             }
         } else {
-            $this->value = $this->withMultibyteRegexEncoding(function()
+            $replaced = $this->withMultibyteRegexEncoding(function()
                 use($searchString, $replacement, $caseSensitive)
             {
                 $searchString = \preg_quote($searchString);
@@ -996,6 +1005,9 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
                     return \mb_eregi_replace($searchString, $replacement, $this->value);
                 }
             });
+            if (\is_string($replaced)) {
+                $this->value = $replaced;
+            }
         }
         return $this;
     }
