@@ -13,13 +13,13 @@
 ### Adding
 
 ```
-git submodule add https://github.com/DaphneWebFramework/Harmonia.git source/classes/Harmonia
+git submodule add https://github.com/DaphneWebFramework/Harmonia.git source/backend/Harmonia
 ```
 
 ### Updating
 
 ```
-git submodule update --remote --merge source/classes/Harmonia
+git submodule update --remote --merge source/backend/Harmonia
 ```
 
 ## See Also
