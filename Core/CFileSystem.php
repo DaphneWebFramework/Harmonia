@@ -14,6 +14,9 @@ namespace Harmonia\Core;
 
 use \Harmonia\Patterns\Singleton;
 
+/**
+ * Provides file system utility methods for directory and file management.
+ */
 class CFileSystem extends Singleton
 {
     /**
@@ -41,5 +44,40 @@ class CFileSystem extends Singleton
             return true;
         }
         return mkdir($directoryPath, $permissions, true);
+    }
+
+    /**
+     * Deletes a directory and all its contents.
+     *
+     * This method recursively deletes all files and subdirectories within the
+     * specified directory before removing the directory itself.
+     *
+     * @param string|\Stringable $directoryPath
+     *   The path of the directory to be deleted.
+     * @return bool
+     *   Returns `true` if the directory and its contents are deleted
+     *   successfully. Otherwise, returns `false`.
+     */
+    public function DeleteDirectory(string|\Stringable $directoryPath): bool
+    {
+        $directoryPath = (string)$directoryPath;
+        if (!\is_dir($directoryPath)) {
+            return false;
+        }
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator(
+                $directoryPath,
+                \RecursiveDirectoryIterator::SKIP_DOTS
+            ),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($iterator as $path) {
+            if ($path->isDir()) {
+                \rmdir($path->getPathname());
+            } else {
+                \unlink($path->getPathname());
+            }
+        }
+        return \rmdir($directoryPath);
     }
 }
