@@ -71,11 +71,11 @@ class CFileSystem extends Singleton
             ),
             \RecursiveIteratorIterator::CHILD_FIRST
         );
-        foreach ($iterator as $path) {
-            if ($path->isDir()) {
-                \rmdir($path->getPathname());
+        foreach ($iterator as $fileInfo) {
+            if ($fileInfo->isDir()) {
+                \rmdir($fileInfo->getPathname());
             } else {
-                \unlink($path->getPathname());
+                \unlink($fileInfo->getPathname());
             }
         }
         return \rmdir($directoryPath);
@@ -106,11 +106,11 @@ class CFileSystem extends Singleton
      * @param string $wildcard
      *   A string containing wildcard characters (* ?).
      * @param bool $recursive
-     *   (Optional) If this parameter is `true`, the search is recursive,
-     *   meaning it will include all subdirectories. Otherwise, only the
-     *   root of the specified directory is searched. Defaults to `false`.
+     *   (Optional) If `true`, the search will include all subdirectories.
+     *   Otherwise, only the root of the specified directory is searched.
+     *   Defaults to `false`.
      * @return \Generator
-     *   A generator yielding `CPath` instances for each matching file.
+     *   A generator yielding the paths of matching files as strings.
      */
     public function FindFiles(
         string|\Stringable $directoryPath,
@@ -119,23 +119,24 @@ class CFileSystem extends Singleton
     ): \Generator
     {
         $directoryPath = (string)$directoryPath;
-        $handle = @\opendir($directoryPath);
-        if ($handle === false) {
+        if (!\is_dir($directoryPath)) {
             return;
         }
-        while (false !== ($entry = \readdir($handle))) {
-            if ($entry === '.' || $entry === '..') {
+        $iterator = new \RecursiveDirectoryIterator(
+            $directoryPath,
+            \RecursiveDirectoryIterator::SKIP_DOTS
+        );
+        if ($recursive) {
+            $iterator = new \RecursiveIteratorIterator($iterator);
+        }
+        foreach ($iterator as $fileInfo) {
+            if ($fileInfo->isDir()) {
                 continue;
             }
-            $entryPath = CPath::Join($directoryPath, $entry);
-            if ($entryPath->IsDirectory()) {
-                if ($recursive) {
-                    yield from $this->FindFiles($entryPath, $wildcard, true);
-                }
-            } elseif (\fnmatch($wildcard, $entry)) {
-                yield $entryPath;
+            if (!\fnmatch($wildcard, $fileInfo->getFilename())) {
+                continue;
             }
+            yield $fileInfo->getPathname();
         }
-        \closedir($handle);
     }
 }
