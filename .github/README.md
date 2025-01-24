@@ -1,5 +1,7 @@
 # Harmonia
 
+[![Backend Tests](https://github.com/DaphneWebFramework/HarmoniaTest/actions/workflows/test-backend.yml/badge.svg)](https://github.com/DaphneWebFramework/HarmoniaTest/actions/workflows/test-backend.yml)
+
 ![](assets/masthead.png)
 
 > <sub><sup>In Greek mythology, Harmonia is the goddess of harmony and concord.</sup></sub>
