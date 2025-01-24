@@ -80,4 +80,21 @@ class CFileSystem extends Singleton
         }
         return \rmdir($directoryPath);
     }
+
+    /**
+     * Deletes a file.
+     *
+     * @param string|\Stringable $filePath
+     *   The path of the file to be deleted.
+     * @return bool
+     *   Returns `true` on success, or `false` on failure.
+     */
+    public static function DeleteFile(string|\Stringable $filePath): bool
+    {
+        $filePath = (string)$filePath;
+        if (!\is_file($filePath)) {
+            return false;
+        }
+        return \unlink($filePath);
+    }
 }
