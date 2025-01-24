@@ -65,5 +65,22 @@ class Config extends Singleton
         $this->options = new CArray(include $optionsFilePath);
     }
 
+    /**
+     * Reloads configuration options from the file.
+     *
+     * @throws \RuntimeException
+     *   If no configuration options file is loaded.
+     */
+    public function Reload(): void
+    {
+        if ($this->optionsFilePath === null) {
+            throw new \RuntimeException('No configuration options file is loaded.');
+        }
+        if (\function_exists('opcache_invalidate')) {
+            \opcache_invalidate((string)$this->optionsFilePath, true);
+        }
+        $this->options = new CArray(include $this->optionsFilePath);
+    }
+
     #endregion public
 }
