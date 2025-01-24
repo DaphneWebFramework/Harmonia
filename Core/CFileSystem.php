@@ -89,12 +89,53 @@ class CFileSystem extends Singleton
      * @return bool
      *   Returns `true` on success, or `false` on failure.
      */
-    public static function DeleteFile(string|\Stringable $filePath): bool
+    public function DeleteFile(string|\Stringable $filePath): bool
     {
         $filePath = (string)$filePath;
         if (!\is_file($filePath)) {
             return false;
         }
         return \unlink($filePath);
+    }
+
+    /**
+     * Searches for files in a directory.
+     *
+     * @param string|\Stringable $directoryPath
+     *   The path of the directory to search in.
+     * @param string $wildcard
+     *   A string containing wildcard characters (* ?).
+     * @param bool $recursive
+     *   (Optional) If this parameter is `true`, the search is recursive,
+     *   meaning it will include all subdirectories. Otherwise, only the
+     *   root of the specified directory is searched. Defaults to `false`.
+     * @return \Generator
+     *   A generator yielding `CPath` instances for each matching file.
+     */
+    public function FindFiles(
+        string|\Stringable $directoryPath,
+        string $wildcard,
+        bool $recursive = false
+    ): \Generator
+    {
+        $directoryPath = (string)$directoryPath;
+        $handle = @\opendir($directoryPath);
+        if ($handle === false) {
+            return;
+        }
+        while (false !== ($entry = \readdir($handle))) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            $entryPath = CPath::Join($directoryPath, $entry);
+            if ($entryPath->IsDirectory()) {
+                if ($recursive) {
+                    yield from $this->FindFiles($entryPath, $wildcard, true);
+                }
+            } elseif (\fnmatch($wildcard, $entry)) {
+                yield $entryPath;
+            }
+        }
+        \closedir($handle);
     }
 }
