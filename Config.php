@@ -48,6 +48,29 @@ class Config extends Singleton
     #region public -------------------------------------------------------------
 
     /**
+     * Retrieves the path to the configuration options file.
+     *
+     * @return ?CPath
+     *   The path to the configuration options file, or `null` if no file is
+     *   loaded.
+     */
+    public function GetOptionsFilePath(): ?CPath
+    {
+        return $this->optionsFilePath;
+    }
+
+    /**
+     * Retrieves configuration options.
+     *
+     * @return ?CArray
+     *   The configuration options, or `null` if no options are loaded.
+     */
+    public function GetOptions(): ?CArray
+    {
+        return $this->options;
+    }
+
+    /**
      * Loads configuration options from the specified file.
      *
      * @param CPath $optionsFilePath
