@@ -135,7 +135,7 @@ class Config extends Singleton
         if ($currentValue === null) {
             throw new \RuntimeException("Configuration option not found: $key");
         }
-        if (gettype($value) !== gettype($currentValue)) {
+        if (\gettype($value) !== \gettype($currentValue)) {
             throw new \RuntimeException("Configuration option type mismatch: $key");
         }
         $this->options->Set($key, $value);
