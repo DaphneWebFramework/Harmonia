@@ -14,14 +14,21 @@ namespace Harmonia;
 
 use \Harmonia\Patterns\Singleton;
 
-use \Harmonia\Core\CPath;
 use \Harmonia\Core\CArray;
+use \Harmonia\Core\CPath;
 
 /**
  * Provides structured access to configuration options.
  */
 class Config extends Singleton
 {
+    /**
+     * Stores configuration options.
+     *
+     * @var CArray
+     */
+    private CArray $options;
+
     /**
      * Stores the path to the configuration options file.
      *
@@ -30,22 +37,26 @@ class Config extends Singleton
     private ?CPath $optionsFilePath;
 
     /**
-     * Stores configuration options.
-     *
-     * @var ?CArray
-     */
-    private ?CArray $options;
-
-    /**
-     * Constructs a new instance.
+     * Constructs a new instance with empty configuration options.
      */
     protected function __construct()
     {
+        $this->options = new CArray();
         $this->optionsFilePath = null;
-        $this->options = null;
     }
 
     #region public -------------------------------------------------------------
+
+    /**
+     * Retrieves the configuration options.
+     *
+     * @return CArray
+     *   The configuration options.
+     */
+    public function GetOptions(): CArray
+    {
+        return $this->options;
+    }
 
     /**
      * Retrieves the path to the configuration options file.
@@ -57,17 +68,6 @@ class Config extends Singleton
     public function GetOptionsFilePath(): ?CPath
     {
         return $this->optionsFilePath;
-    }
-
-    /**
-     * Retrieves configuration options.
-     *
-     * @return ?CArray
-     *   The configuration options, or `null` if no options are loaded.
-     */
-    public function GetOptions(): ?CArray
-    {
-        return $this->options;
     }
 
     /**
@@ -103,6 +103,42 @@ class Config extends Singleton
             \opcache_invalidate((string)$this->optionsFilePath, true);
         }
         $this->options = new CArray(include $this->optionsFilePath);
+    }
+
+    /**
+     * Retrieves the value of a configuration option.
+     *
+     * @param string $key
+     *   The key of the configuration option.
+     * @return mixed
+     *   The value of the configuration option, or `null` if the key is not found.
+     */
+    public function GetOption(string $key): mixed
+    {
+        return $this->options->Get($key);
+    }
+
+    /**
+     * Sets the value of a configuration option.
+     *
+     * @param string $key
+     *   The key of the configuration option.
+     * @param mixed $value
+     *   The value of the configuration option.
+     * @throws \RuntimeException
+     *   If the specified key is not found or if the value type does not match
+     *   the existing value type.
+     */
+    public function SetOption(string $key, mixed $value): void
+    {
+        $currentValue = $this->options->Get($key);
+        if ($currentValue === null) {
+            throw new \RuntimeException("Configuration option not found: $key");
+        }
+        if (gettype($value) !== gettype($currentValue)) {
+            throw new \RuntimeException("Configuration option type mismatch: $key");
+        }
+        $this->options->Set($key, $value);
     }
 
     #endregion public
