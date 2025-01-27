@@ -15,6 +15,8 @@ namespace Harmonia;
 use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Core\CArray;
+use \Harmonia\Core\CPath;
+use \Harmonia\Core\CUrl;
 
 /**
  * Provides structured access to server environment data.
@@ -56,24 +58,37 @@ class Server extends Singleton
     /**
      * Retrieves the web server's root URL, including the protocol and hostname.
      *
-     * @return string
-     *   The fully qualified URL (e.g., "http://localhost" or "https://example.com").
+     * @return CUrl
+     *   A new `CUrl` instance representing the root URL (e.g., "http://localhost"
+     *   or "https://example.com").
+     * @throws \RuntimeException
+     *   If the server name is not set.
      */
-    public function Url(): string
+    public function Url(): CUrl
     {
-        return ($this->IsSecure() ? 'https' : 'http') . '://'
-            . $this->superglobal->GetOrDefault('SERVER_NAME', '');
+        $serverName = $this->superglobal->GetOrDefault('SERVER_NAME', '');
+        if ($serverName === '') {
+            throw new \RuntimeException('Server name is not set.');
+        }
+        return CUrl::Join($this->IsSecure() ? 'https://' : 'http://', $serverName);
     }
 
     /**
      * Retrieves the web server's root directory path.
      *
-     * @return string
-     *   The root directory path (e.g., "C:/xampp/htdocs" or "/var/www/html").
+     * @return CPath
+     *   A new `CPath` instance representing the root directory path (e.g.,
+     *   "C:/xampp/htdocs" or "/var/www/html").
+     * @throws \RuntimeException
+     *   If the document root is not set.
      */
-    public function Path(): string
+    public function Path(): CPath
     {
-        return $this->superglobal->GetOrDefault('DOCUMENT_ROOT', '');
+        $documentRoot = $this->superglobal->GetOrDefault('DOCUMENT_ROOT', '');
+        if ($documentRoot === '') {
+            throw new \RuntimeException('Document root is not set.');
+        }
+        return new CPath($documentRoot);
     }
 
     #endregion public
