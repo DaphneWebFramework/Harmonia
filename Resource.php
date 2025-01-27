@@ -55,8 +55,6 @@ class Resource extends Singleton
      */
     protected readonly Server $server;
 
-    #region public -------------------------------------------------------------
-
     /**
      * Constructs a new instance.
      *
@@ -65,12 +63,14 @@ class Resource extends Singleton
      *
      * @see Initialize
      */
-    public function __construct()
+    protected function __construct()
     {
         $this->appPath = null;
         $this->cache = new CArray();
         $this->server = Server::Instance();
     }
+
+    #region public -------------------------------------------------------------
 
     /**
      * Initializes the resource with the specified application path.
