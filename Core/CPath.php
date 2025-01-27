@@ -42,15 +42,15 @@ class CPath extends CString
     /**
      * Joins multiple path segments into a single path.
      *
-     * @param string ...$segments
+     * @param string|\Stringable ...$segments
      *   A list of path segments to join.
      * @return CPath
      *   A new `CPath` instance representing the joined path.
      */
-    public static function Join(string ...$segments): CPath
+    public static function Join(string|\Stringable ...$segments): CPath
     {
         $segments = \array_values(\array_filter($segments,
-            function(string $segment): bool {
+            function(string|\Stringable $segment): bool {
                 $segment = new CString($segment);
                 return !$segment->TrimInPlace(self::getSlashes())->IsEmpty();
             }
