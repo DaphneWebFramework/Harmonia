@@ -42,15 +42,15 @@ class CUrl extends CString
     /**
      * Joins multiple URL segments into a single URL.
      *
-     * @param string ...$segments
+     * @param string|\Stringable ...$segments
      *   A list of URL segments to join.
      * @return CUrl
      *   A new `CUrl` instance representing the joined URL.
      */
-    public static function Join(string ...$segments): CUrl
+    public static function Join(string|\Stringable ...$segments): CUrl
     {
         $segments = \array_values(\array_filter($segments,
-            function(string $segment): bool {
+            function(string|\Stringable $segment): bool {
                 $segment = new CString($segment);
                 return !$segment->TrimInPlace('/')->IsEmpty();
             }
@@ -222,7 +222,7 @@ class CUrl extends CString
         $relativeUrl = $absolutePath->Middle($basePath->Length())
                                     ->ApplyInPlace('rawurlencode')
                                     ->ReplaceInPlace('%2F', '/'); // retain slashes
-        $absoluteUrl = CUrl::Join($baseUrl, (string)$relativeUrl);
+        $absoluteUrl = CUrl::Join($baseUrl, $relativeUrl);
         // 7
         if ($components->Has('query')) {
             $absoluteUrl->AppendInPlace('?' . $components->Get('query'));
