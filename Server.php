@@ -22,18 +22,18 @@ use \Harmonia\Core\CArray;
 class Server extends Singleton
 {
     /**
-     * Stores server environment data from the `$_SERVER` superglobal.
+     * Stores values from the `$_SERVER` superglobal.
      *
      * @var CArray
      */
-    private readonly CArray $data;
+    private readonly CArray $superglobal;
 
     /**
-     * Constructs a new instance by initializing the server environment data.
+     * Constructs a new instance with values from the `$_SERVER` superglobal.
      */
     protected function __construct()
     {
-        $this->data = new CArray($_SERVER);
+        $this->superglobal = new CArray($_SERVER);
     }
 
     #region public -------------------------------------------------------------
@@ -43,51 +43,37 @@ class Server extends Singleton
      *
      * @return bool
      *   Returns `true` if the connection is secure (e.g., HTTPS); otherwise,
-     *   returns `false`.
+     *   `false`.
      */
     public function IsSecure(): bool
     {
-        return \in_array($this->data->Get('HTTPS'), ['on', '1'], true)
-            || $this->data->Get('SERVER_PORT') === '443'
-            || $this->data->Get('REQUEST_SCHEME') === 'https'
-            || $this->data->Get('HTTP_X_FORWARDED_PROTO') === 'https';
+        return \in_array($this->superglobal->Get('HTTPS'), ['on', '1'], true)
+            || $this->superglobal->Get('SERVER_PORT') === '443'
+            || $this->superglobal->Get('REQUEST_SCHEME') === 'https'
+            || $this->superglobal->Get('HTTP_X_FORWARDED_PROTO') === 'https';
     }
 
     /**
-     * Returns the hostname.
+     * Retrieves the web server's root URL, including the protocol and hostname.
      *
      * @return string
-     *   The server name as defined by the `SERVER_NAME` key in the `$_SERVER`
-     *   superglobal. Returns an empty string if the key does not exist.
+     *   The fully qualified URL (e.g., "http://localhost" or "https://example.com").
      */
-    public function HostName(): string
+    public function Url(): string
     {
-        return $this->data->GetOrDefault('SERVER_NAME', '');
+        return ($this->IsSecure() ? 'https' : 'http') . '://'
+            . $this->superglobal->GetOrDefault('SERVER_NAME', '');
     }
 
     /**
-     * Returns the full server URL, including the protocol and hostname.
+     * Retrieves the web server's root directory path.
      *
      * @return string
-     *   The full URL constructed from the protocol (http/https) and the server
-     *   name.
+     *   The root directory path (e.g., "C:/xampp/htdocs" or "/var/www/html").
      */
-    public function HostUrl(): string
+    public function Path(): string
     {
-        return ($this->IsSecure() ? 'https' : 'http') . '://' . $this->HostName();
-    }
-
-    /**
-     * Returns the root directory path.
-     *
-     * @return string
-     *   The directory path as defined by the `DOCUMENT_ROOT` key in the
-     *   `$_SERVER` superglobal, e.g., "C:/xampp/htdocs". Returns an empty
-     *   string if the key does not exist.
-     */
-    public function RootDirectory(): string
-    {
-        return $this->data->GetOrDefault('DOCUMENT_ROOT', '');
+        return $this->superglobal->GetOrDefault('DOCUMENT_ROOT', '');
     }
 
     #endregion public
