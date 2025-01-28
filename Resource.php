@@ -89,7 +89,8 @@ class Resource extends Singleton
      * @param string|\Stringable $appPath
      *   The application path to initialize with.
      * @throws \RuntimeException
-     *   If the application path cannot be resolved.
+     *   If the resource is already initialized or the application path cannot
+     *   be resolved.
      */
     public function Initialize(string|\Stringable $appPath): void
     {
