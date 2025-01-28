@@ -82,23 +82,27 @@ class Resource extends Singleton
      * For example:
      * ```php
      * use \Harmonia\Resource;
-     * use \Harmonia\Core\CPath;
      *
-     * Resource::Instance()->Initialize(new CPath(__DIR__));
+     * Resource::Instance()->Initialize(__DIR__);
      * ```
      *
-     * @param CPath $appPath
+     * @param string|\Stringable $appPath
      *   The application path to initialize with.
      * @throws \RuntimeException
      *   If the application path cannot be resolved.
      */
-    public function Initialize(CPath $appPath): void
+    public function Initialize(string|\Stringable $appPath): void
     {
-        $appPath = $appPath->ToAbsolute();
-        if ($appPath === null) {
+        if ($this->appPath !== null) {
+            throw new \RuntimeException('Resource is already initialized.');
+        }
+        if (!($appPath instanceof CPath)) {
+            $appPath = new CPath($appPath);
+        }
+        $this->appPath = $appPath->ToAbsolute();
+        if ($this->appPath === null) {
             throw new \RuntimeException('Failed to resolve application path.');
         }
-        $this->appPath = $appPath;
     }
 
     /**
@@ -139,7 +143,11 @@ class Resource extends Singleton
             return $this->cache->Get(self::CACHE_KEY_APPRELATIVEPATH);
         }
         $appPath = $this->AppPath();
-        $serverPath = $this->server->Path()->ToAbsolute();
+        $serverPath = $this->server->Path();
+        if ($serverPath === null) {
+            throw new \RuntimeException('Server path not available.');
+        }
+        $serverPath = $serverPath->ToAbsolute();
         if ($serverPath === null) {
             throw new \RuntimeException('Failed to resolve server path.');
         }
@@ -177,7 +185,11 @@ class Resource extends Singleton
         if ($this->cache->Has(self::CACHE_KEY_APPURL)) {
             return $this->cache->Get(self::CACHE_KEY_APPURL);
         }
-        $result = CUrl::Join($this->server->Url(), $this->AppRelativePath())
+        $serverUrl = $this->server->Url();
+        if ($serverUrl === null) {
+            throw new \RuntimeException('Server URL not available.');
+        }
+        $result = CUrl::Join($serverUrl, $this->AppRelativePath())
             ->EnsureTrailingSlash();
         $this->cache->Set(self::CACHE_KEY_APPURL, $result);
         return $result;

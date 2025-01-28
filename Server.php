@@ -58,17 +58,15 @@ class Server extends Singleton
     /**
      * Retrieves the web server's root URL, including the protocol and hostname.
      *
-     * @return CUrl
+     * @return ?CUrl
      *   A new `CUrl` instance representing the root URL (e.g., "http://localhost"
-     *   or "https://example.com").
-     * @throws \RuntimeException
-     *   If the server name is not set.
+     *   or "https://example.com"), or `null` if the server name is not set.
      */
-    public function Url(): CUrl
+    public function Url(): ?CUrl
     {
         $serverName = $this->superglobal->GetOrDefault('SERVER_NAME', '');
         if ($serverName === '') {
-            throw new \RuntimeException('Server name is not set.');
+            return null;
         }
         return CUrl::Join($this->IsSecure() ? 'https://' : 'http://', $serverName);
     }
@@ -76,17 +74,16 @@ class Server extends Singleton
     /**
      * Retrieves the web server's root directory path.
      *
-     * @return CPath
+     * @return ?CPath
      *   A new `CPath` instance representing the root directory path (e.g.,
-     *   "C:/xampp/htdocs" or "/var/www/html").
-     * @throws \RuntimeException
-     *   If the document root is not set.
+     *   "C:/xampp/htdocs" or "/var/www/html"), or `null` if the document root
+     *   is not set.
      */
-    public function Path(): CPath
+    public function Path(): ?CPath
     {
         $documentRoot = $this->superglobal->GetOrDefault('DOCUMENT_ROOT', '');
         if ($documentRoot === '') {
-            throw new \RuntimeException('Document root is not set.');
+            return null;
         }
         return new CPath($documentRoot);
     }
