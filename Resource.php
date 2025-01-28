@@ -37,6 +37,8 @@ class Resource extends Singleton
     /**
      * Stores the absolute path to the application's root directory.
      *
+     * Never use this property directly. Use the `AppPath` method instead.
+     *
      * @var ?CPath
      */
     private ?CPath $appPath;
@@ -89,8 +91,8 @@ class Resource extends Singleton
      * @param string|\Stringable $appPath
      *   The application path to initialize with.
      * @throws \RuntimeException
-     *   If the resource is already initialized or the application path cannot
-     *   be resolved.
+     *   If the resource is already initialized or the specified application
+     *   path cannot be resolved.
      */
     public function Initialize(string|\Stringable $appPath): void
     {
@@ -135,8 +137,8 @@ class Resource extends Singleton
      * @return CString
      *   The application relative path.
      * @throws \RuntimeException
-     *   If the resource is not initialized, the server path cannot be resolved,
-     *   or the application path is not under the server path.
+     *   If the resource is not initialized, the server path is not available or
+     *   cannot be resolved, or the application path is not under the server path.
      */
     public function AppRelativePath(): CString
     {
@@ -178,8 +180,9 @@ class Resource extends Singleton
      * @return CUrl
      *   The application URL.
      * @throws \RuntimeException
-     *   If the resource is not initialized, the server path cannot be resolved,
-     *   or the application path is not under the server path.
+     *   If the server URL is not available, the resource is not initialized,
+     *   the server path cannot be resolved, or the application path is not
+     *   under the server path.
      */
     public function AppUrl(): CUrl
     {
