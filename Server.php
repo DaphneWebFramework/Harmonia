@@ -15,6 +15,7 @@ namespace Harmonia;
 use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Core\CArray;
+use \Harmonia\Core\CString;
 use \Harmonia\Core\CPath;
 use \Harmonia\Core\CUrl;
 
@@ -91,33 +92,36 @@ class Server extends Singleton
     /**
      * Retrieves the request method.
      *
-     * @return ?string
-     *   The request method (e.g., "GET", "POST", "PUT", "DELETE"), or `null` if
-     *   the request method is not set.
+     * @return ?CString
+     *   A `CString` instance representing the request method (e.g., "GET",
+     *  "POST", "PUT", "DELETE"), or `null` if the request method is not set.
      */
-    public function RequestMethod(): ?string
+    public function RequestMethod(): ?CString
     {
         $requestMethod = $this->superglobal->GetOrDefault('REQUEST_METHOD', '');
         if ($requestMethod === '') {
             return null;
         }
-        return $requestMethod;
+        return new CString($requestMethod);
     }
 
     /**
      * Retrieves the request URI.
      *
-     * @return ?string
-     *   The request URI including the query string and fragment if any (e.g.,
+     * The request URI is the part of the URL that comes after the domain name,
+     * including the query string and fragment identifier.
+     *
+     * @return ?CString
+     *   A `CString` instance representing the request URI (e.g., "/index.php",
      *   "/index.php?foo=bar#section"), or `null` if the request URI is not set.
      */
-    public function RequestUri(): ?string
+    public function RequestUri(): ?CString
     {
         $requestUri = $this->superglobal->GetOrDefault('REQUEST_URI', '');
         if ($requestUri === '') {
             return null;
         }
-        return $requestUri;
+        return new CString($requestUri);
     }
 
     /**
