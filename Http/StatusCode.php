@@ -13,7 +13,7 @@
 namespace Harmonia\Http;
 
 /**
- * HTTP status codes.
+ * Enumeration of HTTP status codes (RFC 7231).
  *
  * @note
  *   The `CONTINUE` status code is represented as `Continue_` in this enum
