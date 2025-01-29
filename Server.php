@@ -59,7 +59,7 @@ class Server extends Singleton
      * Retrieves the web server's root URL, including the protocol and hostname.
      *
      * @return ?CUrl
-     *   A new `CUrl` instance representing the root URL (e.g., "http://localhost"
+     *   A `CUrl` instance representing the root URL (e.g., "http://localhost"
      *   or "https://example.com"), or `null` if the server name is not set.
      */
     public function Url(): ?CUrl
@@ -75,7 +75,7 @@ class Server extends Singleton
      * Retrieves the web server's root directory path.
      *
      * @return ?CPath
-     *   A new `CPath` instance representing the root directory path (e.g.,
+     *   A `CPath` instance representing the root directory path (e.g.,
      *   "C:/xampp/htdocs" or "/var/www/html"), or `null` if the document root
      *   is not set.
      */
@@ -88,5 +88,103 @@ class Server extends Singleton
         return new CPath($documentRoot);
     }
 
+    /**
+     * Retrieves the request method.
+     *
+     * @return ?string
+     *   The request method (e.g., "GET", "POST", "PUT", "DELETE"), or `null` if
+     *   the request method is not set.
+     */
+    public function RequestMethod(): ?string
+    {
+        $requestMethod = $this->superglobal->GetOrDefault('REQUEST_METHOD', '');
+        if ($requestMethod === '') {
+            return null;
+        }
+        return $requestMethod;
+    }
+
+    /**
+     * Retrieves the request URI.
+     *
+     * @return ?string
+     *   The request URI including the query string and fragment if any (e.g.,
+     *   "/index.php?foo=bar#section"), or `null` if the request URI is not set.
+     */
+    public function RequestUri(): ?string
+    {
+        $requestUri = $this->superglobal->GetOrDefault('REQUEST_URI', '');
+        if ($requestUri === '') {
+            return null;
+        }
+        return $requestUri;
+    }
+
+    /**
+     * Retrieves the HTTP headers from the request.
+     *
+     * This method iterates through the `$_SERVER` superglobal and extracts
+     * headers that start with 'HTTP_'. It then formats the header names by
+     * removing the 'HTTP_' prefix, converting underscores to hyphens, and
+     * capitalizing the first letter of each word while lowercasing the rest.
+     *
+     * Some headers, such as 'CONTENT_TYPE' and 'CONTENT_LENGTH', do not start
+     * with 'HTTP_' but are still included in the result.
+     *
+     * Example transformation:
+     * - "HTTP_USER_AGENT" → "User-Agent"
+     * - "X_CUSTOM_HEADER" → "X-Custom-Header"
+     * - "CONTENT_TYPE" → "Content-Type"
+     * - "CONTENT_LENGTH" → "Content-Length"
+     *
+     * @return CArray
+     *   A `CArray` instance where the keys are formatted header names and the
+     *   values are their respective header values.
+     */
+    public function RequestHeaders(): CArray
+    {
+        $headers = new CArray();
+        foreach ($this->superglobal as $name => $value) {
+            if (\str_starts_with($name, 'HTTP_')) {
+                $headers->Set($this->formatHeaderName(\substr($name, 5)),
+                              $value);
+            }
+        }
+        foreach (['CONTENT_TYPE', 'CONTENT_LENGTH'] as $name) {
+            if ($this->superglobal->Has($name)) {
+                $headers->Set($this->formatHeaderName($name),
+                              $this->superglobal->Get($name));
+            }
+        }
+        return $headers;
+    }
+
     #endregion public
+
+    #region private ------------------------------------------------------------
+
+    /**
+     * Formats a server variable name according to HTTP header naming
+     * conventions.
+     *
+     * The header names are formatted by converting all letters to lowercase,
+     * capitalizing the first letter of each word (split by underscores), and
+     * replacing underscores (`_`) with hyphens (`-`).
+     *
+     * Example transformations:
+     * - "USER_AGENT" → "User-Agent"
+     * - "CONTENT_TYPE" → "Content-Type"
+     * - "X_CUSTOM_HEADER" → "X-Custom-Header"
+     *
+     * @param string $name
+     *   The raw header name (without "HTTP_" prefix).
+     * @return string
+     *   The formatted header name.
+     */
+    private function formatHeaderName(string $name): string
+    {
+        return \str_replace('_', '-', \ucwords(\strtolower($name), '_'));
+    }
+
+    #endregion private
 }
