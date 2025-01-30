@@ -53,7 +53,7 @@ class Config extends Singleton
      * @return CArray
      *   The configuration options.
      */
-    public function GetOptions(): CArray
+    public function Options(): CArray
     {
         return $this->options;
     }
@@ -65,7 +65,7 @@ class Config extends Singleton
      *   The path to the configuration options file, or `null` if no file is
      *   loaded.
      */
-    public function GetOptionsFilePath(): ?CPath
+    public function OptionsFilePath(): ?CPath
     {
         return $this->optionsFilePath;
     }
@@ -113,7 +113,7 @@ class Config extends Singleton
      * @return mixed
      *   The value of the configuration option, or `null` if the key is not found.
      */
-    public function GetOption(string $key): mixed
+    public function Option(string $key): mixed
     {
         return $this->options->Get($key);
     }
