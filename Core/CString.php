@@ -46,6 +46,27 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     public const SPLIT_OPTION_EXCLUDE_EMPTY = 1 << 1;
 
     /**
+     * Bitwise flag for `Match` options, performing a straightforward match with
+     * no additional processing.
+     */
+    public const REGEX_OPTION_NONE = 0;
+
+    /**
+     * Bitwise flag for `Match` options, making the match case-insensitive.
+     *
+     * When set, the match will ignore differences in letter case.
+     */
+    public const REGEX_OPTION_CASE_INSENSITIVE = 1 << 0;
+
+    /**
+     * Bitwise flag for `Match` options, enabling multiline mode.
+     *
+     * When set, the `^` and `$` anchors will match the start and end of each
+     * line rather than the start and end of the entire string.
+     */
+    public const REGEX_OPTION_MULTILINE = 1 << 1;
+
+    /**
      * The string value stored in the instance.
      *
      * @var string
@@ -1167,6 +1188,50 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         return $clone->ApplyInPlace($function, ...$args);
     }
 
+    /**
+     * Matches the string against a regular expression pattern.
+     *
+     * @param string $pattern
+     *   The regular expression pattern to match. The pattern should not include
+     *   delimiters. For example, use `^foo` instead of `/^foo/`. The delimiter
+     *   can be specified separately using the `$delimiter` parameter.
+     * @param int $options
+     *   (Optional) Bitwise options for the regular expression match. The default
+     *   is `REGEX_OPTION_NONE`. This value can be a combination of the following
+     *   options: `REGEX_OPTION_CASE_INSENSITIVE`, `REGEX_OPTION_MULTILINE`.
+     * @param string $delimiter
+     *   (Optional) The delimiter to use for the regular expression pattern in
+     *   single-byte mode. The default is `/`. If the encoding is multibyte, the
+     *   delimiter is ignored.
+     * @return ?array
+     *   An array of matches if the pattern is found, or `null` if no match is
+     *   found.
+     */
+    public function Match(
+        string $pattern,
+        int $options = self::REGEX_OPTION_NONE,
+        string $delimiter = '/'
+    ): ?array
+    {
+        $success = false;
+        $matches = [];
+        $modifiers = self::regexOptionsToModifiers($options);
+        if ($this->isSingleByte) {
+            $pattern = "{$delimiter}{$pattern}{$delimiter}{$modifiers}";
+            $success = \preg_match($pattern, $this->value, $matches);
+        } else {
+            $success = $this->withMultibyteRegexEncoding(function()
+                use($pattern, $modifiers, &$matches)
+            {
+                if ($modifiers !== '') {
+                    \mb_regex_set_options($modifiers);
+                }
+                return \mb_ereg($pattern, $this->value, $matches);
+            });
+        }
+        return $success ? $matches : null;
+    }
+
     #region Interface: Stringable
 
     /**
@@ -1337,6 +1402,30 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             'WINDOWS-1254' => 1, // Turkish, Windows
         ];
         return isset($singleByteEncodings[\strtoupper($encoding)]);
+    }
+
+    /**
+     * Converts bitwise regex options into the corresponding modifier string.
+     *
+     * @param int $options
+     *   The regex options to convert. This value can be a combination of the
+     *   following options: `REGEX_OPTION_CASE_INSENSITIVE`, `REGEX_OPTION_MULTILINE`.
+     * @return string
+     *   A string of regex modifiers corresponding to the given options.
+     */
+    private static function regexOptionsToModifiers(int $options): string
+    {
+        static $mapping = [
+            self::REGEX_OPTION_CASE_INSENSITIVE => 'i',
+            self::REGEX_OPTION_MULTILINE => 'm',
+        ];
+        $result = '';
+        foreach ($mapping as $option => $modifier) {
+            if ($options & $option) {
+                $result .= $modifier;
+            }
+        }
+        return $result;
     }
 
     /**
