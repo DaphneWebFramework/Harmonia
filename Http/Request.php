@@ -14,6 +14,7 @@ namespace Harmonia\Http;
 
 use \Harmonia\Patterns\Singleton;
 
+use \Harmonia\Core\CString;
 use \Harmonia\Server;
 
 /**
@@ -52,6 +53,29 @@ class Request extends Singleton
             return null;
         }
         return RequestMethod::tryFrom((string)$requestMethod->UppercaseInPlace());
+    }
+
+    /**
+     * Retrieves the path component of the request URI.
+     *
+     * This method extracts the path from the request URI, removing any query
+     * strings (`?query=value`) or fragments (`#fragment`). The trailing slash
+     * is also trimmed for consistency.
+     *
+     * @return ?CString
+     *   The request path, or `null` if the request path is not available.
+     */
+    public function Path(): ?CString
+    {
+        $requestUri = $this->server->RequestUri();
+        if ($requestUri === null) {
+            return null;
+        }
+        $match = $requestUri->Match('^([^?#]+)');
+        if ($match === null) {
+            return null;
+        }
+        return new CString(\rtrim($match[1], '/'));
     }
 
     #endregion public
