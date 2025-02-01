@@ -25,18 +25,18 @@ use \Harmonia\Core\CUrl;
 class Server extends Singleton
 {
     /**
-     * Stores values from the `$_SERVER` superglobal.
+     * Stores the server environment data from `$_SERVER`.
      *
      * @var CArray
      */
-    private readonly CArray $superglobal;
+    private readonly CArray $data;
 
     /**
-     * Constructs a new instance with values from the `$_SERVER` superglobal.
+     * Constructs a new instance by loading the server environment data.
      */
     protected function __construct()
     {
-        $this->superglobal = new CArray($_SERVER);
+        $this->data = new CArray($_SERVER);
     }
 
     #region public -------------------------------------------------------------
@@ -50,10 +50,10 @@ class Server extends Singleton
      */
     public function IsSecure(): bool
     {
-        return \in_array($this->superglobal->Get('HTTPS'), ['on', '1'], true)
-            || $this->superglobal->Get('SERVER_PORT') === '443'
-            || $this->superglobal->Get('REQUEST_SCHEME') === 'https'
-            || $this->superglobal->Get('HTTP_X_FORWARDED_PROTO') === 'https';
+        return \in_array($this->data->Get('HTTPS'), ['on', '1'], true)
+            || $this->data->Get('SERVER_PORT') === '443'
+            || $this->data->Get('REQUEST_SCHEME') === 'https'
+            || $this->data->Get('HTTP_X_FORWARDED_PROTO') === 'https';
     }
 
     /**
@@ -65,7 +65,7 @@ class Server extends Singleton
      */
     public function Url(): ?CUrl
     {
-        $serverName = $this->superglobal->GetOrDefault('SERVER_NAME', '');
+        $serverName = $this->data->GetOrDefault('SERVER_NAME', '');
         if ($serverName === '') {
             return null;
         }
@@ -82,7 +82,7 @@ class Server extends Singleton
      */
     public function Path(): ?CPath
     {
-        $documentRoot = $this->superglobal->GetOrDefault('DOCUMENT_ROOT', '');
+        $documentRoot = $this->data->GetOrDefault('DOCUMENT_ROOT', '');
         if ($documentRoot === '') {
             return null;
         }
@@ -98,7 +98,7 @@ class Server extends Singleton
      */
     public function RequestMethod(): ?CString
     {
-        $requestMethod = $this->superglobal->GetOrDefault('REQUEST_METHOD', '');
+        $requestMethod = $this->data->GetOrDefault('REQUEST_METHOD', '');
         if ($requestMethod === '') {
             return null;
         }
@@ -117,7 +117,7 @@ class Server extends Singleton
      */
     public function RequestUri(): ?CString
     {
-        $requestUri = $this->superglobal->GetOrDefault('REQUEST_URI', '');
+        $requestUri = $this->data->GetOrDefault('REQUEST_URI', '');
         if ($requestUri === '') {
             return null;
         }
@@ -148,16 +148,16 @@ class Server extends Singleton
     public function RequestHeaders(): CArray
     {
         $headers = new CArray();
-        foreach ($this->superglobal as $name => $value) {
+        foreach ($this->data as $name => $value) {
             if (\str_starts_with($name, 'HTTP_')) {
                 $headers->Set($this->formatHeaderName(\substr($name, 5)),
                               $value);
             }
         }
         foreach (['CONTENT_TYPE', 'CONTENT_LENGTH'] as $name) {
-            if ($this->superglobal->Has($name)) {
+            if ($this->data->Has($name)) {
                 $headers->Set($this->formatHeaderName($name),
-                              $this->superglobal->Get($name));
+                              $this->data->Get($name));
             }
         }
         return $headers;
