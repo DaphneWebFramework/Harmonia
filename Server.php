@@ -127,23 +127,15 @@ class Server extends Singleton
     /**
      * Retrieves the HTTP headers from the request.
      *
-     * This method iterates through the `$_SERVER` superglobal and extracts
-     * headers that start with 'HTTP_'. It then formats the header names by
-     * removing the 'HTTP_' prefix, converting underscores to hyphens, and
-     * capitalizing the first letter of each word while lowercasing the rest.
+     * This method extracts headers from `$_SERVER`, including those prefixed
+     * with 'HTTP_' and standard headers such as 'CONTENT_TYPE' and 'CONTENT_LENGTH'.
      *
-     * Some headers, such as 'CONTENT_TYPE' and 'CONTENT_LENGTH', do not start
-     * with 'HTTP_' but are still included in the result.
-     *
-     * Example transformation:
-     * - "HTTP_USER_AGENT" → "User-Agent"
-     * - "X_CUSTOM_HEADER" → "X-Custom-Header"
-     * - "CONTENT_TYPE" → "Content-Type"
-     * - "CONTENT_LENGTH" → "Content-Length"
+     * All header names are converted to lowercase, with underscores (`_`)
+     * replaced by hyphens (`-`). Header values remain unchanged.
      *
      * @return CArray
-     *   A `CArray` instance where the keys are formatted header names and the
-     *   values are their respective header values.
+     *   A `CArray` instance where the keys are formatted header names and
+     *   the values are their respective header values.
      */
     public function RequestHeaders(): CArray
     {
@@ -168,17 +160,8 @@ class Server extends Singleton
     #region private ------------------------------------------------------------
 
     /**
-     * Formats a server variable name according to HTTP header naming
-     * conventions.
-     *
-     * The header names are formatted by converting all letters to lowercase,
-     * capitalizing the first letter of each word (split by underscores), and
-     * replacing underscores (`_`) with hyphens (`-`).
-     *
-     * Example transformations:
-     * - "USER_AGENT" → "User-Agent"
-     * - "CONTENT_TYPE" → "Content-Type"
-     * - "X_CUSTOM_HEADER" → "X-Custom-Header"
+     * Formats a server variable name by converting it to lowercase and replacing
+     * underscores (`_`) with hyphens (`-`).
      *
      * @param string $name
      *   The raw header name (without "HTTP_" prefix).
@@ -187,7 +170,7 @@ class Server extends Singleton
      */
     private function formatHeaderName(string $name): string
     {
-        return \str_replace('_', '-', \ucwords(\strtolower($name), '_'));
+        return \str_replace('_', '-', \strtolower($name));
     }
 
     #endregion private
