@@ -145,7 +145,7 @@ class Response
      */
     public function Send(): void
     {
-        if ($this->canHeadersBeSent()) {
+        if ($this->canSendHeaders()) {
             $this->sendStatusCode();
             if ($this->headers !== null) {
                 foreach ($this->headers as $name => $value) {
@@ -163,12 +163,31 @@ class Response
         }
     }
 
+    /**
+     * Redirects the client to a new URL.
+     *
+     * @param string $url
+     *   The URL to redirect to.
+     * @param bool $exitScript
+     *   (Optional) If `true`, the script will exit after sending the response.
+     *   Default is `true`.
+     */
+    public function Redirect(string $url, bool $exitScript = true): void
+    {
+        $this->SetStatusCode(StatusCode::Found)
+             ->SetHeader('Location', $url)
+             ->Send();
+        if ($exitScript) {
+            $this->exitScript();
+        }
+    }
+
     #endregion public
 
     #region protected ----------------------------------------------------------
 
     /** @codeCoverageIgnore */
-    protected function canHeadersBeSent(): bool
+    protected function canSendHeaders(): bool
     {
         return \headers_sent() === false;
     }
@@ -202,6 +221,12 @@ class Response
     protected function sendBody(): void
     {
         echo $this->body;
+    }
+
+    /** @codeCoverageIgnore */
+    protected function exitScript(): void
+    {
+        exit();
     }
 
     #endregion protected
