@@ -122,6 +122,7 @@ class Session extends Singleton
     public function Start(): void
     {
         $this->_session_start();
+        $this->_session_regenerate_id();
     }
 
     /**
@@ -250,6 +251,14 @@ class Session extends Singleton
     {
         if (!\session_start()) {
             throw new \RuntimeException('Failed to start session.');
+        }
+    }
+
+    /** @codeCoverageIgnore */
+    protected function _session_regenerate_id(): void
+    {
+        if (!\session_regenerate_id(true)) {
+            throw new \RuntimeException('Failed to regenerate session ID.');
         }
     }
 
