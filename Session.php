@@ -88,7 +88,8 @@ class Session extends Singleton
      * @param string $key
      *   The name of the session variable.
      * @param mixed $defaultValue
-     *   The default value to return if the session variable does not exist.
+     *   (Optional) The default value to return if the session variable does not
+     *   exist. Defaults to `null`.
      * @return mixed
      *   The value of the session variable if it exists, the default value
      *   otherwise.
@@ -141,6 +142,8 @@ class Session extends Singleton
      *
      * @throws \RuntimeException
      *   If destroying the session fails.
+     *
+     * @see Name
      */
     public function Destroy(): void
     {
