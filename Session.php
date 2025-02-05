@@ -14,13 +14,24 @@ namespace Harmonia;
 
 use \Harmonia\Patterns\Singleton;
 
+use \Harmonia\Config;
+use \Harmonia\Server;
+
 /**
  * Manages PHP session lifecycle and data access.
  */
 class Session extends Singleton
 {
     /**
-     * Constructs a new instance by configuring the session for security.
+     * The default application name used for session naming.
+     *
+     * If "AppName" is not set in the configuration, this value is used.
+     */
+    private const DEFAULT_APP_NAME = 'Harmonia';
+
+    /**
+     * Constructs a new instance by configuring the session for security, and
+     * setting a unique session name.
      */
     protected function __construct()
     {
@@ -65,6 +76,13 @@ class Session extends Singleton
             // requests, mitigating cross-site request forgery (CSRF) attacks.
             'samesite' => 'Strict'
         ]);
+
+        // Set the session name to a unique value for the application.
+        $appName = Config::Instance()->Option('AppName');
+        if ($appName === null || $appName === '') {
+            $appName = self::DEFAULT_APP_NAME;
+        }
+        $this->_session_name("{$appName}_Session");
     }
 
     #region public -------------------------------------------------------------
