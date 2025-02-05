@@ -135,9 +135,21 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
      * @return self
      *   The current instance.
      */
-    public function Delete(string|int $key): self
+    public function Remove(string|int $key): self
     {
         unset($this->value[$key]);
+        return $this;
+    }
+
+    /**
+     * Clears all elements from the array, making it empty.
+     *
+     * @return self
+     *   The current instance.
+     */
+    public function Clear(): self
+    {
+        $this->value = [];
         return $this;
     }
 
@@ -206,7 +218,7 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function offsetUnset(mixed $offset): void
     {
-        $this->Delete($offset);
+        $this->Remove($offset);
     }
 
     #endregion Interface: ArrayAccess
