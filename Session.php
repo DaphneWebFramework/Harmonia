@@ -38,28 +38,28 @@ class Session extends Singleton
         // Enforces strict session ID validation. Prevents PHP from accepting
         // uninitialized or invalid session IDs from `$_GET`, `$_POST`, and
         // `$_COOKIE`. This mitigates session fixation attacks.
-        \ini_set('session.use_strict_mode', '1');
+        $this->_ini_set('session.use_strict_mode', '1');
 
         // Ensures that session IDs are only stored in cookies. This prevents
         // session IDs from being included in URL parameters, reducing exposure
         // to session hijacking.
-        \ini_set('session.use_cookies', '1');
+        $this->_ini_set('session.use_cookies', '1');
 
         // Disables the use of URL-based session IDs (`session.use_trans_sid`
         // must also be 0). This ensures session IDs are exclusively managed via
         // cookies.
-        \ini_set('session.use_only_cookies', '1');
+        $this->_ini_set('session.use_only_cookies', '1');
 
         // Disables PHP’s transparent session ID management. Prevents PHP from
         // appending session IDs to URLs, which could expose them in logs.
-        \ini_set('session.use_trans_sid', '0');
+        $this->_ini_set('session.use_trans_sid', '0');
 
         // Prevents caching of session data. This ensures that sensitive session
         // information is not stored in the browser’s cache.
-        \ini_set('session.cache_limiter', 'nocache');
+        $this->_ini_set('session.cache_limiter', 'nocache');
 
         // Configure the session cookie parameters to enhance security.
-        \session_set_cookie_params([
+        $this->_session_set_cookie_params([
             // Session expires when the browser is closed, as no expiration time
             // is set.
             'lifetime' => 0,
@@ -82,7 +82,7 @@ class Session extends Singleton
         if ($appName === null || $appName === '') {
             $appName = self::DEFAULT_APP_NAME;
         }
-        $this->_session_name("{$appName}_Session");
+        $this->_session_name("{$appName}_SID");
     }
 
     #region public -------------------------------------------------------------
@@ -221,6 +221,22 @@ class Session extends Singleton
     #endregion public
 
     #region protected ----------------------------------------------------------
+
+    /** @codeCoverageIgnore */
+    protected function _ini_set(string $option, mixed $value): void
+    {
+        if (\ini_set($option, $value) === false) {
+            throw new \RuntimeException('Failed to set initialization option.');
+        }
+    }
+
+    /** @codeCoverageIgnore */
+    protected function _session_set_cookie_params(array $lifetime_or_options): void
+    {
+        if (!\session_set_cookie_params($lifetime_or_options)) {
+            throw new \RuntimeException('Failed to set session cookie parameters.');
+        }
+    }
 
     /** @codeCoverageIgnore */
     protected function _session_status(): int
