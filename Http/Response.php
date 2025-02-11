@@ -195,7 +195,7 @@ class Response
     /** @codeCoverageIgnore */
     protected function sendStatusCode(): void
     {
-        \http_response_code($this->statusCode->Value());
+        \http_response_code($this->statusCode->value);
     }
 
     /** @codeCoverageIgnore */
