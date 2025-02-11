@@ -43,7 +43,7 @@ class CFileSystem extends Singleton
         if (\is_dir($directoryPath)) {
             return true;
         }
-        return mkdir($directoryPath, $permissions, true);
+        return \mkdir($directoryPath, $permissions, true);
     }
 
     /**

@@ -24,14 +24,7 @@ use \Harmonia\Core\CUrl;
  */
 class Resource extends Singleton
 {
-    /**
-     * The cache key for the application-relative path.
-     */
     private const CACHE_KEY_APPRELATIVEPATH = 'appRelativePath';
-
-    /**
-     * The cache key for the application URL.
-     */
     private const CACHE_KEY_APPURL = 'appUrl';
 
     /**
@@ -51,13 +44,6 @@ class Resource extends Singleton
     protected readonly CArray $cache;
 
     /**
-     * Stores the server instance used to resolve server-related paths and URLs.
-     *
-     * @var Server
-     */
-    protected readonly Server $server;
-
-    /**
      * Constructs a new instance.
      *
      * The `Initialize` method must be called before using any method of this
@@ -69,7 +55,6 @@ class Resource extends Singleton
     {
         $this->appPath = null;
         $this->cache = new CArray();
-        $this->server = Server::Instance();
     }
 
     #region public -------------------------------------------------------------
@@ -146,7 +131,7 @@ class Resource extends Singleton
             return $this->cache->Get(self::CACHE_KEY_APPRELATIVEPATH);
         }
         $appPath = $this->AppPath();
-        $serverPath = $this->server->Path();
+        $serverPath = Server::Instance()->Path();
         if ($serverPath === null) {
             throw new \RuntimeException('Server path not available.');
         }
@@ -189,7 +174,7 @@ class Resource extends Singleton
         if ($this->cache->Has(self::CACHE_KEY_APPURL)) {
             return $this->cache->Get(self::CACHE_KEY_APPURL);
         }
-        $serverUrl = $this->server->Url();
+        $serverUrl = Server::Instance()->Url();
         if ($serverUrl === null) {
             throw new \RuntimeException('Server URL not available.');
         }

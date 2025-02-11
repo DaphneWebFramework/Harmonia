@@ -60,11 +60,14 @@ class Request extends Singleton
     /**
      * Retrieves the HTTP request method.
      *
+     * PHPUnit 12 introduced a restriction preventing the use of "Method" as a
+     * method name. To comply with this, "Method_" was chosen instead.
+     *
      * @return ?RequestMethod
      *   The request method, or `null` if the request method is not available or
      *   unsupported.
      */
-    public function Method(): ?RequestMethod
+    public function Method_(): ?RequestMethod
     {
         if ($this->method === false) {
             $this->method = self::resolveMethod();
