@@ -32,30 +32,41 @@ class Session extends Singleton
     /**
      * Constructs a new instance by configuring the session for security, and
      * setting a unique session name.
+     *
+     * @throws \RuntimeException
+     *   If session support is disabled or already active, if setting session
+     *   initialization options fails, if setting session cookie parameters
+     *   fails, or if setting the session name fails.
+     *
      */
     protected function __construct()
     {
+        // Ensures session support is enabled and not already active. The
+        // configuration won't be effective if the session is already started.
+        switch ($this->_session_status()) {
+        case \PHP_SESSION_DISABLED:
+            throw new \RuntimeException('Session support is disabled.');
+        case \PHP_SESSION_ACTIVE:
+            throw new \RuntimeException('Session is already active.');
+        }
+
         // Enforces strict session ID validation. Prevents PHP from accepting
         // uninitialized or invalid session IDs from `$_GET`, `$_POST`, and
         // `$_COOKIE`. This mitigates session fixation attacks.
         $this->_ini_set('session.use_strict_mode', '1');
-
         // Ensures that session IDs are only stored in cookies. This prevents
         // session IDs from being included in URL parameters, reducing exposure
         // to session hijacking.
         $this->_ini_set('session.use_cookies', '1');
-
         // Disables the use of URL-based session IDs (`session.use_trans_sid`
         // must also be 0). This ensures session IDs are exclusively managed via
         // cookies.
         $this->_ini_set('session.use_only_cookies', '1');
-
-        // Disables PHP’s transparent session ID management. Prevents PHP from
+        // Disables PHP's transparent session ID management. Prevents PHP from
         // appending session IDs to URLs, which could expose them in logs.
         $this->_ini_set('session.use_trans_sid', '0');
-
         // Prevents caching of session data. This ensures that sensitive session
-        // information is not stored in the browser’s cache.
+        // information is not stored in the browser's cache.
         $this->_ini_set('session.cache_limiter', 'nocache');
 
         // Configure the session cookie parameters to enhance security.
@@ -88,39 +99,19 @@ class Session extends Singleton
     #region public -------------------------------------------------------------
 
     /**
-     * Checks whether a session has been started.
-     *
-     * @return bool
-     *   Returns `true` if the session has been started, `false` otherwise.
-     */
-    public function IsStarted(): bool
-    {
-        return $this->_session_status() === \PHP_SESSION_ACTIVE;
-    }
-
-    /**
-     * Retrieves the current session name.
-     *
-     * The session name is used as the cookie name for storing the session ID.
-     *
-     * @return string
-     *   The current session name.
-     * @throws \RuntimeException
-     *   If retrieving the session name fails.
-     */
-    public function Name(): string
-    {
-        return $this->_session_name();
-    }
-
-    /**
      * Starts a new session or resumes an existing one.
      *
+     * If session support is disabled or the session is already started, this
+     * method does nothing.
+     *
      * @throws \RuntimeException
-     *   If starting the session fails.
+     *   If starting the session or regenerating the session ID fails.
      */
     public function Start(): void
     {
+        if ($this->_session_status() !== \PHP_SESSION_NONE) {
+            return;
+        }
         $this->_session_start();
         $this->_session_regenerate_id();
     }
@@ -128,16 +119,23 @@ class Session extends Singleton
     /**
      * Saves session data and closes the session.
      *
+     * If the session is not started, this method does nothing.
+     *
      * @throws \RuntimeException
      *   If writing and closing the session fails.
      */
     public function Close(): void
     {
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return;
+        }
         $this->_session_write_close();
     }
 
     /**
      * Sets a session variable.
+     *
+     * If the session is not started, this method does nothing.
      *
      * @param string $key
      *   The name of the session variable.
@@ -146,11 +144,16 @@ class Session extends Singleton
      */
     public function Set(string $key, mixed $value): void
     {
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return;
+        }
         $_SESSION[$key] = $value;
     }
 
     /**
      * Retrieves a session variable.
+     *
+     * If the session is not started, this method returns the default value.
      *
      * @param string $key
      *   The name of the session variable.
@@ -163,6 +166,9 @@ class Session extends Singleton
      */
     public function Get(string $key, mixed $defaultValue = null): mixed
     {
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return $defaultValue;
+        }
         if (!isset($_SESSION)) {
             return $defaultValue;
         }
@@ -175,46 +181,62 @@ class Session extends Singleton
     /**
      * Removes a session variable.
      *
+     * If the session is not started, this method does nothing.
+     *
      * @param string $key
      *   The name of the session variable.
      */
     public function Remove(string $key): void
     {
-        if (isset($_SESSION)) {
-            unset($_SESSION[$key]);
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return;
         }
+        unset($_SESSION[$key]);
     }
 
     /**
      * Clears all session variables.
+     *
+     * If the session is not started, this method does nothing.
      *
      * @throws \RuntimeException
      *   If clearing session data fails.
      */
     public function Clear(): void
     {
-        if ($this->IsStarted()) {
-            $this->_session_unset();
-        } else {
-            $_SESSION = [];
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return;
         }
+        $this->_session_unset();
     }
 
     /**
      * Destroys the current session.
      *
-     * This method clears session data and completely destroys the session.
-     * Before calling this method, ensure that the session cookie is deleted
-     * using `Name()` to retrieve the session cookie name.
+     * If the session is not started, this method does nothing.
      *
      * @throws \RuntimeException
-     *   If destroying the session fails.
-     *
-     * @see Name
+     *   If HTTP headers have already been sent, if obtaining the session name
+     *   fails, if deleting the session cookie fails, if clearing session data
+     *   fails, or if destroying the session fails.
      */
     public function Destroy(): void
     {
-        $this->Clear();
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return;
+        }
+        if ($this->_headers_sent()) {
+            throw new \RuntimeException('HTTP headers have already been sent.');
+        }
+        $this->_setcookie($this->_session_name(), false, [
+            'expires'  => 0,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => Server::Instance()->IsSecure(),
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]);
+        $this->_session_unset();
         $this->_session_destroy();
     }
 
@@ -299,6 +321,20 @@ class Session extends Singleton
     {
         if (!\session_destroy()) {
             throw new \RuntimeException('Failed to destroy session.');
+        }
+    }
+
+    /** @codeCoverageIgnore */
+    protected function _headers_sent(): bool
+    {
+        return \headers_sent();
+    }
+
+    /** @codeCoverageIgnore */
+    protected function _setcookie(string $name, string|false $value, array $options): void
+    {
+        if (!\setcookie($name, $value, $options)) {
+            throw new \RuntimeException('Failed to set cookie.');
         }
     }
 
