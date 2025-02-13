@@ -56,8 +56,9 @@ abstract class Query
     /**
      * Retrieves the parameter substitutions used in the query.
      *
-     * @return array
-     *   An associative array of substitutions.
+     * @return array<string, mixed>
+     *   An associative array of substitutions. For example, `['id' => 42,
+     *   'name' => 'John']`.
      */
     public function Substitutions(): array
     {

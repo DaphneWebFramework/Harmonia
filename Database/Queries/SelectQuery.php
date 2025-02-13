@@ -77,7 +77,8 @@ class SelectQuery extends Query
      * @param string $condition
      *   The WHERE condition. For example, `"id = :id AND name = :name"`.
      * @param array<string, mixed> $substitutions
-     *   (Optional) Key-value pairs for placeholders in the condition.
+     *   (Optional) Key-value pairs for placeholders in the condition. For
+     *   example, `['id' => 42, 'name' => 'John']`.
      * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
@@ -115,7 +116,8 @@ class SelectQuery extends Query
      * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
-     *   If an invalid sorting direction is provided.
+     *   If an invalid sorting direction is provided. Valid directions are 'ASC'
+     *   and 'DESC'.
      */
     public function OrderBy(array $columns): self
     {
@@ -150,7 +152,7 @@ class SelectQuery extends Query
      *
      * @param int $limit
      *   The maximum number of rows to return.
-     * @param int|null $offset
+     * @param ?int $offset
      *   (Optional) The number of rows to skip before starting to return rows.
      * @return self
      *   The current instance.
@@ -160,10 +162,12 @@ class SelectQuery extends Query
     public function Limit(int $limit, ?int $offset = null): self
     {
         if ($limit < 0) {
-            throw new \InvalidArgumentException('Limit must be a non-negative integer.');
+            throw new \InvalidArgumentException(
+                'Limit must be a non-negative integer.');
         }
         if ($offset !== null && $offset < 0) {
-            throw new \InvalidArgumentException('Offset must be a non-negative integer.');
+            throw new \InvalidArgumentException(
+                'Offset must be a non-negative integer.');
         }
         if ($offset !== null) {
             $this->limit = "{$limit} OFFSET {$offset}";
