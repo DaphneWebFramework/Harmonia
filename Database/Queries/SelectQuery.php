@@ -87,8 +87,10 @@ class SelectQuery extends Query
      *   The current instance.
      * @throws \InvalidArgumentException
      *   If a placeholder in the condition has no matching substitution, if a
-     *   substitution is provided that does not match any placeholder, or if a
-     *   substitution key does not follow identifier naming rules.
+     *   substitution is provided that does not match any placeholder, if a
+     *   substitution key does not follow identifier naming rules, or if a
+     *   substitution value has an invalid type (e.g., array, resource, or
+     *   an object without a `__toString()` method).
      */
     public function Where(string $condition, array $substitutions = []): self
     {
@@ -98,13 +100,21 @@ class SelectQuery extends Query
             $placeholders[$index] = \substr($placeholder, 1); // Remove ':' prefix
         }
         if (!empty($placeholders) || !empty($substitutions)) {
-            $substitutionKeys = \array_keys($substitutions);
-            foreach ($substitutionKeys as $key) {
+            foreach ($substitutions as $key => $value) {
                 if (!\preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $key)) {
                     throw new \InvalidArgumentException(
                         "Invalid substitution key: {$key}");
                 }
+                if (\is_array($value) || \is_resource($value)) {
+                    throw new \InvalidArgumentException(
+                        "Invalid substitution value for '{$key}': Array or resource not allowed.");
+                }
+                if (\is_object($value) && !\method_exists($value, '__toString')) {
+                    throw new \InvalidArgumentException(
+                        "Invalid substitution value for '{$key}': Object without __toString() method not allowed.");
+                }
             }
+            $substitutionKeys = \array_keys($substitutions);
             if ($diff = \array_diff($placeholders, $substitutionKeys)) {
                 throw new \InvalidArgumentException(
                     'Missing substitutions: ' . \implode(', ', $diff));
