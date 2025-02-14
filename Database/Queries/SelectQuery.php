@@ -109,9 +109,12 @@ class SelectQuery extends Query
                     throw new \InvalidArgumentException(
                         "Invalid substitution value for '{$key}': Array or resource not allowed.");
                 }
-                if (\is_object($value) && !\method_exists($value, '__toString')) {
-                    throw new \InvalidArgumentException(
-                        "Invalid substitution value for '{$key}': Object without __toString() method not allowed.");
+                if (\is_object($value)) {
+                    if (!\method_exists($value, '__toString')) {
+                        throw new \InvalidArgumentException(
+                            "Invalid substitution value for '{$key}': Object without __toString() method not allowed.");
+                    }
+                    $substitutions[$key] = (string)$value;
                 }
             }
             $substitutionKeys = \array_keys($substitutions);
