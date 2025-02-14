@@ -18,6 +18,13 @@ namespace Harmonia\Database\Queries;
 abstract class Query
 {
     /**
+     * The pattern defining a valid SQL identifier.
+     *
+     * @var string
+     */
+    protected const IDENTIFIER_PATTERN = '[a-zA-Z_][a-zA-Z0-9_]*';
+
+    /**
      * The name of the table associated with the query.
      *
      * @var string
@@ -79,7 +86,7 @@ abstract class Query
      */
     protected function isIdentifier(string $string): bool
     {
-        return \preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $string) === 1;
+        return 1 === \preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $string);
     }
 
     #endregion protected

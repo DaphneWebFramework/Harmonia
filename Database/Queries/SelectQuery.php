@@ -75,24 +75,36 @@ class SelectQuery extends Query
      * Adds a WHERE clause to the query.
      *
      * @param string $condition
-     *   The WHERE condition. For example, `"id = :id AND name = :name"`.
+     *   The WHERE condition, which must be a valid SQL expression. It can
+     *   contain fixed values or placeholders for dynamic values. To prevent
+     *   SQL injection, dynamic values must be represented using placeholders
+     *   prefixed with `:`. For example, `"id = :id AND name = :name"`.
      * @param array<string, mixed> $substitutions
-     *   (Optional) Key-value pairs for placeholders in the condition. For
+     *   (Optional) An associative array where keys are placeholders (without
+     *   the `:` prefix) and values are their corresponding replacements. For
      *   example, `['id' => 42, 'name' => 'John']`.
      * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
-     *   If placeholders in the condition do not match substitutions.
+     *   If a placeholder in the condition has no matching substitution, if a
+     *   substitution is provided that does not match any placeholder, or if a
+     *   substitution key does not follow identifier naming rules.
      */
     public function Where(string $condition, array $substitutions = []): self
     {
-        \preg_match_all('/:\w+/', $condition, $matches);
+        \preg_match_all('/:' . self::IDENTIFIER_PATTERN . '/', $condition, $matches);
         $placeholders = isset($matches[0]) ? $matches[0] : [];
         foreach ($placeholders as $index => $placeholder) {
-            $placeholders[$index] = \substr($placeholder, 1);
+            $placeholders[$index] = \substr($placeholder, 1); // Remove ':' prefix
         }
         if (!empty($placeholders) || !empty($substitutions)) {
             $substitutionKeys = \array_keys($substitutions);
+            foreach ($substitutionKeys as $key) {
+                if (!\preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $key)) {
+                    throw new \InvalidArgumentException(
+                        "Invalid substitution key: {$key}");
+                }
+            }
             if ($diff = \array_diff($placeholders, $substitutionKeys)) {
                 throw new \InvalidArgumentException(
                     'Missing substitutions: ' . \implode(', ', $diff));
