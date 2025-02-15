@@ -52,22 +52,25 @@ class SelectQuery extends Query
      *
      * @param array<int, string> $columns
      *   An array of column names or expressions. For example, `['column1',
-     *   'COUNT(*) AS count']`.
+     *   'COUNT(*) AS count']`. If an empty array is provided, the selection
+     *   remains unchanged, defaulting to `"*"` unless previously modified.
      * @return self
      *   The current instance.
      */
     public function Select(array $columns): self
     {
-        $this->columns = \implode(
-            ', ',
-            \array_map(function($column) {
-                if ($this->isIdentifier($column)) {
-                    return "`{$column}`";
-                } else {
-                    return $column;
-                }
-            }, $columns)
-        );
+        if (!empty($columns)) {
+            $this->columns = \implode(
+                ', ',
+                \array_map(function($column) {
+                    if ($this->isIdentifier($column)) {
+                        return "`{$column}`";
+                    } else {
+                        return $column;
+                    }
+                }, $columns)
+            );
+        }
         return $this;
     }
 
@@ -75,60 +78,13 @@ class SelectQuery extends Query
      * Adds a WHERE clause to the query.
      *
      * @param string $condition
-     *   The WHERE condition, which must be a valid SQL expression. It can
-     *   contain fixed values or placeholders for dynamic values. To prevent
-     *   SQL injection, dynamic values must be represented using placeholders
-     *   prefixed with `:`. For example, `"id = :id AND name = :name"`.
-     * @param array<string, mixed> $substitutions
-     *   (Optional) An associative array where keys are placeholders (without
-     *   the `:` prefix) and values are their corresponding replacements. For
-     *   example, `['id' => 42, 'name' => 'John']`.
+     *   The WHERE condition.
      * @return self
      *   The current instance.
-     * @throws \InvalidArgumentException
-     *   If a placeholder in the condition has no matching substitution, if a
-     *   substitution is provided that does not match any placeholder, if a
-     *   substitution key does not follow identifier naming rules, or if a
-     *   substitution value has an invalid type (e.g., array, resource, or
-     *   an object without a `__toString()` method).
      */
-    public function Where(string $condition, array $substitutions = []): self
+    public function Where(string $condition): self
     {
-        \preg_match_all('/:' . self::IDENTIFIER_PATTERN . '/', $condition, $matches);
-        $placeholders = isset($matches[0]) ? $matches[0] : [];
-        foreach ($placeholders as $index => $placeholder) {
-            $placeholders[$index] = \substr($placeholder, 1); // Remove ':' prefix
-        }
-        if (!empty($placeholders) || !empty($substitutions)) {
-            foreach ($substitutions as $key => $value) {
-                if (!\preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $key)) {
-                    throw new \InvalidArgumentException(
-                        "Invalid substitution key: {$key}");
-                }
-                if (\is_array($value) || \is_resource($value)) {
-                    throw new \InvalidArgumentException(
-                        "Invalid substitution value for '{$key}': Array or resource not allowed.");
-                }
-                if (\is_object($value)) {
-                    if (!\method_exists($value, '__toString')) {
-                        throw new \InvalidArgumentException(
-                            "Invalid substitution value for '{$key}': Object without __toString() method not allowed.");
-                    }
-                    $substitutions[$key] = (string)$value;
-                }
-            }
-            $substitutionKeys = \array_keys($substitutions);
-            if ($diff = \array_diff($placeholders, $substitutionKeys)) {
-                throw new \InvalidArgumentException(
-                    'Missing substitutions: ' . \implode(', ', $diff));
-            }
-            if ($diff = \array_diff($substitutionKeys, $placeholders)) {
-                throw new \InvalidArgumentException(
-                    'Missing placeholders: ' . \implode(', ', $diff));
-            }
-        }
         $this->condition = $condition;
-        $this->substitutions = $substitutions;
         return $this;
     }
 
@@ -202,14 +158,17 @@ class SelectQuery extends Query
         return $this;
     }
 
+    #endregion public
+
+    #region protected ----------------------------------------------------------
+
     /**
-     * Generates the SQL string representation of the query.
+     * Builds the SQL string.
      *
      * @return string
-     *   The SQL query string.
-     * @override
+     *   The SQL string.
      */
-    public function ToSql(): string
+    protected function buildSql(): string
     {
         $sql = "SELECT {$this->columns} FROM `{$this->tableName}`";
         if ($this->condition !== null) {
@@ -224,5 +183,5 @@ class SelectQuery extends Query
         return $sql;
     }
 
-    #endregion public
+    #endregion protected
 }
