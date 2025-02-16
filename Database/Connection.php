@@ -71,6 +71,21 @@ class Connection
     }
 
     /**
+     * Selects a database as the current database for the subsequent queries.
+     *
+     * @param string $databaseName
+     *   The name of the database to select.
+     * @throws \RuntimeException
+     *   If the database selection fails.
+     */
+    public function SelectDatabase(string $databaseName): void
+    {
+        if (!$this->handle->select_db($databaseName)) {
+            throw new \RuntimeException($this->handle->error, $this->handle->errno);
+        }
+    }
+
+    /**
      * Executes a query on the MySQL server.
      *
      * This method prepares and executes the given query. If the query produces
