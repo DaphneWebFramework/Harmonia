@@ -58,7 +58,8 @@ abstract class Query
      * @return string
      *   The SQL string.
      * @throws \InvalidArgumentException
-     *   If a placeholder is missing a binding or vice versa.
+     *   If a placeholder in the SQL string has no matching binding, or if a
+     *   binding is provided that does not match any placeholder.
      */
     final public function ToSql(): string
     {
