@@ -14,8 +14,16 @@ namespace Harmonia\Database;
 
 use \Harmonia\Database\Queries\Query;
 
+/**
+ * Represents a connection to a MySQL server.
+ */
 class Connection
 {
+    /**
+     * Handle to the MySQL connection.
+     *
+     * @var MySQLiHandle
+     */
     private readonly MySQLiHandle $handle;
 
     #region public -------------------------------------------------------------
@@ -171,7 +179,7 @@ class Connection
      *   If a placeholder in the SQL string has no matching binding, or if a
      *   binding is provided that does not match any placeholder.
      */
-    function transformQuery(Query $query): \stdClass
+    private function transformQuery(Query $query): \stdClass
     {
         $bindings = $query->Bindings();
         $result = new \stdClass();
