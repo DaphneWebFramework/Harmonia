@@ -12,6 +12,9 @@
 
 namespace Harmonia\Database;
 
+use \Harmonia\Database\Proxies\MySQLiHandle;
+use \Harmonia\Database\Proxies\MySQLiResult;
+use \Harmonia\Database\Proxies\MySQLiStatement;
 use \Harmonia\Database\Queries\Query;
 
 /**
@@ -22,9 +25,9 @@ class Connection
     /**
      * Handle to the MySQL connection.
      *
-     * @var MySQLiHandle
+     * @var ?MySQLiHandle
      */
-    private readonly MySQLiHandle $handle;
+    private ?MySQLiHandle $handle = null;
 
     #region public -------------------------------------------------------------
 
@@ -43,12 +46,9 @@ class Connection
      *   If the connection to the MySQL server fails or if the character set
      *   cannot be set.
      */
-    public function __construct(
-        string $hostname,
-        string $username,
-        string $password,
-        ?string $charset = null
-    ) {
+    public function __construct(string $hostname, string $username,
+        string $password, ?string $charset = null)
+    {
         $this->handle = $this->connect($hostname, $username, $password);
         if ($this->handle->connect_errno !== 0) {
             throw new \RuntimeException($this->handle->connect_error,
