@@ -49,7 +49,7 @@ class Connection
     public function __construct(string $hostname, string $username,
         string $password, ?string $charset = null)
     {
-        $this->handle = $this->connect($hostname, $username, $password);
+        $this->handle = $this->_new_mysqli($hostname, $username, $password);
         if ($this->handle->connect_errno !== 0) {
             throw new \RuntimeException($this->handle->connect_error,
                                         $this->handle->connect_errno);
@@ -68,6 +68,7 @@ class Connection
     public function __destruct()
     {
         $this->handle->close();
+        $this->handle = null;
     }
 
     /**
@@ -97,7 +98,8 @@ class Connection
      * @param Query $query
      *   The query object containing SQL and optionally its bindings.
      * @return ?MySQLiResult
-     *   A `MySQLiResult` if the query produces a result set, `null` otherwise.
+     *   A `MySQLiResult` if the query produces a result set, or `null` if the
+     *   query does not produce a result set.
      * @throws \RuntimeException
      *   If the query preparation or execution fails.
      */
@@ -107,7 +109,7 @@ class Connection
         $query = $this->transformQuery($query);
         if (PHP_VERSION_ID < 80200)
         {
-            $stmt = $this->prepareStatement($query->sql);
+            $stmt = $this->_prepare($query->sql);
             if ($stmt === null) {
                 throw new \RuntimeException($this->handle->error,
                                             $this->handle->errno);
@@ -120,20 +122,32 @@ class Connection
                 $stmt->close();
                 throw new \RuntimeException($stmt->error, $stmt->errno);
             }
+            // get_result() returns false on failure. For successful queries
+            // which produce a result set, returns a MySQLiResult object.
+            // For other successful queries, return false. The errno property
+            // can be used to distinguish between the two reasons for false.
             $result = $stmt->get_result();
-            if ($result === null && $stmt->errno !== 0) {
-                $stmt->close();
-                throw new \RuntimeException($stmt->error, $stmt->errno);
+            if ($result === false) {
+                if ($stmt->errno !== 0) {
+                    $stmt->close();
+                    throw new \RuntimeException($stmt->error, $stmt->errno);
+                } else {
+                    $result = null; // empty result
+                }
             }
             $stmt->close();
         }
         else // PHP >= 8.2.0
         {
-            $result = $this->executeQuery($query->sql, $query->values);
+            // _execute_query() returns false on failure. For successful queries
+            // which produce a result set, it will return a MySQLiResult object.
+            // For other successful queries, returns true.
+            $result = $this->_execute_query($query->sql, $query->values);
             if ($result === false) {
-                throw new \RuntimeException($this->handle->error, $this->handle->errno);
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
             } else if ($result === true) {
-                $result = null; // For empty result sets.
+                $result = null; // empty result
             }
         }
         return $result;
@@ -144,7 +158,7 @@ class Connection
     #region protected ----------------------------------------------------------
 
     /** @codeCoverageIgnore */
-    protected function connect(string $hostname, string $username,
+    protected function _new_mysqli(string $hostname, string $username,
         string $password): MySQLiHandle
     {
         $handle = new \mysqli($hostname, $username, $password);
@@ -152,7 +166,7 @@ class Connection
     }
 
     /** @codeCoverageIgnore */
-    protected function prepareStatement(string $sql): ?MySQLiStatement
+    protected function _prepare(string $sql): ?MySQLiStatement
     {
         $stmt = $this->handle->prepare($sql);
         if ($stmt === false) {
@@ -162,7 +176,7 @@ class Connection
     }
 
     /** @codeCoverageIgnore */
-    protected function executeQuery(string $sql, array $values): MySQLiResult|bool
+    protected function _execute_query(string $sql, array $values): MySQLiResult|bool
     {
         $result = $this->handle->execute_query($sql, $values);
         if ($result instanceof \mysqli_result) {

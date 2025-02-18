@@ -41,7 +41,7 @@ abstract class Query
     #region public -------------------------------------------------------------
 
     /**
-     * Creates a new instance.
+     * Constructs a new instance.
      *
      * @param string $tableName
      *   The name of the table associated with the query.

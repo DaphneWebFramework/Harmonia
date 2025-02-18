@@ -21,13 +21,14 @@ class MySQLiStatement
         $this->object = $object;
     }
 
-    public function get_result(): ?MySQLiResult
+    public function get_result(): MySQLiResult|bool
     {
         $result = $this->object->get_result();
-        if (!($result instanceof \mysqli_result)) {
-            return null;
+        if ($result instanceof \mysqli_result) {
+            return new MySQLiResult($result);
+        } else {
+            return $result;
         }
-        return new MySQLiResult($result);
     }
 
     public function __call(string $name, array $arguments): mixed

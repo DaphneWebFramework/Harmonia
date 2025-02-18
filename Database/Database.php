@@ -39,29 +39,23 @@ class Database extends Singleton
     #region public -------------------------------------------------------------
 
     /**
-     * Executes a query on the active database.
-     *
-     * This method executes the given query using the active connection. If the
-     * query produces a result set (`SELECT`, `SHOW`, `DESCRIBE`, `EXPLAIN`),
-     * it returns a `MySQLiResult` object. For queries that do not produce a
-     * result set (`INSERT`, `UPDATE`, `DELETE`), it returns `null`. If the
-     * connection is unavailable or execution fails, the error is logged and
-     * `null` is returned.
+     * Executes a query on the database.
      *
      * @param Query $query
      *   The query object containing SQL and optionally its bindings.
      * @return ?MySQLiResult
-     *   A `MySQLiResult` if the query produces a result set, or `null` if the
-     *   query does not produce a result set or if the execution fails.
+     *   A `ResultSet` object, or `null` if the connection is unavailable or
+     *   execution fails.
      */
-    public function Execute(Query $query): ?MySQLiResult
+    public function Execute(Query $query): ?ResultSet
     {
         $connection = $this->connection();
         if ($connection === null) {
             return null;
         }
         try {
-            return $connection->Execute($query);
+            $result = $connection->Execute($query);
+            return new ResultSet($result);
         } catch (\RuntimeException $e) {
             // todo: log the error
             return null;
@@ -69,17 +63,6 @@ class Database extends Singleton
     }
 
     #endregion public
-
-    #region protected ----------------------------------------------------------
-
-    /** @codeCoverageIgnore */
-    protected function connect(string $hostname, string $username,
-        string $password, string $charset): Connection
-    {
-        return new Connection($hostname, $username, $password, $charset);
-    }
-
-    #endregion protected
 
     #region private ------------------------------------------------------------
 
@@ -98,7 +81,7 @@ class Database extends Singleton
         if ($this->connection === null) {
             $config = Config::Instance();
             try {
-                $connection = $this->connect(
+                $connection = $this->_new_Connection(
                     $config->Option('DatabaseHostname'),
                     $config->Option('DatabaseUsername'),
                     $config->Option('DatabasePassword'),
@@ -120,4 +103,15 @@ class Database extends Singleton
     }
 
     #endregion private
+
+    #region protected ----------------------------------------------------------
+
+    /** @codeCoverageIgnore */
+    protected function _new_Connection(string $hostname, string $username,
+        string $password, string $charset): Connection
+    {
+        return new Connection($hostname, $username, $password, $charset); // may throw
+    }
+
+    #endregion protected
 }
