@@ -134,11 +134,11 @@ class Resource extends Singleton
      *
      * @return CString
      *   The application's relative path.
-     *
      * @throws \RuntimeException
      *   If the resource is not initialized, the server path is not available
      *   or cannot be resolved, or the application path is neither under the
-     *   server path nor accessible via a valid symlink inside the server directory.
+     *   server path nor accessible via a valid symlink inside the server
+     *   directory.
      */
     public function AppRelativePath(): CString
     {
@@ -189,16 +189,18 @@ class Resource extends Singleton
      * slash to indicate a directory, ensuring compatibility with browsers and
      * avoiding unnecessary 301 redirects.
      *
-     * For example, if the server's root URL is "https://example.com" and the
-     * application relative path is "MyProjects/MyApp", this method will
-     * return "https://example.com/MyProjects/MyApp/".
+     * **Example**:
+     *   - Server URL: `https://example.com`
+     *   - Application relative path: `MyProjects/MyApp`
+     *   - Returns: `https://example.com/MyProjects/MyApp/`
      *
      * @return CUrl
      *   The application URL.
      * @throws \RuntimeException
      *   If the server URL is not available, the resource is not initialized,
-     *   the server path cannot be resolved, or the application path is not
-     *   under the server path.
+     *   the server path cannot be resolved, or the application path is neither
+     *   under the server path nor accessible via a valid symlink inside the
+     *   server directory.
      */
     public function AppUrl(): CUrl
     {
