@@ -112,18 +112,33 @@ class Resource extends Singleton
     /**
      * Retrieves the application's path relative to the server's root directory.
      *
-     * The application relative path is always returned with forward slashes
-     * which makes it suitable for joining with both file system paths and URLs.
+     * The application relative path is always returned with forward slashes,
+     * making it suitable for use in both file system paths and URLs.
      *
-     * For example, if the server's root directory is "C:\xampp\htdocs" and the
-     * application path is "C:\xampp\htdocs\MyProjects\CoolApp", this method will
-     * return "MyProjects/CoolApp".
+     * **Example**: When the app is physically inside the server path
+     *   - Server root: `C:\xampp\htdocs`
+     *   - Application path: `C:\xampp\htdocs\MyProjects\MyApp`
+     *   - Returns: `MyProjects/MyApp`
+     *
+     * This method also supports cases where the application is symlinked inside
+     * the server directory. If the application path is not physically located
+     * under the server root, but a symbolic link inside the server directory
+     * points to the application path, this method will correctly resolve the
+     * link and compute the relative path accordingly.
+     *
+     * **Example**: When the app is symlinked inside the server path
+     *   - Server root: `/var/www/html`
+     *   - Application path: `/home/user/projects/myapp`
+     *   - Symlink: `/var/www/html/myapp" → "/home/user/projects/myapp`
+     *   - Returns: `myapp`
      *
      * @return CString
-     *   The application relative path.
+     *   The application's relative path.
+     *
      * @throws \RuntimeException
-     *   If the resource is not initialized, the server path is not available or
-     *   cannot be resolved, or the application path is not under the server path.
+     *   If the resource is not initialized, the server path is not available
+     *   or cannot be resolved, or the application path is neither under the
+     *   server path nor accessible via a valid symlink inside the server directory.
      */
     public function AppRelativePath(): CString
     {
@@ -175,8 +190,8 @@ class Resource extends Singleton
      * avoiding unnecessary 301 redirects.
      *
      * For example, if the server's root URL is "https://example.com" and the
-     * application relative path is "MyProjects/CoolApp", this method will
-     * return "https://example.com/MyProjects/CoolApp/".
+     * application relative path is "MyProjects/MyApp", this method will
+     * return "https://example.com/MyProjects/MyApp/".
      *
      * @return CUrl
      *   The application URL.
