@@ -140,7 +140,23 @@ class Resource extends Singleton
             throw new \RuntimeException('Failed to resolve server path.');
         }
         if (!$appPath->StartsWith($serverPath)) {
-            throw new \RuntimeException('Application path is not under server path.');
+            // Linux/macOS only: If the application path is not under the server
+            // path, check if the server directory contains a symbolic link that
+            // resolves to the application path.
+            $serverDirectoryContainsLinkToAppPath = false;
+            if (\PHP_OS_FAMILY !== 'Windows') {
+                $linkPath = CPath::Join($serverPath, $appPath->BaseName());
+                if ($linkPath->IsLink()) {
+                    $targetPath = $linkPath->ReadLink();
+                    if ($targetPath !== null && $targetPath->Equals($appPath)) {
+                        $appPath = $linkPath;
+                        $serverDirectoryContainsLinkToAppPath = true;
+                    }
+                }
+            }
+            if (!$serverDirectoryContainsLinkToAppPath) {
+                throw new \RuntimeException('Application path is not under server path.');
+            }
         }
         $result = $appPath
             ->Middle($serverPath->Length())
