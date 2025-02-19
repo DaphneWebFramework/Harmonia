@@ -165,6 +165,54 @@ class CPath extends CString
     }
 
     /**
+     * Determines whether the path points to an existing symbolic link.
+     *
+     * @return bool
+     *   Returns `true` if the path points to a symbolic link; otherwise, `false`.
+     *
+     * @see ReadLink
+     */
+    public function IsLink(): bool
+    {
+        return \is_link($this->value);
+    }
+
+    /**
+     * Reads the target path of a symbolic link.
+     *
+     * @return ?CPath
+     *   A new `CPath` instance containing the target of the symbolic link if
+     *   successful, or `null` if the method fails.
+     *
+     * @see IsLink
+     */
+    public function ReadLink(): ?CPath
+    {
+        $targetPath = @\readlink($this->value);
+        if ($targetPath === false) {
+            return null;
+        }
+        return new CPath($targetPath);
+    }
+
+    /**
+     * Returns the trailing name component of the path.
+     *
+     * The base name is the last component of a path, which is typically the
+     * file or directory name.
+     *
+     * This method operates on the input string, and is not aware of the actual
+     * filesystem.
+     *
+     * @return string
+     *   The base name of the path.
+     */
+    public function BaseName(): string
+    {
+        return \basename($this->value);
+    }
+
+    /**
      * Returns the canonical absolute form of the path.
      *
      * Resolves the path to its absolute and canonical form by expanding all
