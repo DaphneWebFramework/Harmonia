@@ -15,7 +15,7 @@ namespace Harmonia\Database;
 use \Harmonia\Database\Proxies\MySQLiResult;
 
 /**
- * Represents a result set from a MySQL query.
+ * Represents a result set from a database query.
  */
 class ResultSet implements \IteratorAggregate
 {
@@ -34,8 +34,7 @@ class ResultSet implements \IteratorAggregate
     public const ROW_MODE_NUMERIC = 2;
 
     /**
-     * The proxy object wrapping the real `\mysqli_result`, or `null` if the
-     * result set is empty.
+     * The underlying result object, or `null` if the result set is empty.
      *
      * @var ?MySQLiResult
      */
@@ -47,8 +46,8 @@ class ResultSet implements \IteratorAggregate
      * Constructs a new instance.
      *
      * @param ?MySQLiResult $result
-     *   (Optional) A proxy object wrapping the real `\mysqli_result`, or `null`
-     *   to represent an empty result set. Defaults to `null`.
+     *   (Optional) A result object, or `null` to represent an empty result set.
+     *   Defaults to `null`.
      */
     public function __construct(?MySQLiResult $result = null)
     {

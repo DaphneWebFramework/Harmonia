@@ -49,17 +49,16 @@ class Connection
     public function __construct(string $hostname, string $username,
         string $password, ?string $charset = null)
     {
-        $this->handle = $this->_new_mysqli($hostname, $username, $password);
-        if ($this->handle->connect_errno !== 0) {
-            throw new \RuntimeException($this->handle->connect_error,
-                                        $this->handle->connect_errno);
+        $handle = $this->createHandle($hostname, $username, $password);
+        if ($charset !== null) {
+            try {
+                $this->setCharset($handle, $charset);
+            } catch (\RuntimeException $e) {
+                $handle->close();
+                throw $e;
+            }
         }
-        if ($charset !== null && !$this->handle->set_charset($charset)) {
-            $message = $this->handle->error;
-            $code = $this->handle->errno;
-            $this->handle->close();
-            throw new \RuntimeException($message, $code);
-        }
+        $this->handle = $handle;
     }
 
     /**
@@ -67,8 +66,10 @@ class Connection
      */
     public function __destruct()
     {
-        $this->handle->close();
-        $this->handle = null;
+        if ($this->handle !== null) {
+            $this->handle->close();
+            $this->handle = null;
+        }
     }
 
     /**
@@ -81,8 +82,13 @@ class Connection
      */
     public function SelectDatabase(string $databaseName): void
     {
-        if (!$this->handle->select_db($databaseName)) {
-            throw new \RuntimeException($this->handle->error, $this->handle->errno);
+        try {
+            if (!$this->handle->select_db($databaseName)) {
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
         }
     }
 
@@ -105,50 +111,30 @@ class Connection
      */
     public function Execute(Query $query): ?MySQLiResult
     {
-        $result = null;
-        $query = $this->transformQuery($query);
+        $transformedQuery = self::transformQuery($query);
         if (PHP_VERSION_ID < 80200)
         {
-            $stmt = $this->_prepare($query->sql);
-            if ($stmt === null) {
-                throw new \RuntimeException($this->handle->error,
-                                            $this->handle->errno);
+            $statement = $this->prepareStatement($transformedQuery->sql);
+            try {
+                $this->executeStatement($statement, $transformedQuery->values);
+            } catch (\RuntimeException $e) {
+                $statement->close();
+                throw $e;
             }
-            if (!$stmt->bind_param($query->types, ...$query->values)) {
-                $stmt->close();
-                throw new \RuntimeException($stmt->error, $stmt->errno);
+            try {
+                $result = $this->getStatementResult($statement);
+            } catch (\RuntimeException $e) {
+                $statement->close();
+                throw $e;
             }
-            if ($stmt->execute() === false) {
-                $stmt->close();
-                throw new \RuntimeException($stmt->error, $stmt->errno);
-            }
-            // get_result() returns false on failure. For successful queries
-            // which produce a result set, returns a MySQLiResult object.
-            // For other successful queries, return false. The errno property
-            // can be used to distinguish between the two reasons for false.
-            $result = $stmt->get_result();
-            if ($result === false) {
-                if ($stmt->errno !== 0) {
-                    $stmt->close();
-                    throw new \RuntimeException($stmt->error, $stmt->errno);
-                } else {
-                    $result = null; // empty result
-                }
-            }
-            $stmt->close();
+            $statement->close();
         }
         else // PHP >= 8.2.0
         {
-            // _execute_query() returns false on failure. For successful queries
-            // which produce a result set, it will return a MySQLiResult object.
-            // For other successful queries, returns true.
-            $result = $this->_execute_query($query->sql, $query->values);
-            if ($result === false) {
-                throw new \RuntimeException($this->handle->error,
-                                            $this->handle->errno);
-            } else if ($result === true) {
-                $result = null; // empty result
-            }
+            $result = $this->executeQuery(
+                $transformedQuery->sql,
+                $transformedQuery->values
+            );
         }
         return $result;
     }
@@ -161,29 +147,104 @@ class Connection
     protected function _new_mysqli(string $hostname, string $username,
         string $password): MySQLiHandle
     {
-        $handle = new \mysqli($hostname, $username, $password);
-        return new MySQLiHandle($handle);
+        $mysqli = @new \mysqli($hostname, $username, $password);
+        return new MySQLiHandle($mysqli);
     }
 
-    /** @codeCoverageIgnore */
-    protected function _prepare(string $sql): ?MySQLiStatement
+    protected function createHandle(string $hostname, string $username,
+        string $password): MySQLiHandle
     {
-        $stmt = $this->handle->prepare($sql);
-        if ($stmt === false) {
-            return null;
+        try {
+            $handle = $this->_new_mysqli($hostname, $username, $password);
+            if ($handle->connect_errno !== 0) {
+                throw new \RuntimeException($handle->connect_error,
+                                            $handle->connect_errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
         }
-        return new MySQLiStatement($stmt);
+        return $handle;
     }
 
-    /** @codeCoverageIgnore */
-    protected function _execute_query(string $sql, array $values): MySQLiResult|bool
+    protected function setCharset(MySQLiHandle $handle, string $charset): void
     {
-        $result = $this->handle->execute_query($sql, $values);
-        if ($result instanceof \mysqli_result) {
-            return new MySQLiResult($result);
+        try {
+            if (!$handle->set_charset($charset)) {
+                throw new \RuntimeException($handle->error, $handle->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    #region PHP < 8.2.0 --------------------------------------------------------
+
+    protected function prepareStatement(string $sql): MySQLiStatement
+    {
+        try {
+            $statement = $this->handle->prepare($sql);
+            if (!$statement) {
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+        return $statement;
+    }
+
+    protected function executeStatement(MySQLiStatement $statement,
+        array $values): void
+    {
+        try {
+            if (!$statement->execute($values)) {
+                throw new \RuntimeException($statement->error,
+                                            $statement->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    protected function getStatementResult(MySQLiStatement $statement): ?MySQLiResult
+    {
+        try {
+            $result = $statement->get_result();
+            if ($result === false) {
+                if ($statement->errno !== 0) {
+                    throw new \RuntimeException($statement->error,
+                                                $statement->errno);
+                }
+                $result = null; // empty result
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
         }
         return $result;
     }
+
+    #endregion PHP < 8.2.0
+
+    #region PHP >= 8.2.0 -------------------------------------------------------
+
+    protected function executeQuery(string $sql, array $values): ?MySQLiResult
+    {
+        try {
+            $result = $this->handle->execute_query($sql, $values);
+            if ($result === false) {
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
+            }
+            if ($result === true) {
+                $result = null; // empty result
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+        return $result;
+    }
+
+    #endregion PHP >= 8.2.0
 
     #endregion protected
 
@@ -194,38 +255,27 @@ class Connection
      *
      * This method replaces named placeholders (e.g., `:id`, `:name`) with `?`
      * for MySQLi `prepare()`, reorders binding values to match their appearance
-     * in the query, and generates a type string for `bind_param()`.
+     * in the query.
      *
      * @param Query $query
      *   The query object containing SQL and its bindings.
      * @return \stdClass
-     *   Returns an object with three properties: `sql`, which is the transformed
-     *   SQL query with `?` placeholders for `prepare()`; `values`, which is an
-     *   indexed array of ordered binding values for `bind_param()`; and `types`,
-     *   which is a string representing the parameter types for `bind_param()`
-     *   (e.g., `"isd"`).
+     *   Returns an object with two properties: `sql`, which is the transformed
+     *   SQL query with `?` placeholders for `prepare()`; and `values`, which is
+     *   an indexed array of ordered binding values for `bind_param()`.
      * @throws \InvalidArgumentException
      *   If a placeholder in the SQL string has no matching binding, or if a
      *   binding is provided that does not match any placeholder.
      */
-    private function transformQuery(Query $query): \stdClass
+    private static function transformQuery(Query $query): \stdClass
     {
         $bindings = $query->Bindings();
         $result = new \stdClass();
-        $result->types = '';
         $result->values = [];
         $result->sql = \preg_replace_callback(
             '/:(' . Query::IDENTIFIER_PATTERN . ')/',
             function($matches) use($result, $bindings) {
-                $value = $bindings[$matches[1]];
-                if (\is_int($value)) {
-                    $result->types .= 'i';
-                } elseif (\is_float($value)) {
-                    $result->types .= 'd';
-                } else {
-                    $result->types .= 's';
-                }
-                $result->values[] = $value;
+                $result->values[] = $bindings[$matches[1]];
                 return '?';
             },
             $query->ToSql() // may throw

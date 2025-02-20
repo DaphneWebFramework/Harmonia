@@ -30,7 +30,7 @@ class Database extends Singleton
      * Represents the connection to the database server.
      *
      * This property is lazy-initialized. Therefore, never use this property
-     * directly, use the connection() method instead.
+     * directly, use the `connection` method instead.
      *
      * @var ?Connection
      */
@@ -44,8 +44,8 @@ class Database extends Singleton
      * @param Query $query
      *   The query object containing SQL and optionally its bindings.
      * @return ?MySQLiResult
-     *   A `ResultSet` object, or `null` if the connection is unavailable or
-     *   execution fails.
+     *   A `ResultSet` object, or `null` if a connection to the database server
+     *   cannot be established or execution fails.
      */
     public function Execute(Query $query): ?ResultSet
     {
@@ -82,9 +82,9 @@ class Database extends Singleton
             $config = Config::Instance();
             try {
                 $connection = $this->_new_Connection(
-                    $config->Option('DatabaseHostname'),
-                    $config->Option('DatabaseUsername'),
-                    $config->Option('DatabasePassword'),
+                    $config->OptionOrDefault('DatabaseHostname', ''),
+                    $config->OptionOrDefault('DatabaseUsername', ''),
+                    $config->OptionOrDefault('DatabasePassword', ''),
                     $config->Option('DatabaseCharset')
                 );
             } catch (\RuntimeException $e) {
@@ -92,7 +92,9 @@ class Database extends Singleton
                 return null;
             }
             try {
-                $connection->SelectDatabase($config->Option('DatabaseName'));
+                $connection->SelectDatabase(
+                    $config->OptionOrDefault('DatabaseName', '')
+                );
             } catch (\RuntimeException $e) {
                 // todo: log the error
                 return null;
@@ -108,7 +110,7 @@ class Database extends Singleton
 
     /** @codeCoverageIgnore */
     protected function _new_Connection(string $hostname, string $username,
-        string $password, string $charset): Connection
+        string $password, ?string $charset): Connection
     {
         return new Connection($hostname, $username, $password, $charset); // may throw
     }

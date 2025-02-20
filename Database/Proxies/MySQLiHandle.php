@@ -21,6 +21,24 @@ class MySQLiHandle
         $this->object = $object;
     }
 
+    public function prepare(string $query): MySQLiStatement|false
+    {
+        $stmt = $this->object->prepare($query);
+        if ($stmt instanceof \mysqli_stmt) {
+            return new MySQLiStatement($stmt);
+        }
+        return $stmt;
+    }
+
+    public function execute_query(string $query, ?array $params): MySQLiResult|bool
+    {
+        $result = $this->object->execute_query($query, $params);
+        if ($result instanceof \mysqli_result) {
+            return new MySQLiResult($result);
+        }
+        return $result;
+    }
+
     public function __call(string $name, array $arguments): mixed
     {
         return $this->object->$name(...$arguments);
