@@ -119,6 +119,23 @@ class Config extends Singleton
     }
 
     /**
+     * Retrieves the value of a configuration option, or a default value if the
+     * key does not exist.
+     *
+     * @param string $key
+     *   The key of the configuration option.
+     * @param mixed $defaultValue
+     *   The value to return if the key does not exist.
+     * @return mixed
+     *   The value of the configuration option, or the default value if the key
+     *   is not found.
+     */
+    public function OptionOrDefault(string $key, mixed $defaultValue): mixed
+    {
+        return $this->options->GetOrDefault($key, $defaultValue);
+    }
+
+    /**
      * Sets the value of a configuration option.
      *
      * @param string $key

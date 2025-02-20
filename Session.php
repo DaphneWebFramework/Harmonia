@@ -89,8 +89,8 @@ class Session extends Singleton
         ]);
 
         // Set the session name to a unique value for the application.
-        $appName = Config::Instance()->Option('AppName');
-        if ($appName === null || $appName === '') {
+        $appName = Config::Instance()->OptionOrDefault('AppName', '');
+        if ($appName === '') {
             $appName = self::DEFAULT_APP_NAME;
         }
         $this->_session_name("{$appName}_SID");
