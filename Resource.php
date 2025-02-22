@@ -24,9 +24,6 @@ use \Harmonia\Core\CUrl;
  */
 class Resource extends Singleton
 {
-    private const CACHE_KEY_APPRELATIVEPATH = 'appRelativePath';
-    private const CACHE_KEY_APPURL = 'appUrl';
-
     /**
      * Stores the absolute path to the application's root directory.
      *
@@ -142,8 +139,8 @@ class Resource extends Singleton
      */
     public function AppRelativePath(): CString
     {
-        if ($this->cache->Has(self::CACHE_KEY_APPRELATIVEPATH)) {
-            return $this->cache->Get(self::CACHE_KEY_APPRELATIVEPATH);
+        if ($this->cache->Has(__FUNCTION__)) {
+            return $this->cache->Get(__FUNCTION__);
         }
         $appPath = $this->AppPath();
         $serverPath = Server::Instance()->Path();
@@ -177,7 +174,7 @@ class Resource extends Singleton
             ->Middle($serverPath->Length())
             ->Replace('\\', '/')
             ->TrimLeft('/');
-        $this->cache->Set(self::CACHE_KEY_APPRELATIVEPATH, $result);
+        $this->cache->Set(__FUNCTION__, $result);
         return $result;
     }
 
@@ -204,8 +201,8 @@ class Resource extends Singleton
      */
     public function AppUrl(): CUrl
     {
-        if ($this->cache->Has(self::CACHE_KEY_APPURL)) {
-            return $this->cache->Get(self::CACHE_KEY_APPURL);
+        if ($this->cache->Has(__FUNCTION__)) {
+            return $this->cache->Get(__FUNCTION__);
         }
         $serverUrl = Server::Instance()->Url();
         if ($serverUrl === null) {
@@ -213,7 +210,7 @@ class Resource extends Singleton
         }
         $result = CUrl::Join($serverUrl, $this->AppRelativePath())
             ->EnsureTrailingSlash();
-        $this->cache->Set(self::CACHE_KEY_APPURL, $result);
+        $this->cache->Set(__FUNCTION__, $result);
         return $result;
     }
 
