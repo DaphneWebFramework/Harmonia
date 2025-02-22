@@ -14,6 +14,8 @@ namespace Harmonia\Database\Queries;
 
 /**
  * Class for building SQL SELECT queries.
+ *
+ * @todo Add support for GROUP BY, HAVING, DISTINCT, and JOIN clauses.
  */
 class SelectQuery extends Query
 {
@@ -23,6 +25,13 @@ class SelectQuery extends Query
      * @var string
      */
     private string $columns = '*';
+
+    /**
+     * The name of the table associated with the query.
+     *
+     * @var string
+     */
+    private ?string $tableName = null;
 
     /**
      * The condition for the WHERE clause.
@@ -50,27 +59,36 @@ class SelectQuery extends Query
     /**
      * Specifies the columns to retrieve in the query.
      *
-     * @param array<int, string> $columns
-     *   An array of column names or expressions. For example, `['column1',
-     *   'COUNT(*) AS count']`. If an empty array is provided, the selection
-     *   remains unchanged, defaulting to `"*"` unless previously modified.
+     * If this method is not called, the query defaults to selecting
+     * all columns (`*`).
+     *
+     * @param string ...$columns
+     *   Column names or expressions to select. For example: `Columns('column1',
+     *   'COUNT(*) AS total')`.
      * @return self
      *   The current instance.
+     * @throws \InvalidArgumentException
+     *   If no columns are provided or if any column name is empty.
      */
-    public function Select(array $columns): self
+    public function Columns(string ...$columns): self
     {
-        if (!empty($columns)) {
-            $this->columns = \implode(
-                ', ',
-                \array_map(function($column) {
-                    if ($this->isIdentifier($column)) {
-                        return "`{$column}`";
-                    } else {
-                        return $column;
-                    }
-                }, $columns)
-            );
-        }
+        $this->columns = $this->formatStringList(...$columns);
+        return $this;
+    }
+
+    /**
+     * Adds a FROM clause to the query.
+     *
+     * @param string $tableName
+     *   The name of the table.
+     * @return self
+     *   The current instance.
+     * @throws \InvalidArgumentException
+     *   If the table name is empty.
+     */
+    public function From(string $tableName): self
+    {
+        $this->tableName = $this->formatString($tableName);
         return $this;
     }
 
@@ -81,50 +99,29 @@ class SelectQuery extends Query
      *   The WHERE condition.
      * @return self
      *   The current instance.
+     * @throws \InvalidArgumentException
+     *   If the condition is empty.
      */
     public function Where(string $condition): self
     {
-        $this->condition = $condition;
+        $this->condition = $this->formatString($condition);
         return $this;
     }
 
     /**
      * Adds an ORDER BY clause to the query.
      *
-     * @param array<int|string, string> $columns
-     *   Associative or indexed array of column names and their sorting direction.
-     *   For example, `['column1' => 'ASC', 'column2' => 'DESC', 'column3']`.
+     * @param string ...$columns
+     *   Column names and optional sorting directions, e.g., `OrderBy('column1
+     *   DESC', 'column2', 'column3 ASC')`.
      * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
-     *   If an invalid sorting direction is provided. Valid directions are 'ASC'
-     *   and 'DESC'.
+     *   If no columns are provided or if any column name is empty.
      */
-    public function OrderBy(array $columns): self
+    public function OrderBy(string ...$columns): self
     {
-        $parts = [];
-        foreach ($columns as $key => $value) {
-            if (\is_int($key)) {
-                $column = $value;
-                $direction = null;
-            } else {
-                $column = $key;
-                $direction = \strtoupper($value);
-            }
-            if ($this->isIdentifier($column)) {
-                $column = "`{$column}`";
-            }
-            if ($direction !== null) {
-                if (!\in_array($direction, ['ASC', 'DESC'], true)) {
-                    throw new \InvalidArgumentException(
-                        "Invalid sorting direction: {$direction}");
-                }
-                $parts[] = "{$column} {$direction}";
-            } else {
-                $parts[] = $column;
-            }
-        }
-        $this->orderBy = empty($parts) ? null : \implode(', ', $parts);
+        $this->orderBy = $this->formatStringList(...$columns);
         return $this;
     }
 
@@ -162,25 +159,26 @@ class SelectQuery extends Query
 
     #region protected ----------------------------------------------------------
 
-    /**
-     * Builds the SQL string.
-     *
-     * @return string
-     *   The SQL string.
-     */
     protected function buildSql(): string
     {
-        $sql = "SELECT {$this->columns} FROM `{$this->tableName}`";
+        if ($this->tableName === null) {
+            throw new \InvalidArgumentException(
+                'Table name must be provided.');
+        }
+        $clauses = [
+            "SELECT {$this->columns}",
+            "FROM {$this->tableName}"
+        ];
         if ($this->condition !== null) {
-            $sql .= " WHERE {$this->condition}";
+            $clauses[] = "WHERE {$this->condition}";
         }
         if ($this->orderBy !== null) {
-            $sql .= " ORDER BY {$this->orderBy}";
+            $clauses[] = "ORDER BY {$this->orderBy}";
         }
         if ($this->limit !== null) {
-            $sql .= " LIMIT {$this->limit}";
+            $clauses[] = "LIMIT {$this->limit}";
         }
-        return $sql;
+        return \implode(' ', $clauses);
     }
 
     #endregion protected

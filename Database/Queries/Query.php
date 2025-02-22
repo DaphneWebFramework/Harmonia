@@ -25,32 +25,13 @@ abstract class Query
     public const IDENTIFIER_PATTERN = '[a-zA-Z_][a-zA-Z0-9_]*';
 
     /**
-     * The name of the table associated with the query.
-     *
-     * @var string
-     */
-    protected readonly string $tableName;
-
-    /**
      * The values bound to placeholders.
      *
      * @var array<string, mixed>
      */
-    private array $bindings;
+    private array $bindings = [];
 
     #region public -------------------------------------------------------------
-
-    /**
-     * Constructs a new instance.
-     *
-     * @param string $tableName
-     *   The name of the table associated with the query.
-     */
-    public function __construct(string $tableName)
-    {
-        $this->tableName = $tableName;
-        $this->bindings = [];
-    }
 
     /**
      * Generates the SQL string representation of the query.
@@ -64,7 +45,7 @@ abstract class Query
     final public function ToSql(): string
     {
         $sql = $this->buildSql();
-        $this->validate($sql);
+        $this->ensureBindingsMatchPlaceholders($sql);
         return $sql;
     }
 
@@ -95,7 +76,7 @@ abstract class Query
     public function Bind(array $bindings): self
     {
         foreach ($bindings as $key => $value) {
-            if (!\preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $key)) {
+            if (1 !== \preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $key)) {
                 throw new \InvalidArgumentException("Invalid binding key: {$key}");
             }
             if (\is_array($value)) {
@@ -123,7 +104,7 @@ abstract class Query
     #region protected ----------------------------------------------------------
 
     /**
-     * Method that must be implemented by subclasses to build SQL string.
+     * Builds the SQL string.
      *
      * @return string
      *   The SQL string.
@@ -131,16 +112,48 @@ abstract class Query
     abstract protected function buildSql(): string;
 
     /**
-     * Determines whether the given string is a valid SQL identifier.
+     * Trims a string and ensures it is not empty.
      *
      * @param string $string
-     *   The string to check.
-     * @return bool
-     *   Returns `true` if the string is a valid identifier, `false` otherwise.
+     *   The string to format.
+     * @return string
+     *   The formatted string.
+     * @throws \InvalidArgumentException
+     *   If the string is empty or contains only whitespace.
      */
-    protected function isIdentifier(string $string): bool
+    protected function formatString(string $string): string
     {
-        return 1 === \preg_match('/^' . self::IDENTIFIER_PATTERN . '$/', $string);
+        $string = \trim($string);
+        if ($string === '') {
+            throw new \InvalidArgumentException('String cannot be empty.');
+        }
+        return $string;
+    }
+
+    /**
+     * Trims each string in a list, ensures none are empty, and joins them into
+     * a comma-separated string.
+     *
+     * @param string ...$strings
+     *   A list of strings to format.
+     * @return string
+     *   The formatted string.
+     * @throws \InvalidArgumentException
+     *   If no strings are provided or if any string is empty or contains only
+     *   whitespace.
+     */
+    protected function formatStringList(string ...$strings): string
+    {
+        if (\count($strings) === 0) {
+            throw new \InvalidArgumentException('String list cannot be empty.');
+        }
+        return \implode(', ', \array_map(function($string) {
+            $string = \trim($string);
+            if ($string === '') {
+                throw new \InvalidArgumentException('String cannot be empty.');
+            }
+            return $string;
+        }, $strings));
     }
 
     #endregion protected
@@ -148,30 +161,48 @@ abstract class Query
     #region private ------------------------------------------------------------
 
     /**
-     * Validates that all placeholders have corresponding bindings.
+     * Ensures that all SQL placeholders have corresponding bindings and that
+     * no extra bindings exist without a matching placeholder.
      *
      * @param string $sql
-     *   The SQL string to check for placeholders.
+     *   The SQL query containing named placeholders (e.g., `:id`, `:name`).
+     * @throws \RuntimeException
+     *   If an error occurs while extracting placeholders from the SQL query.
      * @throws \InvalidArgumentException
-     *   If a placeholder in the SQL string has no matching binding, or if a
-     *   binding is provided that does not match any placeholder.
+     *   If there are missing bindings for placeholders or if there are
+     *   bindings without matching placeholders.
      */
-    private function validate(string $sql): void
+    private function ensureBindingsMatchPlaceholders(string $sql): void
     {
-        \preg_match_all('/:' . self::IDENTIFIER_PATTERN . '/', $sql, $matches);
+        // Extract placeholders from the SQL string
+        if (false === \preg_match_all('/:' . self::IDENTIFIER_PATTERN . '/',
+            $sql, $matches))
+        {
+            throw new \RuntimeException('Failed to match placeholders in SQL.');
+        }
+
+        // Remove the colon prefix from placeholders, e.g. ':id' -> 'id'
         $placeholders = \array_map(function($placeholder) {
             return \substr($placeholder, 1);
-        }, isset($matches[0]) ? $matches[0] : []);
-        if (!empty($placeholders) || !empty($this->bindings)) {
-            $bindingKeys = \array_keys($this->bindings);
-            if ($diff = \array_diff($placeholders, $bindingKeys)) {
-                throw new \InvalidArgumentException(
-                    'Missing bindings: ' . \implode(', ', $diff));
-            }
-            if ($diff = \array_diff($bindingKeys, $placeholders)) {
-                throw new \InvalidArgumentException(
-                    'Missing placeholders: ' . \implode(', ', $diff));
-            }
+        }, $matches[0]);
+
+        // If there are no placeholders or bindings, there is nothing to validate
+        if (empty($placeholders) && empty($this->bindings)) {
+            return;
+        }
+
+        // Obtain the keys of the bindings array,
+        // e.g. ['id' => 42, 'name' => 'John'] -> ['id', 'name']
+        $bindingKeys = \array_keys($this->bindings);
+
+        // Compare the two arrays and throw an exception if they differ
+        if ($diff = \array_diff($placeholders, $bindingKeys)) {
+            throw new \InvalidArgumentException(
+                'Missing bindings: ' . \implode(', ', $diff));
+        }
+        if ($diff = \array_diff($bindingKeys, $placeholders)) {
+            throw new \InvalidArgumentException(
+                'Missing placeholders: ' . \implode(', ', $diff));
         }
     }
 
