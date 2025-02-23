@@ -85,6 +85,21 @@ class ResultSet implements \IteratorAggregate
     }
 
     /**
+     * Retrieves the number of rows in the result set.
+     *
+     * @return int
+     *   The number of rows in the result set. Returns `0` if the result set is
+     *   empty.
+     */
+    public function RowCount(): int
+    {
+        if ($this->result === null) {
+            return 0;
+        }
+        return $this->result->num_rows;
+    }
+
+    /**
      * Retrieves a single row from the result set.
      *
      * @param int $mode
