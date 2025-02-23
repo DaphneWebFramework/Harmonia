@@ -66,6 +66,25 @@ class ResultSet implements \IteratorAggregate
     }
 
     /**
+     * Retrieves the column names of the result set.
+     *
+     * @return array<string>
+     *   An array of column names. Returns an empty array if the result set is
+     *   empty.
+     */
+    public function Columns(): array
+    {
+        if ($this->result === null) {
+            return [];
+        }
+        $names = [];
+        foreach ($this->result->fetch_fields() as $field) {
+            $names[] = $field->name;
+        }
+        return $names;
+    }
+
+    /**
      * Retrieves a single row from the result set.
      *
      * @param int $mode
