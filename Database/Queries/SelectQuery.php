@@ -21,8 +21,8 @@ namespace Harmonia\Database\Queries;
  *
  * ```php
  * $query = (new SelectQuery)
+ *     ->Table('users')
  *     ->Columns('name', 'email', 'COUNT(*) AS loginCount')
- *     ->From('users')
  *     ->Where('status = :status AND createdAt >= :startDate')
  *     ->OrderBy(
  *         'lastLogin DESC',
@@ -47,13 +47,29 @@ namespace Harmonia\Database\Queries;
  */
 class SelectQuery extends Query
 {
-    private string $columns = '*';
     private ?string $table = null;
+    private string $columns = '*';
     private ?string $condition = null;
     private ?string $orderBy = null;
     private ?string $limit = null;
 
     #region public -------------------------------------------------------------
+
+    /**
+     * Defines the table from which data will be selected.
+     *
+     * @param string $table
+     *   The name of the table from which data will be retrieved.
+     * @return self
+     *   The current instance.
+     * @throws \InvalidArgumentException
+     *   If the table name is empty or contains only whitespace.
+     */
+    public function Table(string $table): self
+    {
+        $this->table = $this->formatString($table);
+        return $this;
+    }
 
     /**
      * Specifies which columns should be retrieved in the query.
@@ -72,22 +88,6 @@ class SelectQuery extends Query
     public function Columns(string ...$columns): self
     {
         $this->columns = $this->formatStringList(...$columns);
-        return $this;
-    }
-
-    /**
-     * Defines the table from which data will be selected.
-     *
-     * @param string $table
-     *   The name of the table from which data will be retrieved.
-     * @return self
-     *   The current instance.
-     * @throws \InvalidArgumentException
-     *   If the table name is empty or contains only whitespace.
-     */
-    public function From(string $table): self
-    {
-        $this->table = $this->formatString($table);
         return $this;
     }
 

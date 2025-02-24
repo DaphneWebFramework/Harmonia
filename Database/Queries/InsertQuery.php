@@ -21,7 +21,7 @@ namespace Harmonia\Database\Queries;
  *
  * ```php
  * $query = (new InsertQuery)
- *     ->Into('users')
+ *     ->Table('users')
  *     ->Columns('id', 'name', 'email', 'status', 'createdAt')
  *     ->Values(':id', ':name', ':email', ':status', ':createdAt')
  *     ->Bind([
@@ -57,7 +57,7 @@ class InsertQuery extends Query
      * @throws \InvalidArgumentException
      *   If the table name is empty or contains only whitespace.
      */
-    public function Into(string $table): self
+    public function Table(string $table): self
     {
         $this->table = $this->formatString($table);
         return $this;
