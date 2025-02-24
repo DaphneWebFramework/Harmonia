@@ -67,7 +67,7 @@ class SelectQuery extends Query
      */
     public function Table(string $table): self
     {
-        $this->table = $this->formatString($table);
+        $this->table = $this->checkString($table);
         return $this;
     }
 
@@ -103,7 +103,7 @@ class SelectQuery extends Query
      */
     public function Where(string $condition): self
     {
-        $this->condition = $this->formatString($condition);
+        $this->condition = $this->checkString($condition);
         return $this;
     }
 

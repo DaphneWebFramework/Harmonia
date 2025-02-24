@@ -115,13 +115,13 @@ abstract class Query
      * Trims a string and ensures it is not empty.
      *
      * @param string $string
-     *   The string to format.
+     *   The string to check.
      * @return string
-     *   The formatted string.
+     *   The given string, trimmed and validated as non-empty.
      * @throws \InvalidArgumentException
      *   If the string is empty or contains only whitespace.
      */
-    protected function formatString(string $string): string
+    protected function checkString(string $string): string
     {
         $string = \trim($string);
         if ($string === '') {
@@ -131,29 +131,39 @@ abstract class Query
     }
 
     /**
-     * Trims each string in a list, ensures none are empty, and joins them into
-     * a comma-separated string.
+     * Trims each string in a list and ensures none are empty.
+     *
+     * @param string ...$strings
+     *   A list of strings to check.
+     * @return string[]
+     *   An array of strings, each trimmed and validated as non-empty.
+     * @throws \InvalidArgumentException
+     *   If no strings are provided or if any string is empty or contains only
+     *   whitespace.
+     */
+    protected function checkStringList(string ...$strings): array
+    {
+        if (\count($strings) === 0) {
+            throw new \InvalidArgumentException('String list cannot be empty.');
+        }
+        return \array_map([$this, 'checkString'], $strings);
+    }
+
+    /**
+     * Formats a list of strings by checking them and joining them into a
+     * comma-separated string.
      *
      * @param string ...$strings
      *   A list of strings to format.
      * @return string
-     *   The formatted string.
+     *   A comma-separated string of trimmed and validated non-empty strings.
      * @throws \InvalidArgumentException
      *   If no strings are provided or if any string is empty or contains only
      *   whitespace.
      */
     protected function formatStringList(string ...$strings): string
     {
-        if (\count($strings) === 0) {
-            throw new \InvalidArgumentException('String list cannot be empty.');
-        }
-        return \implode(', ', \array_map(function($string) {
-            $string = \trim($string);
-            if ($string === '') {
-                throw new \InvalidArgumentException('String cannot be empty.');
-            }
-            return $string;
-        }, $strings));
+        return \implode(', ', $this->checkStringList(...$strings));
     }
 
     #endregion protected

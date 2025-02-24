@@ -59,7 +59,7 @@ class InsertQuery extends Query
      */
     public function Table(string $table): self
     {
-        $this->table = $this->formatString($table);
+        $this->table = $this->checkString($table);
         return $this;
     }
 
