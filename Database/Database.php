@@ -62,6 +62,40 @@ class Database extends Singleton
         }
     }
 
+    /**
+     * Retrieves the last inserted row's ID.
+     *
+     * @return int
+     *   The last inserted row's ID. The method returns `0` if the connection to
+     *   the database server cannot be established or if the last query was not
+     *   an `INSERT` or no `AUTO_INCREMENT` value was generated.
+     */
+    public function LastInsertId(): int
+    {
+        $connection = $this->connection();
+        if ($connection === null) {
+            return 0;
+        }
+        return $connection->LastInsertId();
+    }
+
+    /**
+     * Retrieves the number of rows affected by the last query.
+     *
+     * @return int
+     *   The number of rows affected by the last modifying query. Returns `0` if
+     *   no rows were affected. Returns `-1` if the connection to the database
+     *   server cannot be established or the last query has failed.
+     */
+    public function LastAffectedRowCount(): int
+    {
+        $connection = $this->connection();
+        if ($connection === null) {
+            return -1;
+        }
+        return $connection->LastAffectedRowCount();
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
