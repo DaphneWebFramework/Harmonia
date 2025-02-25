@@ -65,10 +65,10 @@ class UpdateQuery extends Query
     }
 
     /**
-     * Specifies the columns to update.
+     * Specifies the columns whose values will be updated.
      *
      * @param string ...$columns
-     *   One or more column names to be updated.
+     *   One or more column names that will have their values updated.
      * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
@@ -82,7 +82,7 @@ class UpdateQuery extends Query
     }
 
     /**
-     * Specifies the values for the update operation.
+     * Defines the new values to be assigned to the specified columns.
      *
      * @param string ...$values
      *   One or more values to be assigned to the columns. These should be
