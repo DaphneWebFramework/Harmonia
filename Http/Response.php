@@ -13,7 +13,7 @@
 namespace Harmonia\Http;
 
 use \Harmonia\Core\CArray;
-use \Harmonia\Server;
+use \Harmonia\Services\CookieService;
 
 /**
  * Represents an HTTP response.
@@ -153,8 +153,9 @@ class Response
                 }
             }
             if ($this->cookies !== null) {
+                $cookieService = CookieService::Instance();
                 foreach ($this->cookies as $name => $value) {
-                    $this->sendCookie($name, $value);
+                    $cookieService->SetCookie($name, $value);
                 }
             }
         }
@@ -202,19 +203,6 @@ class Response
     protected function sendHeader(string $name, string $value): void
     {
         \header("{$name}: {$value}");
-    }
-
-    /** @codeCoverageIgnore */
-    protected function sendCookie(string $name, string|false $value): void
-    {
-        \setcookie($name, $value, [
-            'expires'  => 0,
-            'path'     => '/',
-            'domain'   => '',
-            'secure'   => Server::Instance()->IsSecure(),
-            'httponly' => true,
-            'samesite' => 'Strict'
-        ]);
     }
 
     /** @codeCoverageIgnore */

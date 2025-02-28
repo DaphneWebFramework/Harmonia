@@ -16,6 +16,7 @@ use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Config;
 use \Harmonia\Server;
+use \Harmonia\Services\CookieService;
 
 /**
  * Manages PHP session lifecycle and data access.
@@ -225,17 +226,9 @@ class Session extends Singleton
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
             return;
         }
-        if ($this->_headers_sent()) {
-            throw new \RuntimeException('HTTP headers have already been sent.');
+        if (!CookieService::Instance()->DeleteCookie($this->_session_name())) {
+            throw new \RuntimeException('Failed to delete session cookie.');
         }
-        $this->_setcookie($this->_session_name(), false, [
-            'expires'  => 0,
-            'path'     => '/',
-            'domain'   => '',
-            'secure'   => Server::Instance()->IsSecure(),
-            'httponly' => true,
-            'samesite' => 'Strict'
-        ]);
         $this->_session_unset();
         $this->_session_destroy();
     }
@@ -321,20 +314,6 @@ class Session extends Singleton
     {
         if (!\session_destroy()) {
             throw new \RuntimeException('Failed to destroy session.');
-        }
-    }
-
-    /** @codeCoverageIgnore */
-    protected function _headers_sent(): bool
-    {
-        return \headers_sent();
-    }
-
-    /** @codeCoverageIgnore */
-    protected function _setcookie(string $name, string|false $value, array $options): void
-    {
-        if (!\setcookie($name, $value, $options)) {
-            throw new \RuntimeException('Failed to set cookie.');
         }
     }
 
