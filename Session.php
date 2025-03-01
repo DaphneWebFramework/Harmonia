@@ -94,6 +94,7 @@ class Session extends Singleton
         if ($appName === '') {
             $appName = self::DEFAULT_APP_NAME;
         }
+        $appName = \strtoupper($appName);
         $this->_session_name("{$appName}_SID");
     }
 
