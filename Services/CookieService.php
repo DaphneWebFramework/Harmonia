@@ -31,7 +31,9 @@ class CookieService extends Singleton
      * @param string|false $value
      *   The cookie value. If `false`, the cookie is deleted.
      * @return bool
-     *   Returns `true` if the cookie is set successfully, `false` otherwise.
+     *   Returns `true` if the cookie is set successfully. Returns `false` if
+     *   the HTTP headers have already been sent or if the cookie could not be
+     *   set for any other reason.
      */
     public function SetCookie(string $name, string|false $value): bool
     {
@@ -57,7 +59,9 @@ class CookieService extends Singleton
      * @param string $name
      *   The cookie name.
      * @return bool
-     *   Returns `true` if the cookie is deleted successfully, `false` otherwise.
+     *   Returns `true` if the cookie is deleted successfully. Returns `false`
+     *   if the HTTP headers have already been sent or if the cookie could not
+     *   be deleted for any other reason.
      *
      * @see SetCookie
      */

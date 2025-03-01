@@ -105,16 +105,19 @@ class Session extends Singleton
      * If session support is disabled or the session is already started, this
      * method does nothing.
      *
+     * @return self
+     *   The current instance.
      * @throws \RuntimeException
      *   If starting the session or regenerating the session ID fails.
      */
-    public function Start(): void
+    public function Start(): self
     {
         if ($this->_session_status() !== \PHP_SESSION_NONE) {
-            return;
+            return $this;
         }
         $this->_session_start();
         $this->_session_regenerate_id();
+        return $this;
     }
 
     /**
@@ -122,15 +125,18 @@ class Session extends Singleton
      *
      * If the session is not started, this method does nothing.
      *
+     * @return self
+     *   The current instance.
      * @throws \RuntimeException
      *   If writing and closing the session fails.
      */
-    public function Close(): void
+    public function Close(): self
     {
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return;
+            return $this;
         }
         $this->_session_write_close();
+        return $this;
     }
 
     /**
@@ -142,13 +148,16 @@ class Session extends Singleton
      *   The name of the session variable.
      * @param mixed $value
      *   The value of the session variable.
+     * @return self
+     *   The current instance.
      */
-    public function Set(string $key, mixed $value): void
+    public function Set(string $key, mixed $value): self
     {
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return;
+            return $this;
         }
         $_SESSION[$key] = $value;
+        return $this;
     }
 
     /**
@@ -186,13 +195,16 @@ class Session extends Singleton
      *
      * @param string $key
      *   The name of the session variable.
+     * @return self
+     *   The current instance.
      */
-    public function Remove(string $key): void
+    public function Remove(string $key): self
     {
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return;
+            return $this;
         }
         unset($_SESSION[$key]);
+        return $this;
     }
 
     /**
@@ -200,15 +212,18 @@ class Session extends Singleton
      *
      * If the session is not started, this method does nothing.
      *
+     * @return self
+     *   The current instance.
      * @throws \RuntimeException
      *   If clearing session data fails.
      */
-    public function Clear(): void
+    public function Clear(): self
     {
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return;
+            return $this;
         }
         $this->_session_unset();
+        return $this;
     }
 
     /**
@@ -216,21 +231,24 @@ class Session extends Singleton
      *
      * If the session is not started, this method does nothing.
      *
+     * @return self
+     *   The current instance.
      * @throws \RuntimeException
      *   If HTTP headers have already been sent, if obtaining the session name
      *   fails, if deleting the session cookie fails, if clearing session data
      *   fails, or if destroying the session fails.
      */
-    public function Destroy(): void
+    public function Destroy(): self
     {
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return;
+            return $this;
         }
         if (!CookieService::Instance()->DeleteCookie($this->_session_name())) {
             throw new \RuntimeException('Failed to delete session cookie.');
         }
         $this->_session_unset();
         $this->_session_destroy();
+        return $this;
     }
 
     #endregion public
@@ -269,11 +287,11 @@ class Session extends Singleton
             }
             return $currentName;
         } else {
-            $oldName = \session_name($name);
-            if ($oldName === false) {
+            $previousName = \session_name($name);
+            if ($previousName === false) {
                 throw new \RuntimeException('Failed to set session name.');
             }
-            return $oldName;
+            return $previousName;
         }
     }
 
