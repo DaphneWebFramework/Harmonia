@@ -14,6 +14,7 @@ namespace Harmonia\Services;
 
 use \Harmonia\Patterns\Singleton;
 
+use \Harmonia\Config;
 use \Harmonia\Server;
 
 /**
@@ -21,6 +22,13 @@ use \Harmonia\Server;
  */
 class CookieService extends Singleton
 {
+    /**
+     * The default application name used for cookie naming.
+     *
+     * If "AppName" is not set in the configuration, this value is used.
+     */
+    private const DEFAULT_APP_NAME = 'Harmonia';
+
     #region public -------------------------------------------------------------
 
     /**
@@ -68,6 +76,34 @@ class CookieService extends Singleton
     public function DeleteCookie(string $name): bool
     {
         return $this->SetCookie($name, false);
+    }
+
+    /**
+     * Generates an application-specific cookie name combined with the given
+     * suffix.
+     *
+     * The application name is retrieved from the configuration. If no
+     * application name is set, a default value is used.
+     *
+     * @param string $suffix
+     *   The suffix to append to the application name. This value cannot be
+     *   empty.
+     * @return string
+     *   The generated cookie name, always in uppercase and following the
+     *   `{APPNAME}_{SUFFIX}` format.
+     * @throws \InvalidArgumentException
+     *   If the suffix is empty.
+     */
+    public function GenerateCookieName(string $suffix): string
+    {
+        if ($suffix === '') {
+            throw new \InvalidArgumentException('Suffix cannot be empty.');
+        }
+        $appName = Config::Instance()->OptionOrDefault('AppName', '');
+        if ($appName === '') {
+            $appName = self::DEFAULT_APP_NAME;
+        }
+        return \strtoupper("{$appName}_{$suffix}");
     }
 
     #endregion public

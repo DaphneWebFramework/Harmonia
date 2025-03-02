@@ -14,7 +14,6 @@ namespace Harmonia;
 
 use \Harmonia\Patterns\Singleton;
 
-use \Harmonia\Config;
 use \Harmonia\Server;
 use \Harmonia\Services\CookieService;
 
@@ -23,13 +22,6 @@ use \Harmonia\Services\CookieService;
  */
 class Session extends Singleton
 {
-    /**
-     * The default application name used for session naming.
-     *
-     * If "AppName" is not set in the configuration, this value is used.
-     */
-    private const DEFAULT_APP_NAME = 'Harmonia';
-
     /**
      * Constructs a new instance by configuring the session for security, and
      * setting a unique session name.
@@ -90,12 +82,7 @@ class Session extends Singleton
         ]);
 
         // Set the session name to a unique value for the application.
-        $appName = Config::Instance()->OptionOrDefault('AppName', '');
-        if ($appName === '') {
-            $appName = self::DEFAULT_APP_NAME;
-        }
-        $appName = \strtoupper($appName);
-        $this->_session_name("{$appName}_SID");
+        $this->_session_name(CookieService::Instance()->GenerateCookieName('SID'));
     }
 
     #region public -------------------------------------------------------------
