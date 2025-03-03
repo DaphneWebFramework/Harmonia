@@ -99,12 +99,12 @@ class Response
      *
      * @param string $name
      *   The cookie name.
-     * @param string|false $value
-     *   The cookie value. If `false`, the cookie is deleted.
+     * @param string $value
+     *   The cookie value. If empty, the cookie is deleted.
      * @return self
      *   The current instance.
      */
-    public function SetCookie(string $name, string|false $value): self
+    public function SetCookie(string $name, string $value): self
     {
         if ($this->cookies === null) {
             $this->cookies = new CArray();
@@ -116,6 +116,8 @@ class Response
     /**
      * Deletes a cookie.
      *
+     * This is a convenience method that calls `SetCookie` with an empty value.
+     *
      * @param string $name
      *   The cookie name.
      * @return self
@@ -123,7 +125,7 @@ class Response
      */
     public function DeleteCookie(string $name): self
     {
-        return $this->SetCookie($name, false);
+        return $this->SetCookie($name, '');
     }
 
     /**

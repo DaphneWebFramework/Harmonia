@@ -36,14 +36,14 @@ class CookieService extends Singleton
      *
      * @param string $name
      *   The cookie name.
-     * @param string|false $value
-     *   The cookie value. If `false`, the cookie is deleted.
+     * @param string $value
+     *   The cookie value. If empty, the cookie is deleted.
      * @return bool
      *   Returns `true` if the cookie is set successfully. Returns `false` if
      *   the HTTP headers have already been sent or if the cookie could not be
      *   set for any other reason.
      */
-    public function SetCookie(string $name, string|false $value): bool
+    public function SetCookie(string $name, string $value): bool
     {
         if ($this->_headers_sent()) {
             return false;
@@ -61,8 +61,7 @@ class CookieService extends Singleton
     /**
      * Deletes a cookie.
      *
-     * This is a convenience method that calls `SetCookie` with the value set to
-     * `false`.
+     * This is a convenience method that calls `SetCookie` with an empty value.
      *
      * @param string $name
      *   The cookie name.
@@ -75,7 +74,7 @@ class CookieService extends Singleton
      */
     public function DeleteCookie(string $name): bool
     {
-        return $this->SetCookie($name, false);
+        return $this->SetCookie($name, '');
     }
 
     /**
@@ -117,8 +116,7 @@ class CookieService extends Singleton
     }
 
     /** @codeCoverageIgnore */
-    protected function _setcookie(string $name, string|false $value,
-        array $options): bool
+    protected function _setcookie(string $name, string $value, array $options): bool
     {
         return \setcookie($name, $value, $options);
     }
