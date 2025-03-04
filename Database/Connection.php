@@ -165,6 +165,60 @@ class Connection
         return $this->handle->affected_rows;
     }
 
+    /**
+     * Initiates a transaction.
+     *
+     * @throws \RuntimeException
+     *   If the transaction initiation fails.
+     */
+    public function BeginTransaction(): void
+    {
+        try {
+            if (!$this->handle->begin_transaction()) {
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * Commits the current transaction.
+     *
+     * @throws \RuntimeException
+     *   If the transaction commit fails.
+     */
+    public function CommitTransaction(): void
+    {
+        try {
+            if (!$this->handle->commit()) {
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * Rolls back the current transaction.
+     *
+     * @throws \RuntimeException
+     *   If the transaction rollback fails.
+     */
+    public function RollbackTransaction(): void
+    {
+        try {
+            if (!$this->handle->rollback()) {
+                throw new \RuntimeException($this->handle->error,
+                                            $this->handle->errno);
+            }
+        } catch (\mysqli_sql_exception $e) {
+            throw new \RuntimeException($e->getMessage(), $e->getCode());
+        }
+    }
+
     #endregion public
 
     #region protected ----------------------------------------------------------

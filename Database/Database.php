@@ -96,6 +96,48 @@ class Database extends Singleton
         return $connection->LastAffectedRowCount();
     }
 
+    /**
+     * Executes a callable within a database transaction.
+     *
+     * This method initiates a transaction, executes the provided callback, and
+     * commits the transaction if no exception is thrown. The return value of
+     * the callback is then propagated as the result of the transaction. A
+     * callback returning any value (including `false`) is considered a valid
+     * outcome and will be returned after a successful commit. If an exception
+     * occurs during execution or commit, the transaction is rolled back and
+     * `false` is returned.
+     *
+     * @param callable $callback
+     *   The callback function to execute within the transaction. It may return
+     *   any value representing a valid business logic outcome, or throw an
+     *   exception to signal an error.
+     * @return mixed
+     *   Returns the value from the callback if the transaction is committed
+     *   successfully. Returns `false` if the connection is unavailable or if an
+     *   exception occurs during the transaction.
+     */
+    public function WithTransaction(callable $callback): mixed
+    {
+        $connection = $this->connection();
+        if ($connection === null) {
+            return false;
+        }
+        try {
+            $connection->BeginTransaction();
+            $result = $callback();
+            $connection->CommitTransaction();
+            return $result;
+        } catch (\Throwable $e) {
+            // todo: log the error
+            try {
+                $connection->RollbackTransaction();
+            } catch (\Throwable $e) {
+                // todo: log the error
+            }
+        }
+        return false;
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
