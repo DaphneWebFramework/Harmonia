@@ -29,6 +29,11 @@ class CookieService extends Singleton
      */
     private const DEFAULT_APP_NAME = 'Harmonia';
 
+    /**
+     * The suffix used for the CSRF cookie name.
+     */
+    private const CSRF_COOKIE_NAME_SUFFIX = 'CSRF';
+
     #region public -------------------------------------------------------------
 
     /**
@@ -78,6 +83,19 @@ class CookieService extends Singleton
     }
 
     /**
+     * Deletes the CSRF cookie.
+     *
+     * @return bool
+     *   Returns `true` if the CSRF cookie is deleted successfully. Returns
+     *   `false` if the HTTP headers have already been sent or if the cookie
+     *   could not be deleted for any other reason.
+     */
+    public function DeleteCsrfCookie(): bool
+    {
+        return $this->DeleteCookie($this->CsrfCookieName());
+    }
+
+    /**
      * Generates an application-specific cookie name combined with the given
      * suffix.
      *
@@ -103,6 +121,17 @@ class CookieService extends Singleton
             $appName = self::DEFAULT_APP_NAME;
         }
         return \strtoupper("{$appName}_{$suffix}");
+    }
+
+    /**
+     * Retrieves the CSRF cookie name.
+     *
+     * @return string
+     *   The CSRF cookie name.
+     */
+    public function CsrfCookieName(): string
+    {
+        return $this->AppSpecificCookieName(self::CSRF_COOKIE_NAME_SUFFIX);
     }
 
     #endregion public
