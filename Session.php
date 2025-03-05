@@ -82,7 +82,7 @@ class Session extends Singleton
         ]);
 
         // Set the session name to a unique value for the application.
-        $this->_session_name(CookieService::Instance()->GenerateCookieName('SID'));
+        $this->_session_name(CookieService::Instance()->AppSpecificCookieName('SID'));
     }
 
     #region public -------------------------------------------------------------

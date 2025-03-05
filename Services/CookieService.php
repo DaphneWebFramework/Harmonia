@@ -93,7 +93,7 @@ class CookieService extends Singleton
      * @throws \InvalidArgumentException
      *   If the suffix is empty.
      */
-    public function GenerateCookieName(string $suffix): string
+    public function AppSpecificCookieName(string $suffix): string
     {
         if ($suffix === '') {
             throw new \InvalidArgumentException('Suffix cannot be empty.');
