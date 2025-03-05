@@ -222,8 +222,8 @@ class Session extends Singleton
      * @return self
      *   The current instance.
      * @throws \RuntimeException
-     *   If HTTP headers have already been sent, if obtaining the session name
-     *   fails, if deleting the session cookie fails, if clearing session data
+     *   If obtaining the session name fails, if HTTP headers have already been
+     *   sent, if deleting the session cookie fails, if clearing session data
      *   fails, or if destroying the session fails.
      */
     public function Destroy(): self
@@ -231,9 +231,7 @@ class Session extends Singleton
         if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
             return $this;
         }
-        if (!CookieService::Instance()->DeleteCookie($this->_session_name())) {
-            throw new \RuntimeException('Failed to delete session cookie.');
-        }
+        CookieService::Instance()->DeleteCookie($this->_session_name());
         $this->_session_unset();
         $this->_session_destroy();
         return $this;

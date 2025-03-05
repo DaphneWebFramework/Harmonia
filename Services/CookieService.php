@@ -34,6 +34,30 @@ class CookieService extends Singleton
      */
     private const CSRF_COOKIE_NAME_SUFFIX = 'CSRF';
 
+    /**
+     * The cookie options.
+     */
+    private readonly array $options;
+
+    #region protected ----------------------------------------------------------
+
+    /**
+     * Constructs a new instance by initializing the cookie options.
+     */
+    protected function __construct()
+    {
+        $this->options = [
+            'expires'  => 0,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => Server::Instance()->IsSecure(),
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ];
+    }
+
+    #endregion protected
+
     #region public -------------------------------------------------------------
 
     /**
@@ -43,24 +67,18 @@ class CookieService extends Singleton
      *   The cookie name.
      * @param string $value
      *   The cookie value. If empty, the cookie is deleted.
-     * @return bool
-     *   Returns `true` if the cookie is set successfully. Returns `false` if
-     *   the HTTP headers have already been sent or if the cookie could not be
-     *   set for any other reason.
+     * @throws \RuntimeException
+     *   If the HTTP headers have already been sent or if the cookie could not
+     *   be set for any other reason.
      */
-    public function SetCookie(string $name, string $value): bool
+    public function SetCookie(string $name, string $value): void
     {
         if ($this->_headers_sent()) {
-            return false;
+            throw new \RuntimeException('HTTP headers have already been sent.');
         }
-        return $this->_setcookie($name, $value, [
-            'expires'  => 0,
-            'path'     => '/',
-            'domain'   => '',
-            'secure'   => Server::Instance()->IsSecure(),
-            'httponly' => true,
-            'samesite' => 'Strict'
-        ]);
+        if (!$this->_setcookie($name, $value, $this->options)) {
+            throw new \RuntimeException('Failed to set or delete cookie.');
+        }
     }
 
     /**
@@ -70,29 +88,27 @@ class CookieService extends Singleton
      *
      * @param string $name
      *   The cookie name.
-     * @return bool
-     *   Returns `true` if the cookie is deleted successfully. Returns `false`
-     *   if the HTTP headers have already been sent or if the cookie could not
+     * @throws \RuntimeException
+     *   If the HTTP headers have already been sent or if the cookie could not
      *   be deleted for any other reason.
      *
      * @see SetCookie
      */
-    public function DeleteCookie(string $name): bool
+    public function DeleteCookie(string $name): void
     {
-        return $this->SetCookie($name, '');
+        $this->SetCookie($name, '');
     }
 
     /**
      * Deletes the CSRF cookie.
      *
-     * @return bool
-     *   Returns `true` if the CSRF cookie is deleted successfully. Returns
-     *   `false` if the HTTP headers have already been sent or if the cookie
-     *   could not be deleted for any other reason.
+     * @throws \RuntimeException
+     *   If the HTTP headers have already been sent or if the cookie could not
+     *   be deleted for any other reason.
      */
-    public function DeleteCsrfCookie(): bool
+    public function DeleteCsrfCookie(): void
     {
-        return $this->DeleteCookie($this->CsrfCookieName());
+        $this->DeleteCookie($this->CsrfCookieName());
     }
 
     /**
