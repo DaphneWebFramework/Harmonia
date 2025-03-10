@@ -153,6 +153,57 @@ class CArray implements \ArrayAccess, \Countable, \IteratorAggregate
         return $this;
     }
 
+    /**
+     * Applies a function to the current value.
+     *
+     * This version of the method directly modifies the current instance.
+     *
+     * @param callable $function
+     *   The function to apply to the current value. It must accept an array
+     *   as its first parameter. Any additional arguments passed to this method
+     *   will be forwarded to the applied function.
+     * @param mixed ...$args
+     *   Additional arguments to pass to the applied function.
+     * @return self
+     *   The current instance.
+     * @throws \UnexpectedValueException
+     *   If the applied function returns a value that is not an array.
+     *
+     * @see Apply
+     */
+    public function ApplyInPlace(callable $function, mixed ...$args): self
+    {
+        $value = $function($this->value, ...$args);
+        if (!\is_array($value)) {
+            throw new \UnexpectedValueException(
+                'Applied function must return an array.');
+        }
+        $this->value = $value;
+        return $this;
+    }
+
+    /**
+     * Applies a function to the current value.
+     *
+     * @param callable $function
+     *   The function to apply to the current value. It must accept an array
+     *   as its first parameter. Any additional arguments passed to this method
+     *   will be forwarded to the applied function.
+     * @param mixed ...$args
+     *   Additional arguments to pass to the applied function.
+     * @return CArray
+     *   A new `CArray` instance containing the result of the applied function.
+     * @throws \UnexpectedValueException
+     *   If the applied function returns a value that is not an array.
+     *
+     * @see ApplyInPlace
+     */
+    public function Apply(callable $function, mixed ...$args): CArray
+    {
+        $clone = clone $this;
+        return $clone->ApplyInPlace($function, ...$args);
+    }
+
     #region Interface: ArrayAccess
 
     /**
