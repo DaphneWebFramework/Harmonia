@@ -272,6 +272,38 @@ class CSequentialArray extends CArray
         return $this;
     }
 
+    /**
+     * Applies a function to the current value.
+     *
+     * This version of the method directly modifies the current instance.
+     *
+     * @param callable $function
+     *   The function to apply to the current value. It must accept an array
+     *   as its first parameter. Any additional arguments passed to this method
+     *   will be forwarded to the applied function.
+     * @param mixed ...$args
+     *   Additional arguments to pass to the applied function.
+     * @return self
+     *   The current instance.
+     * @throws \UnexpectedValueException
+     *   If the applied function returns a value that is not an array or if the
+     *   returned array is not sequential with zero-based integer indexes.
+     */
+    public function ApplyInPlace(callable $function, mixed ...$args): self
+    {
+        $value = $function($this->value, ...$args);
+        if (!\is_array($value)) {
+            throw new \UnexpectedValueException(
+                'Applied function must return an array.');
+        }
+        if (!self::isSequentialArray($value)) {
+            throw new \UnexpectedValueException(
+                'Applied function must return a sequential array.');
+        }
+        $this->value = $value;
+        return $this;
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
