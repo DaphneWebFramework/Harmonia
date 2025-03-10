@@ -1,0 +1,110 @@
+{
+  "either_field_or_other_must_be_present": {
+    "en": "Either field '%s' or %s must be present.",
+    "tr": "Ya '%s' alanı ya da %s mevcut olmalı."
+  },
+  "expected_array_or_object_for_data": {
+    "en": "Expected an array or object for data, got: %s",
+    "tr": "Veri için bir dizi veya nesne bekleniyordu, alınan: %s"
+  },
+  "expected_string_for_rule": {
+    "en": "Expected a string for rule, got: %s",
+    "tr": "Kural için bir metin bekleniyordu, alınan: %s"
+  },
+  "field_failed_custom_validation": {
+    "en": "Field '%s' failed custom validation.",
+    "tr": "Alan '%s' özel doğrulamayı geçemedi."
+  },
+  "field_max_length": {
+    "en": "Field '%s' must have a maximum length of %d characters.",
+    "tr": "Alan '%s' en fazla %d karakter uzunluğunda olmalıdır."
+  },
+  "field_max_value": {
+    "en": "Field '%s' must have a maximum value of %s.",
+    "tr": "Alan '%s' en fazla %s değerine sahip olmalıdır."
+  },
+  "field_min_length": {
+    "en": "Field '%s' must have a minimum length of %d characters.",
+    "tr": "Alan '%s' en az %d karakter uzunluğunda olmalıdır."
+  },
+  "field_min_value": {
+    "en": "Field '%s' must have a minimum value of %s.",
+    "tr": "Alan '%s' en az %s değerine sahip olmalıdır."
+  },
+  "field_must_be_a_file": {
+    "en": "Field '%s' must be a file.",
+    "tr": "Alan '%s' bir dosya olmalıdır."
+  },
+  "field_must_be_a_string": {
+    "en": "Field '%s' must be a string.",
+    "tr": "Alan '%s' bir metin olmalıdır."
+  },
+  "field_must_be_an_array": {
+    "en": "Field '%s' must be an array.",
+    "tr": "Alan '%s' bir dizi olmalıdır."
+  },
+  "field_must_be_an_integer": {
+    "en": "Field '%s' must be an integer.",
+    "tr": "Alan '%s' bir tam sayı olmalıdır."
+  },
+  "field_must_be_numeric": {
+    "en": "Field '%s' must be numeric.",
+    "tr": "Alan '%s' bir sayı olmalıdır."
+  },
+  "field_must_be_valid_email": {
+    "en": "Field '%s' must be a valid email address.",
+    "tr": "Alan '%s' geçerli bir e-posta adresi olmalıdır."
+  },
+  "field_must_match_datetime_format": {
+    "en": "Field '%s' must match the datetime format: %s",
+    "tr": "Alan '%s', belirtilen tarih saat formatıyla eşleşmelidir: %s"
+  },
+  "field_must_match_pattern": {
+    "en": "Field '%s' must match the required pattern: %s",
+    "tr": "Alan '%s' gereken desene uymalıdır: %s"
+  },
+  "max_requires_number": {
+    "en": "Rule 'max' must be used with a number.",
+    "tr": "Kural 'max' bir sayı ile kullanılmalıdır."
+  },
+  "maxlength_requires_integer": {
+    "en": "Rule 'maxLength' must be used with an integer.",
+    "tr": "Kural 'maxLength' bir tam sayı ile kullanılmalıdır."
+  },
+  "min_requires_number": {
+    "en": "Rule 'min' must be used with a number.",
+    "tr": "Kural 'min' bir sayı ile kullanılmalıdır."
+  },
+  "minlength_requires_integer": {
+    "en": "Rule 'minLength' must be used with an integer.",
+    "tr": "Kural 'minLength' bir tam sayı ile kullanılmalıdır."
+  },
+  "only_one_of_fields_can_be_present": {
+    "en": "Only one of fields '%s' or %s can be present.",
+    "tr": "Yalnızca '%s' alanı veya %s mevcut olabilir."
+  },
+  "datetime_requires_format": {
+    "en": "Rule 'datetime' must be used with a valid datetime format.",
+    "tr": "Kural 'datetime', geçerli bir tarih saat formatı ile kullanılmalıdır."
+  },
+  "regex_requires_pattern": {
+    "en": "Rule 'regex' must be used with a valid pattern.",
+    "tr": "Kural 'regex' geçerli bir desen ile kullanılmalıdır."
+  },
+  "required_field_missing": {
+    "en": "Required field '%s' is missing.",
+    "tr": "Gerekli alan '%s' eksik."
+  },
+  "requiredwithout_requires_field_name": {
+    "en": "Rule 'requiredWithout' must be used with a field name.",
+    "tr": "Kural 'requiredWithout' bir alan adı ile kullanılmalıdır."
+  },
+  "rule_must_be_non_empty": {
+    "en": "Rule must be a non-empty string.",
+    "tr": "Kural boş olmayan bir metin olmalıdır."
+  },
+  "unknown_rule": {
+    "en": "Unknown rule '%s'.",
+    "tr": "Bilinmeyen kural '%s'."
+  }
+}
