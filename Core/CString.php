@@ -321,8 +321,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Inserts the specified string at the beginning.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param string|\Stringable $substring
      *   The string to prepend.
@@ -361,8 +360,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Inserts the specified string at the end.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param string|\Stringable $substring
      *   The string to append.
@@ -533,8 +531,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Trims whitespace or specified characters from both sides of the string.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param ?string $characters
      *   (Optional) Characters to trim. Defaults to trimming whitespace
@@ -606,8 +603,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Trims whitespace or specified characters from the start (left) of the
      * string.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param ?string $characters
      *   (Optional) Characters to trim. Defaults to trimming whitespace
@@ -680,8 +676,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Trims whitespace or specified characters from the end (right) of the
      * string.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param ?string $characters
      *   (Optional) Characters to trim. Defaults to trimming whitespace
@@ -753,8 +748,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Converts to lowercase.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @return self
      *   The current instance.
@@ -794,8 +788,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Converts to uppercase.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @return self
      *   The current instance.
@@ -980,8 +973,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * Replaces all occurrences of a specified search string with a replacement
      * string.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param string|\Stringable $searchString
      *   The substring to search for.
@@ -1146,39 +1138,47 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Applies a callable function to the current value.
+     * Applies a function to the current value.
      *
-     * This version of the method directly modifies the current instance,
-     * instead of creating and returning a new one.
+     * This version of the method directly modifies the current instance.
      *
      * @param callable $function
-     *   The function to apply to the current value. The function must accept a
-     *   `string` as its first parameter. Any additional arguments passed to
-     *   this method will be forwarded to the callable.
+     *   The function to apply to the current value. It must accept a string
+     *   as its first parameter. Any additional arguments passed to this method
+     *   will be forwarded to the applied function.
      * @param mixed ...$args
-     *   Additional arguments to pass to the callable.
+     *   Additional arguments to pass to the applied function.
      * @return self
      *   The current instance.
+     * @throws \UnexpectedValueException
+     *   If the applied function returns a value that is not a string.
      *
      * @see Apply
      */
     public function ApplyInPlace(callable $function, mixed ...$args): self
     {
-        $this->value = (string)$function($this->value, ...$args);
+        $value = $function($this->value, ...$args);
+        if (!\is_string($value)) {
+            throw new \UnexpectedValueException(
+                'Applied function must return an string.');
+        }
+        $this->value = $value;
         return $this;
     }
 
     /**
-     * Applies a callable function to the current value.
+     * Applies a function to the current value.
      *
      * @param callable $function
-     *   The function to apply to the current value. The function must accept a
-     *   `string` as its first parameter. Any additional arguments passed to
-     *   this method will be forwarded to the callable.
+     *   The function to apply to the current value. It must accept a string
+     *   as its first parameter. Any additional arguments passed to this method
+     *   will be forwarded to the applied function.
      * @param mixed ...$args
-     *   Additional arguments to pass to the callable.
+     *   Additional arguments to pass to the applied function.
      * @return CString
-     *   A new `CString` instance containing the result of the callable.
+     *   A new `CString` instance containing the result of the applied function.
+     * @throws \UnexpectedValueException
+     *   If the applied function returns a value that is not a string.
      *
      * @see ApplyInPlace
      */
