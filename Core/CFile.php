@@ -92,7 +92,7 @@ class CFile
     /**
      * Opens a file and returns a new `CFile` instance.
      *
-     * @param string $filename
+     * @param string|\Stringable $filename
      *   The name of the file to open.
      * @param string $mode
      *   (Optional) The mode for opening the file. Defaults to `CFile::MODE_READ`.
@@ -100,10 +100,13 @@ class CFile
      *   A `CFile` instance if successful, or `null` on failure.
      */
     public static function Open(
-        string $filename,
+        string|\Stringable $filename,
         string $mode = self::MODE_READ
     ): ?CFile
     {
+        if ($filename instanceof \Stringable) {
+            $filename = (string)$filename;
+        }
         $handle = self::_fopen($filename, $mode);
         if ($handle === false) {
             return null;
