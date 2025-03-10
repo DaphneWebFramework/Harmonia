@@ -7,10 +7,6 @@
     "en": "Expected an array or object for data, got: %s",
     "tr": "Veri için bir dizi veya nesne bekleniyordu, alınan: %s"
   },
-  "expected_string_for_rule": {
-    "en": "Expected a string for rule, got: %s",
-    "tr": "Kural için bir metin bekleniyordu, alınan: %s"
-  },
   "field_failed_custom_validation": {
     "en": "Field '%s' failed custom validation.",
     "tr": "Alan '%s' özel doğrulamayı geçemedi."
