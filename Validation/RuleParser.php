@@ -17,16 +17,14 @@ namespace Harmonia\Validation;
  */
 abstract class RuleParser
 {
-    private const PARAMETER_SEPARATOR = ':';
-
     /**
      * Parses a rule string into its name and optional parameter.
      *
      * @param string $rule
      *   The rule string (e.g., `'min:10'` or `'required'`).
-     * @return array{string, ?string}
-     *   The first element is the rule name. The second element is the optional
-     *   rule parameter (`null` if absent).
+     * @return array<int, ?string>
+     *   A tuple where the first element is the rule name and the second is the
+     *   optional rule parameter (`null` if absent).
      * @throws \InvalidArgumentException
      *   If the rule is empty or contains only whitespace.
      */
@@ -38,7 +36,7 @@ abstract class RuleParser
                 'rule_must_be_non_empty'
             ));
         }
-        $pos = \strpos($rule, self::PARAMETER_SEPARATOR);
+        $pos = \strpos($rule, ':');
         if ($pos !== false) {
             $ruleName = \rtrim(\substr($rule, 0, $pos));
             $ruleParam = \ltrim(\substr($rule, $pos + 1));

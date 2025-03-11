@@ -1,0 +1,159 @@
+<?php declare(strict_types=1);
+/**
+ * DataAccessor.php
+ *
+ * (C) 2025 by Eylem Ugurel
+ *
+ * Licensed under a Creative Commons Attribution 4.0 International License.
+ *
+ * You should have received a copy of the license along with this work. If not,
+ * see <http://creativecommons.org/licenses/by/4.0/>.
+ */
+
+namespace Harmonia\Validation;
+
+/**
+ * Provides access to structured data, supporting nested field resolution.
+ */
+class DataAccessor
+{
+    /**
+     * The data source being accessed.
+     *
+     * @var array|object
+     */
+    private readonly array|object $data;
+
+    #region public -------------------------------------------------------------
+
+    /**
+     * Constructs a new instance with structured data.
+     *
+     * @param array|object $data
+     *   The data to be accessed, either as an associative array or an object.
+     */
+    public function __construct(array|object $data)
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * Checks if the specified field exists in the data.
+     *
+     * Supports nested fields using dot notation (e.g., `'user.profile.name'`).
+     *
+     * @param int|string $field
+     *   The field name or index to check.
+     * @return bool
+     *   Returns `true` if the field exists, `false` otherwise.
+     * @throws \InvalidArgumentException
+     *   If the field name is neither a string nor an integer.
+     */
+    public function HasField(int|string $field): bool
+    {
+        if (self::isDottedField($field)) {
+            $carry = $this->data;
+            foreach (\explode('.', $field) as $subfield) {
+                if (!self::hasSubfield($carry, $subfield)) {
+                    return false;
+                }
+                $carry = self::getSubfield($carry, $subfield);
+            }
+            return true;
+        } else {
+            return self::hasSubfield($this->data, $field);
+        }
+    }
+
+    /**
+     * Retrieves the value of the specified field.
+     *
+     * Supports nested fields using dot notation (e.g., `'user.profile.name'`).
+     *
+     * @param int|string $field
+     *   The field name or index to retrieve.
+     * @return mixed
+     *   Returns the value of the field.
+     * @throws \RuntimeException
+     *   If the field does not exist.
+     */
+    public function GetField(int|string $field): mixed
+    {
+        if (!$this->HasField($field)) {
+            throw new \RuntimeException(Messages::Instance()->Get(
+                'field_does_not_exist',
+                $field
+            ));
+        }
+        if (self::isDottedField($field)) {
+            $carry = $this->data;
+            foreach (\explode('.', $field) as $subfield) {
+                $carry = self::getSubfield($carry, $subfield);
+            }
+            return $carry;
+        } else {
+            return self::getSubfield($this->data, $field);
+        }
+    }
+
+    #endregion public
+
+    #region private ------------------------------------------------------------
+
+    /**
+     * Determines if the field name contains dot notation.
+     *
+     * @param int|string $field
+     *   The field name to check.
+     * @return bool
+     *   Returns `true` if the field is in dot notation, `false` otherwise.
+     */
+    private static function isDottedField(int|string $field): bool
+    {
+        if (!\is_string($field)) {
+            return false;
+        }
+        return \str_contains($field, '.');
+    }
+
+    /**
+     * Checks if a subfield exists within an array or object.
+     *
+     * @param mixed $value
+     *   The data structure (array or object) to check.
+     * @param int|string $field
+     *   The subfield key or property to check.
+     * @return bool
+     *   Returns `true` if the subfield exists, `false` otherwise.
+     */
+    private static function hasSubfield(mixed $value, int|string $field): bool
+    {
+        if (\is_array($value)) {
+            return \array_key_exists($field, $value);
+        }
+        if (\is_object($value)) {
+            return \property_exists($value, (string)$field);
+        }
+        return false;
+    }
+
+    /**
+     * Retrieves a subfield from an array or object.
+     *
+     * @param array|object $value
+     *   The data structure (array or object) from which to retrieve the subfield.
+     * @param int|string $field
+     *   The subfield key or property to retrieve.
+     * @return mixed
+     *   Returns the subfield value.
+     */
+    private static function getSubfield(array|object $value, int|string $field): mixed
+    {
+        if (\is_array($value)) {
+            return $value[$field];
+        }
+        return $value->{$field};
+    }
+
+    #endregion private
+}

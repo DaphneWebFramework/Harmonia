@@ -7,6 +7,10 @@
     "en": "Expected an array or object for data, got: %s",
     "tr": "Veri için bir dizi veya nesne bekleniyordu, alınan: %s"
   },
+  "field_does_not_exist": {
+    "en": "Field '%s' does not exist.",
+    "tr": "Alan '%s' mevcut değil."
+  },
   "field_failed_custom_validation": {
     "en": "Field '%s' failed custom validation.",
     "tr": "Alan '%s' özel doğrulamayı geçemedi."
