@@ -59,13 +59,11 @@ abstract class RuleFactory
         if (self::$ruleObjects === null) {
             self::$ruleObjects = new CArray();
         }
+        // Normalize rule names to match class names, which start with an
+        // uppercase letter, followed by lowercase letters, and end with "Rule".
+        $ruleName = \ucfirst(\strtolower($ruleName));
         if (!self::$ruleObjects->Has($ruleName)) {
-            // Fix: Ensure compatibility with case-sensitive filesystems (Linux).
-            // Without ucfirst(), rule names like "array" would be instantiated
-            // as "arrayRule" instead of "ArrayRule", causing class loading
-            // failures.
-            $ruleClassName =
-                '\\Harmonia\\Validation\\Rules\\' . \ucfirst($ruleName) . 'Rule';
+            $ruleClassName = "\\Harmonia\\Validation\\Rules\\{$ruleName}Rule";
             if (!\class_exists($ruleClassName)) {
                 return null;
             }
