@@ -42,14 +42,12 @@ class DataAccessor
      *
      * Supports nested fields using dot notation (e.g., `'user.profile.name'`).
      *
-     * @param int|string $field
+     * @param string|int $field
      *   The field name or index to check.
      * @return bool
      *   Returns `true` if the field exists, `false` otherwise.
-     * @throws \InvalidArgumentException
-     *   If the field name is neither a string nor an integer.
      */
-    public function HasField(int|string $field): bool
+    public function HasField(string|int $field): bool
     {
         if (self::isDottedField($field)) {
             $carry = $this->data;
@@ -70,14 +68,14 @@ class DataAccessor
      *
      * Supports nested fields using dot notation (e.g., `'user.profile.name'`).
      *
-     * @param int|string $field
+     * @param string|int $field
      *   The field name or index to retrieve.
      * @return mixed
      *   Returns the value of the field.
      * @throws \RuntimeException
      *   If the field does not exist.
      */
-    public function GetField(int|string $field): mixed
+    public function GetField(string|int $field): mixed
     {
         if (!$this->HasField($field)) {
             throw new \RuntimeException(Messages::Instance()->Get(
@@ -103,12 +101,12 @@ class DataAccessor
     /**
      * Determines if the field name contains dot notation.
      *
-     * @param int|string $field
+     * @param string|int $field
      *   The field name to check.
      * @return bool
      *   Returns `true` if the field is in dot notation, `false` otherwise.
      */
-    private static function isDottedField(int|string $field): bool
+    private static function isDottedField(string|int $field): bool
     {
         if (!\is_string($field)) {
             return false;
@@ -121,12 +119,12 @@ class DataAccessor
      *
      * @param mixed $value
      *   The data structure (array or object) to check.
-     * @param int|string $field
+     * @param string|int $field
      *   The subfield key or property to check.
      * @return bool
      *   Returns `true` if the subfield exists, `false` otherwise.
      */
-    private static function hasSubfield(mixed $value, int|string $field): bool
+    private static function hasSubfield(mixed $value, string|int $field): bool
     {
         if (\is_array($value)) {
             return \array_key_exists($field, $value);
@@ -142,12 +140,12 @@ class DataAccessor
      *
      * @param array|object $value
      *   The data structure (array or object) from which to retrieve the subfield.
-     * @param int|string $field
+     * @param string|int $field
      *   The subfield key or property to retrieve.
      * @return mixed
      *   Returns the subfield value.
      */
-    private static function getSubfield(array|object $value, int|string $field): mixed
+    private static function getSubfield(array|object $value, string|int $field): mixed
     {
         if (\is_array($value)) {
             return $value[$field];
