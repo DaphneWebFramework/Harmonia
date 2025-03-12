@@ -53,8 +53,7 @@ class CompiledRules
                 if ($rule instanceof \Closure) {
                     $metaRules[] = new CustomMetaRule($rule);
                 } else {
-                    [$ruleName, $ruleParam] = RuleParser::Parse($rule);
-                    $metaRules[] = new StandardMetaRule($ruleName, $ruleParam);
+                    $metaRules[] = new StandardMetaRule(...RuleParser::Parse($rule));
                 }
             }
             $this->metaRulesCollection[$field] = $metaRules;

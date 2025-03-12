@@ -46,23 +46,23 @@ abstract class RuleFactory
      * @return ?Rule
      *   Returns the rule object associated with the given name, or `null` if
      *   the rule doesn't exist.
-     * @throws \InvalidArgumentException
-     *   When the provided rule name is an empty string.
+     * @throws \AssertionError
+     *   If the rule name is empty, contains leading or trailing spaces, or
+     *   contains uppercase letters.
      */
     public static function Create(string $ruleName): ?Rule
     {
-        $ruleName = \trim($ruleName);
-        if ($ruleName === '') {
-            throw new \InvalidArgumentException(Messages::Instance()->Get(
-                'rule_must_be_non_empty'
-            ));
-        }
+        assert($ruleName !== ''
+            && $ruleName === \trim($ruleName)
+            && $ruleName === \strtolower($ruleName),
+            'Rule name must be non-empty, trimmed, and lowercased');
+
         if (self::$ruleObjects === null) {
             self::$ruleObjects = new CArray();
         }
         // Normalize rule names to match class names, which start with an
         // uppercase letter, followed by lowercase letters, and end with "Rule".
-        $ruleName = \ucfirst(\strtolower($ruleName));
+        $ruleName = \ucfirst($ruleName);
         if (!self::$ruleObjects->Has($ruleName)) {
             $ruleClassName = "\\Harmonia\\Validation\\Rules\\{$ruleName}Rule";
             if (!\class_exists($ruleClassName)) {

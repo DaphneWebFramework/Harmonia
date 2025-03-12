@@ -30,23 +30,22 @@ abstract class RuleParser
      */
     public static function Parse(string $rule): array
     {
-        $rule = \trim($rule);
-        if ($rule === '') {
-            throw new \InvalidArgumentException(Messages::Instance()->Get(
-                'rule_must_be_non_empty'
-            ));
-        }
         $pos = \strpos($rule, ':');
         if ($pos !== false) {
-            $ruleName = \rtrim(\substr($rule, 0, $pos));
-            $ruleParam = \ltrim(\substr($rule, $pos + 1));
+            $ruleName = \trim(\substr($rule, 0, $pos));
+            $ruleParam = \trim(\substr($rule, $pos + 1));
             if ($ruleParam === '') {
                 $ruleParam = null;
             }
         } else {
-            $ruleName = $rule;
+            $ruleName = \trim($rule);
             $ruleParam = null;
         }
-        return [$ruleName, $ruleParam];
+        if ($ruleName === '') {
+            throw new \InvalidArgumentException(Messages::Instance()->Get(
+                'rule_must_be_non_empty'
+            ));
+        }
+        return [\strtolower($ruleName), $ruleParam];
     }
 }
