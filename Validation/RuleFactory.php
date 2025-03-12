@@ -46,17 +46,19 @@ abstract class RuleFactory
      * @return ?Rule
      *   Returns the rule object associated with the given name, or `null` if
      *   the rule doesn't exist.
-     * @throws \AssertionError
+     * @throws \InvalidArgumentException
      *   If the rule name is empty, contains leading or trailing spaces, or
      *   contains uppercase letters.
      */
     public static function Create(string $ruleName): ?Rule
     {
-        assert($ruleName !== ''
-            && $ruleName === \trim($ruleName)
-            && $ruleName === \strtolower($ruleName),
-            'Rule name must be non-empty, trimmed, and lowercased');
-
+        if ($ruleName === ''
+         || $ruleName !== \trim($ruleName)
+         || $ruleName !== \strtolower($ruleName))
+        {
+            throw new \InvalidArgumentException(
+                'Rule name must be non-empty, trimmed, and lowercased.');
+        }
         if (self::$ruleObjects === null) {
             self::$ruleObjects = new CArray();
         }
