@@ -51,6 +51,7 @@ abstract class RuleFactory
      */
     public static function Create(string $ruleName): ?Rule
     {
+        $ruleName = \trim($ruleName);
         if ($ruleName === '') {
             throw new \InvalidArgumentException(Messages::Instance()->Get(
                 'rule_must_be_non_empty'
