@@ -1,4 +1,8 @@
 {
+  "datetime_requires_format": {
+    "en": "Rule 'datetime' must be used with a valid datetime format.",
+    "tr": "Kural 'datetime', geçerli bir tarih saat formatı ile kullanılmalıdır."
+  },
   "either_field_or_other_must_be_present": {
     "en": "Either field '%s' or %s must be present.",
     "tr": "Ya '%s' alanı ya da %s mevcut olmalı."
@@ -83,10 +87,6 @@
     "en": "Only one of fields '%s' or %s can be present.",
     "tr": "Yalnızca '%s' alanı veya %s mevcut olabilir."
   },
-  "datetime_requires_format": {
-    "en": "Rule 'datetime' must be used with a valid datetime format.",
-    "tr": "Kural 'datetime', geçerli bir tarih saat formatı ile kullanılmalıdır."
-  },
   "regex_requires_pattern": {
     "en": "Rule 'regex' must be used with a valid pattern.",
     "tr": "Kural 'regex' geçerli bir desen ile kullanılmalıdır."
@@ -94,6 +94,10 @@
   "required_field_missing": {
     "en": "Required field '%s' is missing.",
     "tr": "Gerekli alan '%s' eksik."
+  },
+  "requiredwithout_cannot_reference_itself": {
+    "en": "Rule 'requiredWithout' must not reference the field itself.",
+    "tr": "Kural 'requiredWithout' kendisini referans alamaz."
   },
   "requiredwithout_requires_field_name": {
     "en": "Rule 'requiredWithout' must be used with a field name.",
