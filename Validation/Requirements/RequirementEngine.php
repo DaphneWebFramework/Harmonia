@@ -63,7 +63,8 @@ class RequirementEngine
      * @param DataAccessor $dataAccessor
      *   Provides access to the dataset.
      * @throws \InvalidArgumentException
-     *   If a `requiredWithout` rule is defined without a field name.
+     *   If a `requiredWithout` rule is defined without a field name, or if the
+     *   field references itself as a `requiredWithout` field.
      */
     public function __construct(
         string|int $field,
