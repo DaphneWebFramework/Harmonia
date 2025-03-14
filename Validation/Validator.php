@@ -71,7 +71,11 @@ class Validator
      * Validates the provided data against the compiled rules.
      *
      * @param array|object $data
-     *   The data to validate, provided as an array or an object.
+     *   The data to validate, provided as an array or an object. If the data is
+     *   an instance of `CArray`, it is converted to an array.
+     * @return DataAccessor
+     *   Returns a data accessor object that provides access to the validated
+     *   data fields.
      * @throws \InvalidArgumentException
      *   If a `requiredWithout` rule is defined without a field name, or if the
      *   field references itself as a `requiredWithout` field.
@@ -85,12 +89,13 @@ class Validator
      * @throws \RuntimeException
      *   If the user-defined closure returns `false`.
      */
-    public function Validate(array|object $data): void
+    public function Validate(array|object $data): DataAccessor
     {
         $dataAccessor = new DataAccessor($data);
         foreach ($this->compiledRules->MetaRulesCollection() as $field => $metaRules) {
             $this->validateField($field, $metaRules, $dataAccessor);
         }
+        return $dataAccessor;
     }
 
     #region private ------------------------------------------------------------
