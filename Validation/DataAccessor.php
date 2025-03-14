@@ -12,6 +12,8 @@
 
 namespace Harmonia\Validation;
 
+use \Harmonia\Core\CArray;
+
 /**
  * Provides access to structured data, supporting nested field resolution.
  */
@@ -31,9 +33,13 @@ class DataAccessor
      *
      * @param array|object $data
      *   The data to be accessed, either as an associative array or an object.
+     *   If the data is an instance of `CArray`, it is converted to an array.
      */
     public function __construct(array|object $data)
     {
+        if ($data instanceof CArray) {
+            $data = $data->ToArray();
+        }
         $this->data = $data;
     }
 
