@@ -48,9 +48,9 @@ class Logger extends Singleton
     private const DEFAULT_FILENAME = 'default.log';
 
     private const LEVEL_NONE = 0;
-    private const LEVEL_ERRORS = 1;
-    private const LEVEL_WARNINGS = 2;
-    private const LEVEL_ALL = 3;
+    private const LEVEL_ERROR = 1;
+    private const LEVEL_WARNING = 2;
+    private const LEVEL_INFO = 3;
 
     private readonly CPath $filePath;
     private readonly int $level;
@@ -80,7 +80,7 @@ class Logger extends Singleton
         $this->filePath = $this->buildFilePath(
             $config->OptionOrDefault('LogFile', self::DEFAULT_FILENAME));
         $this->ensureDirectoryExists();
-        $this->level = $config->OptionOrDefault('LogLevel', self::LEVEL_ALL);
+        $this->level = $config->OptionOrDefault('LogLevel', self::LEVEL_INFO);
     }
 
     #region public -------------------------------------------------------------
@@ -93,7 +93,7 @@ class Logger extends Singleton
      */
     public function Info(string|callable $message): void
     {
-        if ($this->level < self::LEVEL_ALL) {
+        if ($this->level < self::LEVEL_INFO) {
             return;
         }
         $this->writeEntry($this->formatEntry(
@@ -108,7 +108,7 @@ class Logger extends Singleton
      */
     public function Warning(string|callable $message): void
     {
-        if ($this->level < self::LEVEL_WARNINGS) {
+        if ($this->level < self::LEVEL_WARNING) {
             return;
         }
         $this->writeEntry($this->formatEntry(
@@ -123,7 +123,7 @@ class Logger extends Singleton
      */
     public function Error(string|callable $message): void
     {
-        if ($this->level < self::LEVEL_ERRORS) {
+        if ($this->level < self::LEVEL_ERROR) {
             return;
         }
         $this->writeEntry($this->formatEntry(
