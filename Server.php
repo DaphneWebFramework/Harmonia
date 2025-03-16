@@ -155,6 +155,17 @@ class Server extends Singleton
         return $headers;
     }
 
+    /**
+     * Retrieves the client's IP address.
+     *
+     * @return string
+     *   The client's IP address.
+     */
+    public function ClientAddress(): string
+    {
+        return $this->data->GetOrDefault('REMOTE_ADDR', '');
+    }
+
     #endregion public
 
     #region private ------------------------------------------------------------
