@@ -34,11 +34,17 @@ use \Harmonia\Resource;
  *
  * #### Examples
  *
+ * Logging a debug message (effective only in debug mode):
  * ```php
- * Logger::Instance()->Info('Application started.');
+ * Logger::Instance()->Debug("Fetching user data for ID: {$userId}");
  * ```
  *
- * Avoids unnecessary computation in case logging is disabled:
+ * Logging an error:
+ * ```php
+ * Logger::Instance()->Error('Database connection failed.');
+ * ```
+ *
+ * Avoiding unnecessary computation in case logging is disabled:
  * ```php
  * Logger::Instance()->Info(fn() => heavyComputation());
  * ```
@@ -52,6 +58,7 @@ class Logger extends Singleton
     private const LEVEL_WARNING = 2;
     private const LEVEL_INFO = 3;
 
+    private readonly Config $config;
     private readonly CPath $filePath;
     private readonly int $level;
 
@@ -76,14 +83,32 @@ class Logger extends Singleton
      */
     protected function __construct()
     {
-        $config = Config::Instance();
+        $this->config = Config::Instance();
         $this->filePath = $this->buildFilePath(
-            $config->OptionOrDefault('LogFile', self::DEFAULT_FILENAME));
+            $this->config->OptionOrDefault('LogFile', self::DEFAULT_FILENAME));
+        $this->level = $this->config->OptionOrDefault('LogLevel', self::LEVEL_INFO);
         $this->ensureDirectoryExists();
-        $this->level = $config->OptionOrDefault('LogLevel', self::LEVEL_INFO);
     }
 
     #region public -------------------------------------------------------------
+
+    /**
+     * Logs a debug message.
+     *
+     * Debug messages are logged only if the `IsDebug` configuration option is
+     * enabled.
+     *
+     * @param string|callable $message
+     *   The debug message to log, or a callable returning the message.
+     */
+    public function Debug(string|callable $message): void
+    {
+        if (!$this->config->OptionOrDefault('IsDebug', false)) {
+            return;
+        }
+        $this->writeEntry($this->formatEntry(
+            'DEBUG', $this->resolveMessage($message)));
+    }
 
     /**
      * Logs an informational message.
