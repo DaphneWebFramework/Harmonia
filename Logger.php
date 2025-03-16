@@ -31,6 +31,8 @@ use \Harmonia\Resource;
  *   - `1`: Logs only error messages.
  *   - `2`: Logs warnings and errors.
  *   - `3`: Logs info, warnings, and errors.
+ * - `IsDebug`: Enables debug mode. When `true`, debug messages are logged
+ *   regardless of `LogLevel`.
  *
  * #### Examples
  *
@@ -95,8 +97,9 @@ class Logger extends Singleton
     /**
      * Logs a debug message.
      *
-     * Debug messages are logged only if the `IsDebug` configuration option is
-     * enabled.
+     * This method writes a log entry when the `IsDebug` configuration option
+     * is enabled. Unlike other log methods, the configured `LogLevel` does not
+     * affect debug messages.
      *
      * @param string|callable $message
      *   The debug message to log, or a callable returning the message.
@@ -113,6 +116,9 @@ class Logger extends Singleton
     /**
      * Logs an informational message.
      *
+     * This method writes a log entry when the configured `LogLevel` is set to
+     * `LEVEL_INFO` (3).
+     *
      * @param string|callable $message
      *   The message to log, or a callable returning the message.
      */
@@ -128,6 +134,9 @@ class Logger extends Singleton
     /**
      * Logs a warning message.
      *
+     * This method writes a log entry when the configured `LogLevel` is set to
+     * `LEVEL_WARNING` (2) or higher.
+     *
      * @param string|callable $message
      *   The message to log, or a callable returning the message.
      */
@@ -142,6 +151,9 @@ class Logger extends Singleton
 
     /**
      * Logs an error message.
+     *
+     * This method writes a log entry when the configured `LogLevel` is set to
+     * `LEVEL_ERROR` (1) or higher.
      *
      * @param string|callable $message
      *   The message to log, or a callable returning the message.
