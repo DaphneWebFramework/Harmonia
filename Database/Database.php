@@ -17,6 +17,7 @@ use \Harmonia\Patterns\Singleton;
 use \Harmonia\Config;
 use \Harmonia\Database\Proxies\MySQLiResult;
 use \Harmonia\Database\Queries\Query;
+use \Harmonia\Logger;
 
 /**
  * Provides a central interface for working with databases.
@@ -57,7 +58,7 @@ class Database extends Singleton
             $result = $connection->Execute($query);
             return new ResultSet($result);
         } catch (\RuntimeException $e) {
-            // todo: log the error
+            Logger::Instance()->Error($e->getMessage());
             return null;
         }
     }
@@ -128,11 +129,11 @@ class Database extends Singleton
             $connection->CommitTransaction();
             return $result;
         } catch (\Throwable $e) {
-            // todo: log the error
+            Logger::Instance()->Error($e->getMessage());
             try {
                 $connection->RollbackTransaction();
             } catch (\Throwable $e) {
-                // todo: log the error
+                Logger::Instance()->Error($e->getMessage());
             }
         }
         return false;
@@ -164,7 +165,7 @@ class Database extends Singleton
                     $config->Option('DatabaseCharset')
                 );
             } catch (\RuntimeException $e) {
-                // todo: log the error
+                Logger::Instance()->Error($e->getMessage());
                 return null;
             }
             try {
@@ -172,7 +173,7 @@ class Database extends Singleton
                     $config->OptionOrDefault('DatabaseName', '')
                 );
             } catch (\RuntimeException $e) {
-                // todo: log the error
+                Logger::Instance()->Error($e->getMessage());
                 return null;
             }
             $this->connection = $connection;
