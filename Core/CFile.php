@@ -292,7 +292,7 @@ class CFile
      */
     protected static function _fopen(string $filename, string $mode)
     {
-        return \fopen($filename, $mode);
+        return @\fopen($filename, $mode);
     }
 
     /**
