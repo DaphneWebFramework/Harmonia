@@ -38,7 +38,7 @@ class Resource extends Singleton
      *
      * @var CArray
      */
-    protected readonly CArray $cache;
+    private readonly CArray $cache;
 
     /**
      * Constructs a new instance.
@@ -211,6 +211,26 @@ class Resource extends Singleton
         $result = CUrl::Join($serverUrl, $this->AppRelativePath())
             ->EnsureTrailingSlash();
         $this->cache->Set(__FUNCTION__, $result);
+        return $result;
+    }
+
+    /**
+     * Returns the absolute path to the specified subdirectory within the app
+     * directory.
+     *
+     * @param string $subdirectory
+     *   The name of the subdirectory.
+     * @return CPath
+     *   The absolute path to the subdirectory.
+     */
+    public function AppSubdirectoryPath($subdirectory): CPath
+    {
+        $cacheKey = __FUNCTION__ . "($subdirectory)";
+        if ($this->cache->Has($cacheKey)) {
+            return $this->cache->Get($cacheKey);
+        }
+        $result = CPath::Join($this->AppPath(), $subdirectory);
+        $this->cache->Set($cacheKey, $result);
         return $result;
     }
 
