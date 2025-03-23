@@ -184,40 +184,43 @@ abstract class Translation extends Singleton
         }
         $translations = new CArray();
         foreach ($this->filePaths() as $filePath) {
-            $loaded = $this->loadTranslationsFromFile($filePath);
+            $loaded = $this->loadFile($filePath);
             $translations->ApplyInPlace('\array_replace_recursive', $loaded->ToArray());
         }
         return $this->translations = $translations;
     }
 
     /**
-     * Loads translations from a JSON file.
+     * Loads and parses the file, returning validated translation units.
+     *
+     * This method handles file I/O, JSON decoding, structural validation, and
+     * conversion into a `CArray` of language-text translation units.
      *
      * @param CPath $filePath
-     *   The path to the JSON file.
+     *   The path to the translation file.
      * @return CArray
-     *   A `CArray` containing the translations.
+     *   A `CArray` mapping translation IDs to nested language-text pairs.
      * @throws \RuntimeException
-     *   If the file cannot be read or has an invalid structure.
+     *   If the file cannot be opened, read, decoded, or validated.
      */
-    protected function loadTranslationsFromFile(CPath $filePath): CArray
+    protected function loadFile(CPath $filePath): CArray
     {
         $file = $this->openFile($filePath);
         if ($file === null) {
-            throw new \RuntimeException('Failed to open translation file.');
+            throw new \RuntimeException('Translation file could not be opened.');
         }
         $contents = $file->Read();
         $file->Close();
         if ($contents === null) {
-            throw new \RuntimeException('Could not read translation file.');
+            throw new \RuntimeException('Translation file could not be read.');
         }
         $root = \json_decode($contents, true);
         if ($root === null) {
-            throw new \RuntimeException('Translation file could not be decoded.');
+            throw new \RuntimeException('Translation file contains invalid JSON.');
         }
         if (!\is_array($root)) {
             throw new \RuntimeException(
-                'Translation file must have an object as its root structure.');
+                'Translation file must contain an object at the root.');
         }
         foreach ($root as $translationId => $unit) {
             if (!\is_string($translationId)) {
@@ -228,7 +231,7 @@ abstract class Translation extends Singleton
             }
             if (!\is_array($unit)) {
                 throw new \RuntimeException(
-                    'Each translation ID must map to an object of language-text pairs.');
+                    'Translation unit must be an object of language-text pairs.');
             }
             foreach ($unit as $language => $translation) {
                 if (!\is_string($language)) {
