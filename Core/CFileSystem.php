@@ -139,4 +139,22 @@ class CFileSystem extends Singleton
             yield $fileInfo->getPathname();
         }
     }
+
+    /**
+     * Returns the last modification time of a file or directory.
+     *
+     * This method clears the stat cache for the given path before retrieving
+     * the timestamp.
+     *
+     * @param string|\Stringable $path
+     *   The path to the file or directory.
+     * @return int
+     *   The UNIX timestamp of the last modification, or `0` if unavailable.
+     */
+    public function ModificationTime(string|\Stringable $path): int
+    {
+        $path = (string)$path;
+        \clearstatcache(false, $path);
+        return (int)@\filemtime($path);
+    }
 }
