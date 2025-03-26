@@ -215,8 +215,7 @@ class Resource extends Singleton
     }
 
     /**
-     * Returns the absolute path to the specified subdirectory within the app
-     * directory.
+     * Returns the absolute path to a subdirectory under the application root.
      *
      * @param string $subdirectory
      *   The name of the subdirectory.
@@ -232,6 +231,25 @@ class Resource extends Singleton
         $result = CPath::Join($this->AppPath(), $subdirectory);
         $this->cache->Set($cacheKey, $result);
         return $result;
+    }
+
+    /**
+     * Returns the absolute URL to a subdirectory under the application root.
+     *
+     * @param string $subdirectory
+     *   The name of the subdirectory.
+     * @return CUrl
+     *   The URL to the subdirectory.
+     */
+    public function AppSubdirectoryUrl(string $subdirectory): CUrl
+    {
+        $cacheKey = __FUNCTION__ . "($subdirectory)";
+        if ($this->cache->Has($cacheKey)) {
+            return $this->cache->Get($cacheKey);
+        }
+        $url = CUrl::Join($this->AppUrl(), $subdirectory);
+        $this->cache->Set($cacheKey, $url);
+        return $url;
     }
 
     #endregion public
