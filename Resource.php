@@ -59,9 +59,9 @@ class Resource extends Singleton
     /**
      * Initializes the resource with the specified application path.
      *
-     * The application path refers to the root directory of the application.
-     * This method is typically called in a bootstrap file (e.g., bootstrap.php
-     * or autoload.php) using `__DIR__` to pass the root directory path.
+     * The application path refers to the root directory of your project.
+     * This method is typically called in a file such as `autoload.php`,
+     * using `__DIR__` to pass that path.
      *
      * For example:
      * ```php
