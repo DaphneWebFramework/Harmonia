@@ -175,10 +175,10 @@ class Response
      *   (Optional) If `true`, the script will exit after sending the response.
      *   Default is `true`.
      */
-    public function Redirect(string $url, bool $exitScript = true): void
+    public function Redirect(string|\Stringable $url, bool $exitScript = true): void
     {
         $this->SetStatusCode(StatusCode::Found)
-             ->SetHeader('Location', $url)
+             ->SetHeader('Location', (string)$url)
              ->Send();
         if ($exitScript) {
             $this->exitScript();
