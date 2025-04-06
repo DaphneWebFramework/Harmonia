@@ -175,25 +175,6 @@ class CPath extends CString
         return new CPath($targetPath);
     }
 
-    /**
-     * Returns the trailing name component of the path.
-     *
-     * The base name is the last component of a path, which is typically the
-     * file or directory name.
-     *
-     * This method operates on the input string, and is not aware of the actual
-     * filesystem.
-     *
-     * @return string
-     *   The base name of the path.
-     *
-     * @todo Delete this method and use `Apply` instead.
-     */
-    public function BaseName(): string
-    {
-        return \basename($this->value);
-    }
-
     #endregion public
 
     #region private ------------------------------------------------------------

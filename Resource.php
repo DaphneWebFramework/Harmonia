@@ -160,7 +160,7 @@ class Resource extends Singleton
             // resolves to the application path.
             $serverDirectoryContainsLinkToAppPath = false;
             if (\PHP_OS_FAMILY !== 'Windows') {
-                $linkPath = CPath::Join($serverPath, $appPath->BaseName());
+                $linkPath = CPath::Join($serverPath, $appPath->Apply('\basename'));
                 if ($linkPath->IsLink()) {
                     $targetPath = $linkPath->ReadLink();
                     if ($targetPath !== null && $targetPath->Equals($appPath)) {
