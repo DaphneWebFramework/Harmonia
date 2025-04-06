@@ -38,7 +38,7 @@ class Resource extends Singleton
      *
      * @var CArray
      */
-    protected readonly CArray $cache;
+    private readonly CArray $cache;
 
     /**
      * Constructs a new instance.
