@@ -20,26 +20,6 @@ class CUrl extends CString
     #region public -------------------------------------------------------------
 
     /**
-     * Constructs a new instance.
-     *
-     * Leading and trailing whitespace are trimmed when storing the specified
-     * URL value.
-     *
-     * @param string|\Stringable $value
-     *   (Optional) The URL value to store. If omitted, defaults to an empty
-     *   string. If given a `CUrl` instance, its value is copied. For a
-     *   `Stringable` instance, its string representation is used, and for a
-     *   native string, the value is used directly.
-     */
-    public function __construct(string|\Stringable $value = '')
-    {
-        parent::__construct($value);
-        if (!$this->IsEmpty()) {
-            $this->TrimInPlace();
-        }
-    }
-
-    /**
      * Joins multiple URL segments into a single URL.
      *
      * @param string|\Stringable ...$segments

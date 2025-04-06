@@ -20,26 +20,6 @@ class CPath extends CString
     #region public -------------------------------------------------------------
 
     /**
-     * Constructs a new instance.
-     *
-     * Leading and trailing whitespace are trimmed when storing the specified
-     * path value.
-     *
-     * @param string|\Stringable $value
-     *   (Optional) The path value to store. If omitted, defaults to an empty
-     *   string. If given a `CPath` instance, its value is copied. For a
-     *   `Stringable` instance, its string representation is used, and for a
-     *   native string, the value is used directly.
-     */
-    public function __construct(string|\Stringable $value = '')
-    {
-        parent::__construct($value);
-        if (!$this->IsEmpty()) {
-            $this->TrimInPlace();
-        }
-    }
-
-    /**
      * Joins multiple path segments into a single path.
      *
      * @param string|\Stringable ...$segments
@@ -206,6 +186,8 @@ class CPath extends CString
      *
      * @return string
      *   The base name of the path.
+     *
+     * @todo Delete this method and use `Apply` instead.
      */
     public function BaseName(): string
     {
