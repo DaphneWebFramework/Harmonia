@@ -212,41 +212,6 @@ class CPath extends CString
         return \basename($this->value);
     }
 
-    /**
-     * Returns the canonical absolute form of the path.
-     *
-     * Resolves the path to its absolute and canonical form by expanding all
-     * symbolic links, resolving `/./`, `/../`, and extra `/` characters. On
-     * success, trailing slashes are also removed.
-     *
-     * If the instance's value is empty, this method returns the current working
-     * directory.
-     *
-     * This method fails if the path does not exist or if the script lacks
-     * sufficient permissions to access directories in the hierarchy.
-     *
-     * @param string|\Stringable|null $basePath
-     *   (Optional) Base directory to resolve the path relative to. If omitted,
-     *   the current working directory is used as the base path.
-     * @return ?CPath
-     *   A new `CPath` instance containing the canonical absolute path if
-     *   successful, or `null` if the method fails.
-     */
-    public function ToAbsolute(string|\Stringable|null $basePath = null): ?CPath
-    {
-        if ($basePath !== null) {
-            $absolutePath = $this->withWorkingDirectory($basePath, function() {
-                return \realpath($this->value);
-            });
-        } else {
-            $absolutePath = \realpath($this->value);
-        }
-        if ($absolutePath === false) {
-            return null;
-        }
-        return new CPath($absolutePath);
-    }
-
     #endregion public
 
     #region private ------------------------------------------------------------
@@ -281,45 +246,6 @@ class CPath extends CString
     private static function isSlash(string $char): bool
     {
         return $char === '/' || $char === DIRECTORY_SEPARATOR;
-    }
-
-    /**
-     * Temporarily sets a specified directory as the current working directory,
-     * executes a callback, and then restores the original working directory.
-     *
-     * @param string|\Stringable $workingDirectory
-     *   The directory to temporarily set as the current working directory.
-     * @param callable $callback
-     *   The function to execute while the specified directory is set as the
-     *   current working directory.
-     * @return mixed|false
-     *   The return value of the callback if successful, or `false` if the
-     *   the current working directory cannot be determined, the specified
-     *   directory cannot be set as the current working directory, or the
-     *   original working directory cannot be restored.
-     */
-    private function withWorkingDirectory(
-        string|\Stringable $workingDirectory,
-        callable $callback
-    ): mixed
-    {
-        $originalWorkingDirectory = \getcwd();
-        if ($originalWorkingDirectory === false) {
-            return false;
-        }
-        if ($workingDirectory instanceof \Stringable) {
-            $workingDirectory = (string)$workingDirectory;
-        }
-        if (!@\chdir($workingDirectory)) {
-            return false;
-        }
-        try {
-            return $callback();
-        } finally {
-            if (!\chdir($originalWorkingDirectory)) {
-                return false;
-            }
-        }
     }
 
     #endregion private

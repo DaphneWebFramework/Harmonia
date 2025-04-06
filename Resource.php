@@ -81,13 +81,15 @@ class Resource extends Singleton
         if ($this->appPath !== null) {
             throw new \RuntimeException('Resource is already initialized.');
         }
-        if (!($appPath instanceof CPath)) {
+        if (!$appPath instanceof CPath) {
             $appPath = new CPath($appPath);
         }
-        $this->appPath = $appPath->ToAbsolute();
-        if ($this->appPath === null) {
+        try {
+            $appPath->ApplyInPlace('\realpath');
+        } catch (\UnexpectedValueException $e) {
             throw new \RuntimeException('Failed to resolve application path.');
         }
+        $this->appPath = $appPath;
     }
 
     /**
@@ -147,8 +149,9 @@ class Resource extends Singleton
         if ($serverPath === null) {
             throw new \RuntimeException('Server path not available.');
         }
-        $serverPath = $serverPath->ToAbsolute();
-        if ($serverPath === null) {
+        try {
+            $serverPath->ApplyInPlace('\realpath');
+        } catch (\UnexpectedValueException $e) {
             throw new \RuntimeException('Failed to resolve server path.');
         }
         if (!$appPath->StartsWith($serverPath)) {
