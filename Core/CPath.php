@@ -29,25 +29,27 @@ class CPath extends CString
      */
     public static function Join(string|\Stringable ...$segments): CPath
     {
-        $segments = \array_values(\array_filter($segments,
-            function(string|\Stringable $segment): bool {
-                $segment = new CString($segment);
-                return !$segment->TrimInPlace(self::getSlashes())->IsEmpty();
+        $filtered = [];
+        foreach ($segments as $segment) {
+            if (!$segment instanceof CPath) {
+                $segment = new CPath($segment);
             }
-        ));
-        $path = new CPath();
-        $lastIndex = \count($segments) - 1;
-        foreach ($segments as $index => $segment) {
-            $segment = new CPath($segment);
+            if (!$segment->Trim(self::getSlashes())->IsEmpty()) {
+                $filtered[] = $segment;
+            }
+        }
+        $joined = new CPath();
+        $lastIndex = \count($filtered) - 1;
+        foreach ($filtered as $index => $segment) {
             if ($index > 0) {
                 $segment->TrimLeadingSlashes();
             }
             if ($index < $lastIndex) {
                 $segment->EnsureTrailingSlash();
             }
-            $path->AppendInPlace($segment);
+            $joined->AppendInPlace($segment);
         }
-        return $path;
+        return $joined;
     }
 
     /**

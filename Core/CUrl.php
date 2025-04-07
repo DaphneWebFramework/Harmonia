@@ -29,25 +29,27 @@ class CUrl extends CString
      */
     public static function Join(string|\Stringable ...$segments): CUrl
     {
-        $segments = \array_values(\array_filter($segments,
-            function(string|\Stringable $segment): bool {
-                $segment = new CString($segment);
-                return !$segment->TrimInPlace('/')->IsEmpty();
+        $filtered = [];
+        foreach ($segments as $segment) {
+            if (!$segment instanceof CUrl) {
+                $segment = new CUrl($segment);
             }
-        ));
-        $url = new CUrl();
-        $lastIndex = \count($segments) - 1;
-        foreach ($segments as $index => $segment) {
-            $segment = new CUrl($segment);
+            if (!$segment->Trim('/')->IsEmpty()) {
+                $filtered[] = $segment;
+            }
+        }
+        $joined = new CUrl();
+        $lastIndex = \count($filtered) - 1;
+        foreach ($filtered as $index => $segment) {
             if ($index > 0) {
                 $segment->TrimLeadingSlashes();
             }
             if ($index < $lastIndex) {
                 $segment->EnsureTrailingSlash();
             }
-            $url->AppendInPlace($segment);
+            $joined->AppendInPlace($segment);
         }
-        return $url;
+        return $joined;
     }
 
     /**
