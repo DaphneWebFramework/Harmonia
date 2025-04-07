@@ -95,15 +95,16 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $value
      *   (Optional) The string value to store. If omitted, defaults to an empty
-     *   string. If given a `CString` instance, its value, encoding, and
-     *   single-byte/multibyte status are copied. If given a `Stringable`
-     *   instance, its string representation is used, and for a native string,
-     *   the value is used directly.
+     *   string. If given an instance of `CString` or a subclass, its value,
+     *   encoding, and single-byte/multibyte status are copied. If given a
+     *   `Stringable` instance, its string representation is used, and for a
+     *   native string, the value is used directly.
      * @param ?string $encoding
      *   (Optional) The encoding to use (e.g., 'UTF-8', 'ISO-8859-1'). If
      *   omitted or set to `null`, defaults to the return value of
      *   `mb_internal_encoding`. This parameter is ignored when `$value` is an
-     *   instance of `CString`. Note that encoding names are case-insensitive.
+     *   instance of `CString` or a subclass. Note that encoding names are
+     *   case-insensitive.
      */
     public function __construct(string|\Stringable $value = '', ?string $encoding = null)
     {
@@ -117,7 +118,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
             } else { // \is_string($value)
                 $this->value = $value;
             }
-            $this->encoding = $encoding ?: \mb_internal_encoding();
+            $this->encoding = $encoding ?? \mb_internal_encoding();
             $this->isSingleByte = self::isSingleByteEncoding($this->encoding);
         }
     }
@@ -345,13 +346,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $substring
      *   The string to prepend.
-     * @return CString
-     *   A new `CString` instance with the string prepended.
+     * @return static
+     *   A new instance with the string prepended.
      *
      * @see PrependInPlace
      * @see InsertInPlace
      */
-    public function Prepend(string|\Stringable $substring): CString
+    public function Prepend(string|\Stringable $substring): static
     {
         $clone = clone $this;
         return $clone->PrependInPlace($substring);
@@ -384,13 +385,13 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *
      * @param string|\Stringable $substring
      *   The string to append.
-     * @return CString
-     *   A new `CString` instance with the substring appended.
+     * @return static
+     *   A new instance with the substring appended.
      *
      * @see AppendInPlace
      * @see InsertInPlace
      */
-    public function Append(string|\Stringable $substring): CString
+    public function Append(string|\Stringable $substring): static
     {
         $clone = clone $this;
         return $clone->AppendInPlace($substring);
@@ -445,26 +446,26 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param int $count
      *   The number of characters to return. If greater than or equal to the
      *   length of the string, the entire string is returned.
-     * @return CString
-     *   A new `CString` instance with the leftmost characters, or an empty
-     *   instance if `$count` is not positive.
+     * @return static
+     *   A new instance with the leftmost characters, or an empty instance if
+     *   `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
      * @see Right
      * @see Middle
      */
-    public function Left(int $count): CString
+    public function Left(int $count): static
     {
         if ($count <= 0) {
-            return $this->empty();
+            return new static('', $this->encoding);
         }
         if ($this->isSingleByte) {
             $substring = \substr($this->value, 0, $count);
         } else {
             $substring = \mb_substr($this->value, 0, $count, $this->encoding);
         }
-        return new CString($substring, $this->encoding);
+        return new static($substring, $this->encoding);
     }
 
     /**
@@ -474,26 +475,26 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param int $count
      *   The number of characters to return. If greater than or equal to the
      *   length of the string, the entire string is returned.
-     * @return CString
-     *   A new `CString` instance with the rightmost characters, or an empty
-     *   instance if `$count` is not positive.
+     * @return static
+     *   A new instance with the rightmost characters, or an empty instance if
+     *   `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
      * @see Left
      * @see Middle
      */
-    public function Right(int $count): CString
+    public function Right(int $count): static
     {
         if ($count <= 0) {
-            return $this->empty();
+            return new static('', $this->encoding);
         }
         if ($this->isSingleByte) {
             $substring = \substr($this->value, -$count);
         } else {
             $substring = \mb_substr($this->value, -$count, $count, $this->encoding);
         }
-        return new CString($substring, $this->encoding);
+        return new static($substring, $this->encoding);
     }
 
     /**
@@ -506,26 +507,26 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   (Optional) The number of characters to return. If omitted, or if fewer
      *   characters are available from the offset, only the available characters
      *   are returned.
-     * @return CString
-     *   A new `CString` instance with the specified middle characters, or an
-     *   empty instance if `$offset` is out of range or `$count` is not positive.
+     * @return static
+     *   A new instance with the specified middle characters, or an empty
+     *   instance if `$offset` is out of range or `$count` is not positive.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
      * @see Left
      * @see Right
      */
-    public function Middle(int $offset, int $count = \PHP_INT_MAX): CString
+    public function Middle(int $offset, int $count = \PHP_INT_MAX): static
     {
         if ($offset < 0 || $count <= 0) {
-            return $this->empty();
+            return new static('', $this->encoding);
         }
         if ($this->isSingleByte) {
             $substring = \substr($this->value, $offset, $count);
         } else {
             $substring = \mb_substr($this->value, $offset, $count, $this->encoding);
         }
-        return new CString($substring, $this->encoding);
+        return new static($substring, $this->encoding);
     }
 
     /**
@@ -584,8 +585,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param ?string $characters
      *   (Optional) Characters to trim. Defaults to trimming whitespace
      *   characters.
-     * @return CString
-     *   A new `CString` instance with the trimmed string.
+     * @return static
+     *   A new instance with the trimmed string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
@@ -593,7 +594,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @see TrimLeft
      * @see TrimRight
      */
-    public function Trim(?string $characters = null): CString
+    public function Trim(?string $characters = null): static
     {
         $clone = clone $this;
         return $clone->TrimInPlace($characters);
@@ -657,8 +658,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param ?string $characters
      *   (Optional) Characters to trim. Defaults to trimming whitespace
      *   characters.
-     * @return CString
-     *   A new `CString` instance with the trimmed string.
+     * @return static
+     *   A new instance with the trimmed string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
@@ -666,7 +667,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @see Trim
      * @see TrimRight
      */
-    public function TrimLeft(?string $characters = null): CString
+    public function TrimLeft(?string $characters = null): static
     {
         $clone = clone $this;
         return $clone->TrimLeftInPlace($characters);
@@ -730,8 +731,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param ?string $characters
      *   (Optional) Characters to trim. Defaults to trimming whitespace
      *   characters.
-     * @return CString
-     *   A new `CString` instance with the trimmed string.
+     * @return static
+     *   A new instance with the trimmed string.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
@@ -739,7 +740,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @see Trim
      * @see TrimLeft
      */
-    public function TrimRight(?string $characters = null): CString
+    public function TrimRight(?string $characters = null): static
     {
         $clone = clone $this;
         return $clone->TrimRightInPlace($characters);
@@ -771,15 +772,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Converts to lowercase.
      *
-     * @return CString
-     *   A new `CString` instance with all characters converted to lowercase.
+     * @return static
+     *   A new instance with all characters converted to lowercase.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
      * @see LowercaseInPlace
      * @see Uppercase
      */
-    public function Lowercase(): CString
+    public function Lowercase(): static
     {
         $clone = clone $this;
         return $clone->LowercaseInPlace();
@@ -811,15 +812,15 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     /**
      * Converts to uppercase.
      *
-     * @return CString
-     *   A new `CString` instance with all characters converted to uppercase.
+     * @return static
+     *   A new instance with all characters converted to uppercase.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
      * @see UppercaseInPlace
      * @see Lowercase
      */
-    public function Uppercase(): CString
+    public function Uppercase(): static
     {
         $clone = clone $this;
         return $clone->UppercaseInPlace();
@@ -1036,8 +1037,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      * @param bool $caseSensitive
      *   (Optional) Whether the comparison should be case-sensitive. By default,
      *   it is case-sensitive.
-     * @return CString
-     *   A new `CString` instance with the replacements made.
+     * @return static
+     *   A new instance with the replacements made.
      * @throws \ValueError
      *   If an error occurs due to encoding.
      *
@@ -1047,7 +1048,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         string|\Stringable $searchString,
         string|\Stringable $replacement,
         bool $caseSensitive = true
-    ): CString
+    ): static
     {
         $clone = clone $this;
         return $clone->ReplaceInPlace($searchString, $replacement, $caseSensitive);
@@ -1055,7 +1056,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 
     /**
      * Splits the string by a given delimiter, yielding each substring as a
-     * `CString` instance.
+     * new instance.
      *
      * This method provides memory-efficient processing by yielding each
      * substring one at a time, making it suitable for large strings.
@@ -1072,7 +1073,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   the result. The default is `SPLIT_OPTION_NONE`, which applies no
      *   trimming or exclusion.
      * @return \Generator
-     *   A generator yielding `CString` instances for each substring.
+     *   A generator yielding new instances for each substring.
      *
      * @see SplitToArray
      */
@@ -1086,7 +1087,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         if ($delimiterLength === 0) {
             return;
         }
-        $yieldIfEligible = function(CString $substring) use($options): \Generator {
+        $yieldIfEligible = function($substring) use($options): \Generator {
             if ($options & self::SPLIT_OPTION_TRIM) {
                 $substring = $substring->Trim();
             }
@@ -1104,10 +1105,10 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
 
     /**
      * Splits the string by a given delimiter and returns the result as an array
-     * of `CString` instances.
+     * of new instances.
      *
      * This method is a convenient alternative to `Split`, returning the results
-     * directly as an array of `CString` instances.
+     * directly as an array of new instances.
      *
      * By default, it performs a straightforward split without trimming or
      * excluding empty results. These behaviors can be customized with options.
@@ -1120,8 +1121,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   `CString::SPLIT_OPTION_EXCLUDE_EMPTY` excludes empty substrings from
      *   the result. The default is `SPLIT_OPTION_NONE`, which applies no
      *   trimming or exclusion.
-     * @return CString[]
-     *   An array of `CString` instances for each substring.
+     * @return static[]
+     *   An array of new instances for each substring.
      *
      * @see Split
      */
@@ -1175,14 +1176,14 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
      *   will be forwarded to the applied function.
      * @param mixed ...$args
      *   Additional arguments to pass to the applied function.
-     * @return CString
-     *   A new `CString` instance containing the result of the applied function.
+     * @return static
+     *   A new instance containing the result of the applied function.
      * @throws \UnexpectedValueException
      *   If the applied function returns a value that is not a string.
      *
      * @see ApplyInPlace
      */
-    public function Apply(callable $function, mixed ...$args): CString
+    public function Apply(callable $function, mixed ...$args): static
     {
         $clone = clone $this;
         return $clone->ApplyInPlace($function, ...$args);
@@ -1429,29 +1430,17 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Returns a new `CString` instance whose value is an empty string.
+     * Returns a new instance with the given string as its value.
      *
-     * @return CString
-     *   A new `CString` instance that contains an empty string and has the same
+     * @param string $value
+     *   The native string value to wrap.
+     * @return static
+     *   A new instance containing the provided string and having the same
      *   encoding as the current instance.
      */
-    private function empty(): CString
+    private function wrap(string $value): static
     {
-        return new CString('', $this->encoding);
-    }
-
-    /**
-     * Returns a new `CString` instance with the given string as its value.
-     *
-     * @param string $string
-     *   The native string value to wrap in a `CString`.
-     * @return CString
-     *   A new `CString` instance containing the provided string and having the
-     *   same encoding as the current instance.
-     */
-    private function wrap(string $string): CString
-    {
-        return new CString($string, $this->encoding);
+        return new static($value, $this->encoding);
     }
 
     /**
