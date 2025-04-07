@@ -15,7 +15,6 @@ namespace Harmonia;
 use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Core\CArray;
-use \Harmonia\Core\CString;
 use \Harmonia\Core\CPath;
 use \Harmonia\Core\CUrl;
 
@@ -131,7 +130,7 @@ class Resource extends Singleton
      *   - Symlink: `/var/www/html/myapp" → "/home/user/projects/myapp`
      *   - Returns: `myapp`
      *
-     * @return CString
+     * @return CPath
      *   The application's relative path.
      * @throws \RuntimeException
      *   If the resource is not initialized, the server path is not available
@@ -139,7 +138,7 @@ class Resource extends Singleton
      *   server path nor accessible via a valid symlink inside the server
      *   directory.
      */
-    public function AppRelativePath(): CString
+    public function AppRelativePath(): CPath
     {
         if ($this->cache->Has(__FUNCTION__)) {
             return $this->cache->Get(__FUNCTION__);
