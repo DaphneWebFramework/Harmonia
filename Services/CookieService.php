@@ -100,18 +100,6 @@ class CookieService extends Singleton
     }
 
     /**
-     * Deletes the CSRF cookie.
-     *
-     * @throws \RuntimeException
-     *   If the HTTP headers have already been sent or if the cookie could not
-     *   be deleted for any other reason.
-     */
-    public function DeleteCsrfCookie(): void
-    {
-        $this->DeleteCookie($this->CsrfCookieName());
-    }
-
-    /**
      * Generates an application-specific cookie name combined with the given
      * suffix.
      *
@@ -139,6 +127,34 @@ class CookieService extends Singleton
         return \strtoupper("{$appName}_{$suffix}");
     }
 
+    #region CSRF
+
+    /**
+     * Adds or updates the CSRF cookie.
+     *
+     * @param string $value
+     *   The CSRF cookie value. If empty, the cookie is deleted.
+     * @throws \RuntimeException
+     *   If the HTTP headers have already been sent or if the cookie could not
+     *   be set for any other reason.
+     */
+    public function SetCsrfCookie(string $value): void
+    {
+        $this->SetCookie($this->CsrfCookieName(), $value);
+    }
+
+    /**
+     * Deletes the CSRF cookie.
+     *
+     * @throws \RuntimeException
+     *   If the HTTP headers have already been sent or if the cookie could not
+     *   be deleted for any other reason.
+     */
+    public function DeleteCsrfCookie(): void
+    {
+        $this->DeleteCookie($this->CsrfCookieName());
+    }
+
     /**
      * Retrieves the CSRF cookie name.
      *
@@ -149,6 +165,8 @@ class CookieService extends Singleton
     {
         return $this->AppSpecificCookieName(self::CSRF_COOKIE_NAME_SUFFIX);
     }
+
+    #endregion CSRF
 
     #endregion public
 
