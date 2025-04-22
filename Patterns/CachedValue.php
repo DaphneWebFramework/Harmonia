@@ -18,23 +18,18 @@ namespace Harmonia\Patterns;
  * The first time the value is accessed via `Get`, it is resolved by evaluating
  * the provided closure. The result is then cached, including `null` values, and
  * reused for subsequent calls.
- *
- * @template T
  */
 class CachedValue
 {
-    /** @var ?T */
     private mixed $value = null;
-
-    /** @var bool */
     private bool $isCached = false;
 
     /**
      * Returns the cached value if available; otherwise, resolves and caches it.
      *
-     * @param callable(): (?T) $resolver
+     * @param callable $resolver
      *   A callable that provides the value if it has not been cached yet.
-     * @return ?T
+     * @return mixed
      *   The cached value, or the result of the resolver.
      */
     public function Get(callable $resolver): mixed
@@ -51,7 +46,7 @@ class CachedValue
      *
      * Useful for test injection or manually assigning a known value.
      *
-     * @param ?T $value
+     * @param mixed $value
      *   The value to cache.
      */
     public function Set(mixed $value): void
