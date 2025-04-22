@@ -16,6 +16,7 @@ use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Core\CArray;
 use \Harmonia\Core\CString;
+use \Harmonia\Patterns\CachedValue;
 use \Harmonia\Server;
 
 /**
@@ -23,36 +24,31 @@ use \Harmonia\Server;
  */
 class Request extends Singleton
 {
-    private RequestMethod|null|false $method;
-    private CString|null|false $path;
-    private ?CArray $queryParams;
-    private ?CArray $formParams;
-    private ?CArray $files;
-    private ?CArray $cookies;
-    private ?CArray $headers;
-    private CString|null|false $body;
+    private CachedValue $method;
+    private CachedValue $path;
+    private CachedValue $queryParams;
+    private CachedValue $formParams;
+    private CachedValue $files;
+    private CachedValue $cookies;
+    private CachedValue $headers;
+    private CachedValue $body;
 
     /**
      * Constructs a new instance.
      *
-     * Note that some properties are initialized to `false` instead of `null`.
-     * This is to distinguish between an uncached state (`false`) and a cached
-     * result that explicitly failed to retrieve valid data (`null`).
-     *
-     * As a rule, if a resolving function can fail (i.e., return `null`), its
-     * corresponding property uses `false` to indicate that it has not been
-     * cached yet.
+     * All values are initialized for lazy evaluation and will be resolved
+     * on first access through their respective getter methods.
      */
     protected function __construct()
     {
-        $this->method = false;
-        $this->path = false;
-        $this->queryParams = null;
-        $this->formParams = null;
-        $this->files = null;
-        $this->cookies = null;
-        $this->headers = null;
-        $this->body = false;
+        $this->method = new CachedValue();
+        $this->path = new CachedValue();
+        $this->queryParams = new CachedValue();
+        $this->formParams = new CachedValue();
+        $this->files = new CachedValue();
+        $this->cookies = new CachedValue();
+        $this->headers = new CachedValue();
+        $this->body = new CachedValue();
     }
 
     #region public -------------------------------------------------------------
@@ -69,10 +65,13 @@ class Request extends Singleton
      */
     public function Method_(): ?RequestMethod
     {
-        if ($this->method === false) {
-            $this->method = self::resolveMethod();
-        }
-        return $this->method;
+        return $this->method->Get(function() {
+            $requestMethod = Server::Instance()->RequestMethod();
+            if ($requestMethod === null) {
+                return null;
+            }
+            return RequestMethod::tryFrom((string)$requestMethod->UppercaseInPlace());
+        });
     }
 
     /**
@@ -87,10 +86,17 @@ class Request extends Singleton
      */
     public function Path(): ?CString
     {
-        if ($this->path === false) {
-            $this->path = self::resolvePath();
-        }
-        return $this->path;
+        return $this->path->Get(function() {
+            $requestUri = Server::Instance()->RequestUri();
+            if ($requestUri === null) {
+                return null;
+            }
+            $match = $requestUri->Match('^([^?#]+)');
+            if ($match === null) {
+                return null;
+            }
+            return new CString(\rtrim($match[1], '/'));
+        });
     }
 
     /**
@@ -101,10 +107,7 @@ class Request extends Singleton
      */
     public function QueryParams(): CArray
     {
-        if ($this->queryParams === null) {
-            $this->queryParams = new CArray($_GET);
-        }
-        return $this->queryParams;
+        return $this->queryParams->Get(fn() => new CArray($_GET));
     }
 
     /**
@@ -119,10 +122,7 @@ class Request extends Singleton
      */
     public function FormParams(): CArray
     {
-        if ($this->formParams === null) {
-            $this->formParams = new CArray($_POST);
-        }
-        return $this->formParams;
+        return $this->formParams->Get(fn() => new CArray($_POST));
     }
 
     /**
@@ -133,10 +133,7 @@ class Request extends Singleton
      */
     public function Files(): CArray
     {
-        if ($this->files === null) {
-            $this->files = new CArray($_FILES);
-        }
-        return $this->files;
+        return $this->files->Get(fn() => new CArray($_FILES));
     }
 
     /**
@@ -147,10 +144,7 @@ class Request extends Singleton
      */
     public function Cookies(): CArray
     {
-        if ($this->cookies === null) {
-            $this->cookies = new CArray($_COOKIE);
-        }
-        return $this->cookies;
+        return $this->cookies->Get(fn() => new CArray($_COOKIE));
     }
 
     /**
@@ -168,10 +162,18 @@ class Request extends Singleton
      */
     public function Headers(): CArray
     {
-        if ($this->headers === null) {
-            $this->headers = self::resolveHeaders();
-        }
-        return $this->headers;
+        return $this->headers->Get(function() {
+            if (\function_exists('apache_request_headers')) {
+                return new CArray(
+                    \array_change_key_case(
+                        \apache_request_headers(),
+                        \CASE_LOWER
+                    )
+                );
+            } else {
+                return Server::Instance()->RequestHeaders();
+            }
+        });
     }
 
     /**
@@ -192,60 +194,14 @@ class Request extends Singleton
      */
     public function Body(): ?CString
     {
-        if ($this->body === false) {
-            $this->body = self::resolveBody();
-        }
-        return $this->body;
+        return $this->body->Get(function() {
+            $data = \file_get_contents('php://input');
+            if ($data === false) {
+                return null;
+            }
+            return new CString($data);
+        });
     }
 
     #endregion public
-
-    #region private ------------------------------------------------------------
-
-    private static function resolveMethod(): ?RequestMethod
-    {
-        $requestMethod = Server::Instance()->RequestMethod();
-        if ($requestMethod === null) {
-            return null;
-        }
-        return RequestMethod::tryFrom((string)$requestMethod->UppercaseInPlace());
-    }
-
-    private static function resolvePath(): ?CString
-    {
-        $requestUri = Server::Instance()->RequestUri();
-        if ($requestUri === null) {
-            return null;
-        }
-        $match = $requestUri->Match('^([^?#]+)');
-        if ($match === null) {
-            return null;
-        }
-        return new CString(\rtrim($match[1], '/'));
-    }
-
-    private static function resolveHeaders(): CArray
-    {
-        if (\function_exists('apache_request_headers')) {
-            return new CArray(
-                \array_change_key_case(
-                    \apache_request_headers(),
-                    CASE_LOWER
-                )
-            );
-        } else {
-            return Server::Instance()->RequestHeaders();
-        }
-    }
-
-    private static function resolveBody(): ?CString
-    {
-        $data = \file_get_contents('php://input');
-        if ($data === false) {
-            return null;
-        }
-        return new CString($data);
-    }
-
-    #endregion private
 }
