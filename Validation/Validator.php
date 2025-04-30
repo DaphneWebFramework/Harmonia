@@ -34,7 +34,7 @@ class Validator
      * ```php
      * $validator = new Validator([
      *     'id' => ['required', 'integer', 'min:1'],
-     *     'token' => 'regex:^[a-f0-9]{64}$',
+     *     'token' => 'regex:/^[a-f0-9]{64}$/',
      *     'countryCode' => function($value) {
      *         return \in_array($value, ['US', 'CA', 'MX']);
      *     }

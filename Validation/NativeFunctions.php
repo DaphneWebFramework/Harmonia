@@ -151,7 +151,7 @@ class NativeFunctions
             // Don't suppress with `@preg_match`, as it causes errors to leak
             // into registered shutdown handlers. Suppressed errors still affect
             // `error_get_last()`.
-            return 1 === \preg_match("/$param/", $value);
+            return 1 === \preg_match($param, $value);
         } catch (\ErrorException) {
             // Regex compilation failed: Treat as non-matching without exposing
             // an error.
