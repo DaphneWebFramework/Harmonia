@@ -34,7 +34,7 @@ class Connection
     /**
      * Opens a connection to a MySQL server.
      *
-     * @param string $hostname
+     * @param string $host
      *   The host name or IP address of the MySQL server.
      * @param string $username
      *   The username for the MySQL authentication.
@@ -46,10 +46,10 @@ class Connection
      *   If the connection to the MySQL server fails or if the character set
      *   cannot be set.
      */
-    public function __construct(string $hostname, string $username,
-        string $password, ?string $charset = null)
+    public function __construct(string $host, string $username, string $password,
+        ?string $charset = null)
     {
-        $handle = $this->createHandle($hostname, $username, $password);
+        $handle = $this->createHandle($host, $username, $password);
         if ($charset !== null) {
             try {
                 $this->setCharset($handle, $charset);
@@ -224,18 +224,18 @@ class Connection
     #region protected ----------------------------------------------------------
 
     /** @codeCoverageIgnore */
-    protected function _new_mysqli(string $hostname, string $username,
+    protected function _new_mysqli(string $host, string $username,
         string $password): MySQLiHandle
     {
-        $mysqli = @new \mysqli($hostname, $username, $password);
+        $mysqli = @new \mysqli($host, $username, $password);
         return new MySQLiHandle($mysqli);
     }
 
-    protected function createHandle(string $hostname, string $username,
+    protected function createHandle(string $host, string $username,
         string $password): MySQLiHandle
     {
         try {
-            $handle = $this->_new_mysqli($hostname, $username, $password);
+            $handle = $this->_new_mysqli($host, $username, $password);
             if ($handle->connect_errno !== 0) {
                 throw new \RuntimeException($handle->connect_error,
                                             $handle->connect_errno);

@@ -159,7 +159,7 @@ class Database extends Singleton
             $config = Config::Instance();
             try {
                 $connection = $this->_new_Connection(
-                    $config->OptionOrDefault('DatabaseHostname', ''),
+                    $config->OptionOrDefault('DatabaseHost', ''),
                     $config->OptionOrDefault('DatabaseUsername', ''),
                     $config->OptionOrDefault('DatabasePassword', ''),
                     $config->Option('DatabaseCharset')
@@ -186,10 +186,10 @@ class Database extends Singleton
     #region protected ----------------------------------------------------------
 
     /** @codeCoverageIgnore */
-    protected function _new_Connection(string $hostname, string $username,
+    protected function _new_Connection(string $host, string $username,
         string $password, ?string $charset): Connection
     {
-        return new Connection($hostname, $username, $password, $charset); // may throw
+        return new Connection($host, $username, $password, $charset); // may throw
     }
 
     #endregion protected

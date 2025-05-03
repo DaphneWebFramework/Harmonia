@@ -57,7 +57,8 @@ class Server extends Singleton
     }
 
     /**
-     * Retrieves the web server's root URL, including the protocol and hostname.
+     * Retrieves the web server's root URL, including the protocol and host name
+     * or IP address.
      *
      * @return ?CUrl
      *   A `CUrl` instance representing the root URL (e.g., "http://localhost"
