@@ -35,17 +35,30 @@ class StandardMetaRule implements IMetaRule
     private readonly mixed $param;
 
     /**
+     * The custom message to override the default message.
+     *
+     * @var string|null
+     */
+    private readonly ?string $customMessage;
+
+    /**
      * Constructs a new instance with the provided rule name and parameter.
      *
      * @param string $name
      *   The name of the rule.
      * @param mixed $param
      *   The parameter for the rule.
+     * @param ?string $customMessage
+     *   (Optional) A custom message to override the default message.
      */
-    public function __construct(string $name, mixed $param)
-    {
+    public function __construct(
+        string $name,
+        mixed $param,
+        ?string $customMessage = null
+    ) {
         $this->name = $name;
         $this->param = $param;
+        $this->customMessage = $customMessage;
     }
 
     /**
@@ -89,6 +102,13 @@ class StandardMetaRule implements IMetaRule
                 $this->name
             ));
         }
-        $ruleObject->Validate($field, $value, $this->param);
+        try {
+            $ruleObject->Validate($field, $value, $this->param);
+        } catch (\RuntimeException $e) {
+            if ($this->customMessage !== null) {
+                throw new \RuntimeException($this->customMessage);
+            }
+            throw $e;
+        }
     }
 }

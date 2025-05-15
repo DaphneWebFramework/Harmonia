@@ -38,11 +38,16 @@ class CompiledRules
      * @param array<string|int, string|\Closure|array<string|\Closure>> $userDefinedRules
      *   An associative array where each key represents a field, and each value
      *   is either a single rule (string or closure) or an array of rules.
+     * @param ?array<string, string> $customMessages
+     *   (Optional) An associative array mapping 'field.rule' keys to custom
+     *   error messages.
      * @throws \RuntimeException
      *   If an issue occurs during rule parsing.
      */
-    public function __construct(array $userDefinedRules)
-    {
+    public function __construct(
+        array $userDefinedRules,
+        ?array $customMessages = null
+    ) {
         $this->metaRulesCollection = [];
         foreach ($userDefinedRules as $field => $rules) {
             if (!\is_array($rules)) {
@@ -53,7 +58,11 @@ class CompiledRules
                 if ($rule instanceof \Closure) {
                     $metaRules[] = new CustomMetaRule($rule);
                 } else {
-                    $metaRules[] = new StandardMetaRule(...RuleParser::Parse($rule));
+                    [$name, $param] = RuleParser::Parse($rule);
+                    $customMessage = $customMessages !== null
+                        ? $customMessages["{$field}.{$name}"] ?? null
+                        : null;
+                    $metaRules[] = new StandardMetaRule($name, $param, $customMessage);
                 }
             }
             $this->metaRulesCollection[$field] = $metaRules;

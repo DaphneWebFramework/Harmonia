@@ -50,21 +50,34 @@ class Validator
      * ]);
      * ```
      * ```php
-     * $validator = new Validator([
-     *     'coordinates.latitude' => ['numeric', 'min:-90', 'max:90'],
-     *     'coordinates.longitude' => ['numeric', 'min:-180', 'max:180']
-     * ]);
+     * $validator = new Validator(
+     *     [
+     *         'coordinates.latitude' => ['numeric', 'min:-90', 'max:90'],
+     *         'coordinates.longitude' => ['numeric', 'min:-180', 'max:180']
+     *     ],
+     *     [
+     *         'coordinates.latitude.min' => 'Latitude must be at least -90 degrees.',
+     *         'coordinates.latitude.max' => 'Latitude cannot exceed 90 degrees.',
+     *         'coordinates.longitude.min' => 'Longitude must be at least -180 degrees.',
+     *         'coordinates.longitude.max' => 'Longitude cannot exceed 180 degrees.'
+     *     ]
+     * );
      * ```
      *
      * @param array<string|int, string|\Closure|array<string|\Closure>> $userDefinedRules
      *   An associative array where each key represents a field, and each value
      *   is either a single rule (string or closure) or an array of rules.
+     * @param ?array<string, string> $customMessages
+     *   (Optional) An associative array mapping 'field.rule' keys to custom
+     *   error messages.
      * @throws \RuntimeException
      *   If an error occurs while compiling the rules.
      */
-    public function __construct(array $userDefinedRules)
-    {
-        $this->compiledRules = new CompiledRules($userDefinedRules);
+    public function __construct(
+        array $userDefinedRules,
+        ?array $customMessages = null
+    ) {
+        $this->compiledRules = new CompiledRules($userDefinedRules, $customMessages);
     }
 
     /**
