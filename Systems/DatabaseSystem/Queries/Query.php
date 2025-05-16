@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Database\Queries;
+namespace Harmonia\Systems\DatabaseSystem\Queries;
 
 /**
  * Base class for SQL builders.

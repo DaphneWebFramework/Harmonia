@@ -10,14 +10,14 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Database;
+namespace Harmonia\Systems\DatabaseSystem;
 
 use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Config;
-use \Harmonia\Database\Proxies\MySQLiResult;
-use \Harmonia\Database\Queries\Query;
 use \Harmonia\Logger;
+use \Harmonia\Systems\DatabaseSystem\Proxies\MySQLiResult;
+use \Harmonia\Systems\DatabaseSystem\Queries\Query;
 
 /**
  * Provides a central interface for working with databases.

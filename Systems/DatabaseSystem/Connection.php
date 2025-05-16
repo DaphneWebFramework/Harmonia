@@ -10,12 +10,12 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Database;
+namespace Harmonia\Systems\DatabaseSystem;
 
-use \Harmonia\Database\Proxies\MySQLiHandle;
-use \Harmonia\Database\Proxies\MySQLiResult;
-use \Harmonia\Database\Proxies\MySQLiStatement;
-use \Harmonia\Database\Queries\Query;
+use \Harmonia\Systems\DatabaseSystem\Proxies\MySQLiHandle;
+use \Harmonia\Systems\DatabaseSystem\Proxies\MySQLiResult;
+use \Harmonia\Systems\DatabaseSystem\Proxies\MySQLiStatement;
+use \Harmonia\Systems\DatabaseSystem\Queries\Query;
 
 /**
  * Represents a connection to a MySQL server.

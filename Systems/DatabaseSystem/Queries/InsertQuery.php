@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Database\Queries;
+namespace Harmonia\Systems\DatabaseSystem\Queries;
 
 /**
  * Class for building SQL queries to insert data into a table.

@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Database\Proxies;
+namespace Harmonia\Systems\DatabaseSystem\Proxies;
 
 class MySQLiStatement
 {

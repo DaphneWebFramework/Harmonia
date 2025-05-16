@@ -10,9 +10,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Database;
+namespace Harmonia\Systems\DatabaseSystem;
 
-use \Harmonia\Database\Proxies\MySQLiResult;
+use \Harmonia\Systems\DatabaseSystem\Proxies\MySQLiResult;
 
 /**
  * Represents a result set from a database query.
