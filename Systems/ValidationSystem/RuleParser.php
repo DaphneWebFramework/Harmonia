@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation;
+namespace Harmonia\Systems\ValidationSystem;
 
 /**
  * Parses validation rules into components (name and parameter).

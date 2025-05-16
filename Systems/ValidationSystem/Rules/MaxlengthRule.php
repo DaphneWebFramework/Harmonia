@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * MinRule.php
+ * MaxlengthRule.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -10,50 +10,50 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\Rules;
+namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Validation\Messages;
+use \Harmonia\Systems\ValidationSystem\Messages;
 
 /**
- * Validates whether a given field satisfies a specified minimum value.
+ * Validates whether a given field satisfies a specified maximum length.
  */
-class MinRule extends Rule
+class MaxlengthRule extends Rule
 {
     /**
-     * Validates that the field contains a number meeting the specified minimum
-     * value.
+     * Validates that the field contains a string not exceeding the specified
+     * maximum length.
      *
-     * The specified minimum value is inclusive, meaning a value equal to
-     * `$param` is valid.
+     * The specified maximum length is inclusive, meaning a string with exactly
+     * `$param` characters is valid.
      *
      * @param string|int $field
      *   The field name or index to validate.
      * @param mixed $value
      *   The value of the field to validate.
      * @param mixed $param
-     *   The minimum allowed value, inclusive.
+     *   The maximum allowed length, inclusive.
      * @throws \RuntimeException
-     *   If the value is not numeric, the specified minimum is not numeric, or
-     *   the value is less than the specified minimum.
+     *   If the value is not a string, the specified length is not an
+     *   integer-like value, or the value exceeds the specified length.
      */
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
-        if (!$this->nativeFunctions->IsNumeric($value)) {
+        if (!$this->nativeFunctions->IsString($value)) {
             throw new \RuntimeException(Messages::Instance()->Get(
-                'field_must_be_numeric',
+                'field_must_be_a_string',
                 $field
             ));
         }
-        if (!$this->nativeFunctions->IsNumeric($param)) {
+        if (!$this->nativeFunctions->IsIntegerLike($param)) {
             throw new \RuntimeException(Messages::Instance()->Get(
-                'min_requires_number'
+                'maxlength_requires_integer'
             ));
         }
-        if ($value >= $param) {
+        if (\strlen($value) <= (int)$param) {
             return;
         }
         throw new \RuntimeException(Messages::Instance()->Get(
-            'field_min_value',
+            'field_max_length',
             $field,
             $param
         ));

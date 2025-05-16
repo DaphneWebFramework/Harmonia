@@ -10,9 +10,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\MetaRules;
+namespace Harmonia\Systems\ValidationSystem\MetaRules;
 
-use \Harmonia\Validation\Messages;
+use \Harmonia\Systems\ValidationSystem\Messages;
 
 /**
  * Provides functionality for user-defined validation rules represented as

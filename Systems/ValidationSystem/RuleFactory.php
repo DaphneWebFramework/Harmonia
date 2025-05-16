@@ -10,10 +10,10 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation;
+namespace Harmonia\Systems\ValidationSystem;
 
 use \Harmonia\Core\CArray;
-use \Harmonia\Validation\Rules\Rule;
+use \Harmonia\Systems\ValidationSystem\Rules\Rule;
 
 /**
  * Factory class responsible for creating and managing rule objects.
@@ -66,7 +66,7 @@ abstract class RuleFactory
         // uppercase letter, followed by lowercase letters, and end with "Rule".
         $ruleName = \ucfirst($ruleName);
         if (!self::$ruleObjects->Has($ruleName)) {
-            $ruleClassName = "\\Harmonia\\Validation\\Rules\\{$ruleName}Rule";
+            $ruleClassName = "\\Harmonia\\Systems\\ValidationSystem\\Rules\\{$ruleName}Rule";
             if (!\class_exists($ruleClassName)) {
                 return null;
             }

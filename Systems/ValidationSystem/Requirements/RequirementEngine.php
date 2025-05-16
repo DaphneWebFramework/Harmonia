@@ -10,11 +10,11 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\Requirements;
+namespace Harmonia\Systems\ValidationSystem\Requirements;
 
-use \Harmonia\Validation\DataAccessor;
-use \Harmonia\Validation\Messages;
-use \Harmonia\Validation\MetaRules\IMetaRule;
+use \Harmonia\Systems\ValidationSystem\DataAccessor;
+use \Harmonia\Systems\ValidationSystem\Messages;
+use \Harmonia\Systems\ValidationSystem\MetaRules\IMetaRule;
 
 /**
  * Processes requirement rules for a given field.

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * ArrayRule.php
+ * StringRule.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -10,17 +10,17 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\Rules;
+namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Validation\Messages;
+use \Harmonia\Systems\ValidationSystem\Messages;
 
 /**
- * Validates whether a given field is an array.
+ * Validates whether a given field is a string.
  */
-class ArrayRule extends Rule
+class StringRule extends Rule
 {
     /**
-     * Validates that the field contains an array.
+     * Validates that the field contains a string.
      *
      * @param string|int $field
      *   The field name or index to validate.
@@ -29,15 +29,15 @@ class ArrayRule extends Rule
      * @param mixed $param
      *   Unused in this rule.
      * @throws \RuntimeException
-     *   If the value is not an array.
+     *   If the value is not a string.
      */
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
-        if ($this->nativeFunctions->IsArray($value)) {
+        if ($this->nativeFunctions->IsString($value)) {
             return;
         }
         throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_be_an_array',
+            'field_must_be_a_string',
             $field
         ));
     }

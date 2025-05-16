@@ -10,9 +10,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation;
+namespace Harmonia\Systems\ValidationSystem;
 
-use \Harmonia\Validation\Requirements\RequirementEngine;
+use \Harmonia\Systems\ValidationSystem\Requirements\RequirementEngine;
 
 /**
  * Validates data against a predefined set of validation rules.

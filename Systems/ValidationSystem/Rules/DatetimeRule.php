@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * RegexRule.php
+ * DatetimeRule.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -10,27 +10,27 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\Rules;
+namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Validation\Messages;
+use \Harmonia\Systems\ValidationSystem\Messages;
 
 /**
- * Validates whether a given field matches a specified regex pattern.
+ * Validates whether a given field matches a specified datetime format.
  */
-class RegexRule extends Rule
+class DatetimeRule extends Rule
 {
     /**
-     * Validates that the field matches the specified regex pattern.
+     * Validates that the field matches a specified datetime format.
      *
      * @param string|int $field
      *   The field name or index to validate.
      * @param mixed $value
      *   The value of the field to validate.
      * @param mixed $param
-     *   The regex pattern to match against.
+     *   The expected datetime format.
      * @throws \RuntimeException
-     *   If the value is not a string, the pattern is not a string, or the value
-     *   does not match the pattern.
+     *   If the value is not a string, the format is not a string, or the value
+     *   does not match the format.
      */
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
@@ -42,14 +42,14 @@ class RegexRule extends Rule
         }
         if (!$this->nativeFunctions->IsString($param)) {
             throw new \RuntimeException(Messages::Instance()->Get(
-                'regex_requires_pattern'
+                'datetime_requires_format'
             ));
         }
-        if ($this->nativeFunctions->MatchRegex($value, $param)) {
+        if ($this->nativeFunctions->MatchDateTime($value, $param)) {
             return;
         }
         throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_match_pattern',
+            'field_must_match_datetime_format',
             $field,
             $param
         ));

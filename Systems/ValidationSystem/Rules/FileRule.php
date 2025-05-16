@@ -10,9 +10,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\Rules;
+namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Validation\Messages;
+use \Harmonia\Systems\ValidationSystem\Messages;
 
 /**
  * Validates whether a given field contains an uploaded file.

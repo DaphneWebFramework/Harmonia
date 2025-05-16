@@ -10,10 +10,10 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\MetaRules;
+namespace Harmonia\Systems\ValidationSystem\MetaRules;
 
-use \Harmonia\Validation\Messages;
-use \Harmonia\Validation\RuleFactory;
+use \Harmonia\Systems\ValidationSystem\Messages;
+use \Harmonia\Systems\ValidationSystem\RuleFactory;
 
 /**
  * Represents a standard validation rule with an optional parameter.

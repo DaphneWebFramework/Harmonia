@@ -10,10 +10,10 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation;
+namespace Harmonia\Systems\ValidationSystem;
 
-use \Harmonia\Validation\MetaRules\StandardMetaRule;
-use \Harmonia\Validation\MetaRules\CustomMetaRule;
+use \Harmonia\Systems\ValidationSystem\MetaRules\StandardMetaRule;
+use \Harmonia\Systems\ValidationSystem\MetaRules\CustomMetaRule;
 
 /**
  * Responsible for compiling and storing meta rules used for data validation.

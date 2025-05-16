@@ -10,9 +10,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\Rules;
+namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Validation\NativeFunctions;
+use \Harmonia\Systems\ValidationSystem\NativeFunctions;
 
 /**
  * Abstract base class for all validation rules.

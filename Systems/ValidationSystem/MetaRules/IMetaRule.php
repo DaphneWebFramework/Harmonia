@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Validation\MetaRules;
+namespace Harmonia\Systems\ValidationSystem\MetaRules;
 
 /**
  * Interface for meta rule classes.
