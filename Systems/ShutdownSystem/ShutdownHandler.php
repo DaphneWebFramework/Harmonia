@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Shutdown;
+namespace Harmonia\Systems\ShutdownSystem;
 
 use \Harmonia\Patterns\Singleton;
 

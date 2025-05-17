@@ -10,7 +10,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-namespace Harmonia\Shutdown;
+namespace Harmonia\Systems\ShutdownSystem;
 
 /**
  * Interface for classes that listen to the shutdown process.
