@@ -12,6 +12,7 @@
 
 namespace Harmonia\Systems\ValidationSystem;
 
+use \Harmonia\Systems\ValidationSystem\MetaRules\IMetaRule;
 use \Harmonia\Systems\ValidationSystem\Requirements\RequirementEngine;
 
 /**
@@ -25,6 +26,13 @@ class Validator
      * @var CompiledRules
      */
     private readonly CompiledRules $compiledRules;
+
+    /**
+     * Holds custom error messages for specific rules.
+     *
+     * @var ?array<string, string>
+     */
+    private readonly ?array $customMessages;
 
     /**
      * Constructs a new instance with a set of user-defined validation rules.
@@ -68,7 +76,7 @@ class Validator
      *   An associative array where each key represents a field, and each value
      *   is either a single rule (string or closure) or an array of rules.
      * @param ?array<string, string> $customMessages
-     *   (Optional) An associative array mapping 'field.rule' keys to custom
+     *   (Optional) An associative array, mapping 'field.rule' keys to custom
      *   error messages.
      * @throws \RuntimeException
      *   If an error occurs while compiling the rules.
@@ -77,7 +85,8 @@ class Validator
         array $userDefinedRules,
         ?array $customMessages = null
     ) {
-        $this->compiledRules = new CompiledRules($userDefinedRules, $customMessages);
+        $this->compiledRules = new CompiledRules($userDefinedRules);
+        $this->customMessages = $customMessages;
     }
 
     /**
@@ -153,8 +162,38 @@ class Validator
         $metaRules = $requirementEngine->FilterOutRequirementRules($metaRules);
         $value = $dataAccessor->GetField($field);
         foreach ($metaRules as $metaRule) {
-            $metaRule->Validate($field, $value);
+            try {
+                $metaRule->Validate($field, $value);
+            } catch (\RuntimeException $e) {
+                $customMessage = $this->customMessage($field, $metaRule);
+                if ($customMessage !== null) {
+                    throw new \RuntimeException($customMessage);
+                }
+                throw $e;
+            }
         }
+    }
+
+    /**
+     * Retrieves a custom error message for a specific field and rule.
+     *
+     * @param string $field
+     *   The name of the field.
+     * @param IMetaRule $metaRule
+     *   The validation rule for which to retrieve the custom message.
+     * @return ?string
+     *   Returns the custom error message if it exists, or `null` if not.
+     */
+    private function customMessage(string $field, IMetaRule $metaRule): ?string
+    {
+        if ($this->customMessages === null) {
+            return null;
+        }
+        $messageKey = "{$field}.{$metaRule->GetName()}";
+        if (!\array_key_exists($messageKey, $this->customMessages)) {
+            return null;
+        }
+        return $this->customMessages[$messageKey];
     }
 
     #endregion private
