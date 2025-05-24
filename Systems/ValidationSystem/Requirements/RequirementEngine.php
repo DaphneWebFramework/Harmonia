@@ -105,7 +105,7 @@ class RequirementEngine
         if ($this->fieldExists) {
             if ($this->anyRequiredWithoutFieldExists) {
                 // Both the field and a mutually exclusive field are present.
-                throw new \RuntimeException(Messages::Instance()->Get(
+                throw new RequiredWithoutRuleException(Messages::Instance()->Get(
                     'only_one_of_fields_can_be_present',
                     $this->field,
                     $this->fieldRequirementConstraints->FormatRequiredWithoutList()
@@ -116,7 +116,7 @@ class RequirementEngine
                 if ($this->fieldRequirementConstraints->IsRequired()) {
                     // The field is required but missing, even though a mutually
                     // exclusive field is present.
-                    throw new \RuntimeException(Messages::Instance()->Get(
+                    throw new RequiredRuleException(Messages::Instance()->Get(
                         'required_field_missing',
                         $this->field
                     ));
@@ -124,14 +124,14 @@ class RequirementEngine
             } elseif ($this->fieldRequirementConstraints->IsRequired()) {
                 // The field is required but missing, and no mutually exclusive
                 // fields are present.
-                throw new \RuntimeException(Messages::Instance()->Get(
+                throw new RequiredRuleException(Messages::Instance()->Get(
                     'required_field_missing',
                     $this->field
                 ));
             } elseif ($this->fieldRequirementConstraints->HasRequiredWithoutFields()) {
                 // Neither the field nor any of its mutually exclusive fields
                 // are present.
-                throw new \RuntimeException(Messages::Instance()->Get(
+                throw new RequiredWithoutRuleException(Messages::Instance()->Get(
                     'either_field_or_other_must_be_present',
                     $this->field,
                     $this->fieldRequirementConstraints->FormatRequiredWithoutList()

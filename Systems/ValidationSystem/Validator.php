@@ -12,7 +12,9 @@
 
 namespace Harmonia\Systems\ValidationSystem;
 
-use \Harmonia\Systems\ValidationSystem\MetaRules\IMetaRule;
+use \Harmonia\Systems\ValidationSystem\Requirements\FieldRequirementConstraints;
+use \Harmonia\Systems\ValidationSystem\Requirements\RequiredRuleException;
+use \Harmonia\Systems\ValidationSystem\Requirements\RequiredWithoutRuleException;
 use \Harmonia\Systems\ValidationSystem\Requirements\RequirementEngine;
 
 /**
@@ -155,7 +157,13 @@ class Validator
     ): void
     {
         $requirementEngine = new RequirementEngine($field, $metaRules, $dataAccessor);
-        $requirementEngine->Validate();
+        try {
+            $requirementEngine->Validate();
+        } catch (RequiredRuleException $e) {
+            $this->rethrow($field, FieldRequirementConstraints::RULE_REQUIRED, $e);
+        } catch (RequiredWithoutRuleException $e) {
+            $this->rethrow($field, FieldRequirementConstraints::RULE_REQUIRED_WITHOUT, $e);
+        }
         if ($requirementEngine->ShouldSkipFurtherValidation()) {
             return;
         }
@@ -165,35 +173,63 @@ class Validator
             try {
                 $metaRule->Validate($field, $value);
             } catch (\RuntimeException $e) {
-                $customMessage = $this->customMessage($field, $metaRule);
-                if ($customMessage !== null) {
-                    throw new \RuntimeException($customMessage);
-                }
-                throw $e;
+                $this->rethrow($field, $metaRule->GetName(), $e);
             }
         }
     }
 
     /**
+     * Rethrows a validation exception, optionally replacing its message with a
+     * custom one.
+     *
+     * @param string|int $field
+     *   The name or index of the field being validated.
+     * @param string $rule
+     *   The name of the validation rule. Comparison is case-insensitive.
+     * @param \RuntimeException $e
+     *   The original exception to rethrow if no custom message is defined.
+     * @return never
+     *   This method always throws and never returns.
+     */
+    private function rethrow(string|int $field, string $rule, \RuntimeException $e): never
+    {
+        $customMessage = $this->customMessage($field, $rule);
+        if ($customMessage !== null) {
+            throw new \RuntimeException($customMessage, 0, $e);
+        }
+        throw $e;
+    }
+
+    /**
      * Retrieves a custom error message for a specific field and rule.
      *
-     * @param string $field
-     *   The name of the field.
-     * @param IMetaRule $metaRule
-     *   The validation rule for which to retrieve the custom message.
+     * @param string|int $field
+     *   The name or index of the field being validated.
+     * @param string $rule
+     *   The name of the validation rule. Comparison is case-insensitive.
      * @return ?string
-     *   Returns the custom error message if it exists, or `null` if not.
+     *   Returns the custom error message if defined, or `null` otherwise.
      */
-    private function customMessage(string $field, IMetaRule $metaRule): ?string
+    private function customMessage(string|int $field, string $rule): ?string
     {
         if ($this->customMessages === null) {
             return null;
         }
-        $messageKey = "{$field}.{$metaRule->GetName()}";
-        if (!\array_key_exists($messageKey, $this->customMessages)) {
-            return null;
+        $rule = \strtolower($rule);
+        foreach ($this->customMessages as $key => $message) {
+            $lastDot = \strrpos($key, '.');
+            if ($lastDot === false) {
+                continue;
+            }
+            if ((string)$field !== \substr($key, 0, $lastDot)) {
+                continue;
+            }
+            if ($rule !== \strtolower(\substr($key, $lastDot + 1))) {
+                continue;
+            }
+            return $message;
         }
-        return $this->customMessages[$messageKey];
+        return null;
     }
 
     #endregion private
