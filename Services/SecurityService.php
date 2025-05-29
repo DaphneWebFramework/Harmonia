@@ -30,6 +30,29 @@ class SecurityService extends Singleton
     public const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
 
     /**
+     * Recommended minimum password length.
+     *
+     * A minimum of 8 characters is commonly recommended by standards such as
+     * NIST and OWASP. It provides a reasonable baseline against brute-force
+     * attacks while remaining usable.
+     *
+     * This constant exists to avoid hardcoding values and is not enforced by
+     * this class.
+     */
+    public const PASSWORD_MIN_LENGTH = 8;
+
+    /**
+     * Recommended maximum password length.
+     *
+     * This constant reflects the 72-byte input limit of the bcrypt algorithm,
+     * which stems from its underlying use of Blowfish (18 DWORDs × 4 bytes).
+     *
+     * This constant exists to avoid hardcoding values and is not enforced by
+     * this class.
+     */
+    public const PASSWORD_MAX_LENGTH = 72;
+
+    /**
      * Hashes a password using a secure hashing algorithm.
      *
      * @param string $password
