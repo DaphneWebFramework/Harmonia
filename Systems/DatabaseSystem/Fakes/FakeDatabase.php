@@ -12,17 +12,27 @@
 
 namespace Harmonia\Systems\DatabaseSystem\Fakes;
 
-use \Harmonia\Systems\DatabaseSystem\Queries\Query;
+use \Harmonia\Systems\DatabaseSystem\Database;
 
-class FakeDatabase
+use \Harmonia\Systems\DatabaseSystem\Queries\Query;
+use \Harmonia\Systems\DatabaseSystem\ResultSet;
+
+class FakeDatabase extends Database
 {
     private const UNLIMITED = null;
 
-    private array $expectations = [];
-    private int $lastInsertId = 0;
-    private int $lastAffectedRowCount = -1;
+    private array $expectations;
+    private int $lastInsertId;
+    private int $lastAffectedRowCount;
 
     #region public -------------------------------------------------------------
+
+    public function __construct()
+    {
+        $this->expectations = [];
+        $this->lastInsertId = 0;
+        $this->lastAffectedRowCount = -1;
+    }
 
     public function Expect(
         string $sql,
@@ -42,7 +52,7 @@ class FakeDatabase
         ];
     }
 
-    public function Execute(Query $query): ?FakeResultSet
+    public function Execute(Query $query): ?ResultSet
     {
         $sql = $query->ToSql();
         $bindings = $query->Bindings();

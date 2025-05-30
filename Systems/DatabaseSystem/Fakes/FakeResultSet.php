@@ -14,7 +14,7 @@ namespace Harmonia\Systems\DatabaseSystem\Fakes;
 
 use \Harmonia\Systems\DatabaseSystem\ResultSet;
 
-class FakeResultSet implements \IteratorAggregate
+class FakeResultSet extends ResultSet
 {
     private array $rows;
     private int $cursor;
@@ -40,16 +40,16 @@ class FakeResultSet implements \IteratorAggregate
         return \count($this->rows);
     }
 
-    public function Row(int $mode = ResultSet::ROW_MODE_ASSOCIATIVE): ?array
+    public function Row(int $mode = parent::ROW_MODE_ASSOCIATIVE): ?array
     {
         if (!\array_key_exists($this->cursor, $this->rows)) {
             return null;
         }
         $row = $this->rows[$this->cursor++];
         switch ($mode) {
-        case ResultSet::ROW_MODE_ASSOCIATIVE:
+        case parent::ROW_MODE_ASSOCIATIVE:
             return $row;
-        case ResultSet::ROW_MODE_NUMERIC:
+        case parent::ROW_MODE_NUMERIC:
             return \array_values($row);
         default:
             throw new \InvalidArgumentException("Invalid row mode: $mode");
