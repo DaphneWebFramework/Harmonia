@@ -110,7 +110,7 @@ class ResultSet implements \IteratorAggregate
      *   An associative or indexed array representing the row, or `null` if the
      *   result set is empty or if the end of the result set has been reached.
      * @throws \InvalidArgumentException
-     *   If an invalid key mode is provided.
+     *   If an invalid row mode is provided.
      */
     public function Row(int $mode = self::ROW_MODE_ASSOCIATIVE): ?array
     {
