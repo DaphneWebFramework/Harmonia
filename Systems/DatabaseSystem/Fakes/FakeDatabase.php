@@ -53,7 +53,7 @@ use \Harmonia\Systems\DatabaseSystem\ResultSet;
  */
 class FakeDatabase extends Database
 {
-    private const UNLIMITED = null;
+    private const UNLIMITED_TIMES = null;
 
     private array $expectations;
     private int $lastInsertId;
@@ -114,7 +114,7 @@ class FakeDatabase extends Database
         ?array $result = [],
         int $lastInsertId = 0,
         int $lastAffectedRowCount = 0,
-        ?int $times = self::UNLIMITED
+        ?int $times = self::UNLIMITED_TIMES
     ): void
     {
         $key = $this->keyFor($sql, $bindings);
@@ -125,6 +125,30 @@ class FakeDatabase extends Database
             'times' => $times,
         ];
     }
+
+    /**
+     * Verifies that all expectations were fully consumed.
+     *
+     * @throws \RuntimeException
+     *   If any expectation was not matched the required number of times.
+     * @return void
+     */
+    public function VerifyAllExpectationsMet(): void
+    {
+        foreach ($this->expectations as $key => $expectation) {
+            $times = $expectation['times'];
+            if ($times === self::UNLIMITED_TIMES) {
+                continue;
+            }
+            if ($times <= 0) {
+                continue;
+            }
+            throw new \RuntimeException(
+                'One or more expected queries were not executed.');
+        }
+    }
+
+    #region Database Overrides -------------------------------------------------
 
     /**
      * Simulates query execution and returns a configured result.
@@ -154,7 +178,7 @@ class FakeDatabase extends Database
                 "Unexpected {$this->formatExpectation($sql, $bindings)}");
         }
         $expectation = &$this->expectations[$key];
-        if ($expectation['times'] !== self::UNLIMITED) {
+        if ($expectation['times'] !== self::UNLIMITED_TIMES) {
             if ($expectation['times'] <= 0) {
                 throw new \RuntimeException(
                     "Exhausted {$this->formatExpectation($sql, $bindings)}");
@@ -211,6 +235,8 @@ class FakeDatabase extends Database
             return false;
         }
     }
+
+    #endregion Database Overrides
 
     #endregion public
 
