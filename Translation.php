@@ -302,7 +302,7 @@ abstract class Translation extends Singleton
         }
         $translations = $this->translations();
         if (!$translations->Has($key)) {
-            throw new \RuntimeException("Translation key '$key' not found.");
+            throw new \RuntimeException("Translation '$key' not found.");
         }
         $unit = $translations->Get($key);
         if (\is_string($unit)) { // Alias
