@@ -29,11 +29,11 @@ use \Harmonia\Core\CPath;
  * Subclasses must define their own translation sources by overriding
  * `filePaths()`.
  *
- * The JSON files must contain a mapping of translation IDs to translation
+ * The JSON files must contain a mapping of translation keys to translation
  * units. Each translation unit can be either:
  *
  * - An object mapping language codes (e.g., "en", "tr") to localized strings.
- * - A string referencing another translation ID (an alias).
+ * - A string referencing another translation key (an alias).
  *
  * Aliases may point to other aliases, forming recursive chains that are
  * resolved automatically. Cycles in alias chains are detected and rejected.
@@ -88,19 +88,19 @@ abstract class Translation extends Singleton
      * Additional arguments can be passed for string formatting within the
      * translation. For example: `Get('field_must_be_numeric', 'price')`
      *
-     * @param string $translationId
-     *   The identifier of the translation.
+     * @param string $key
+     *   The translation key.
      * @param mixed ...$args
      *   (Optional) Arguments for string formatting within the translation.
      * @return string
-     *   The translation in the current language.
+     *   The translation text in the current language.
      * @throws \RuntimeException
-     *   When the translation ID or language is not found, or alias cycle
+     *   When the translation key or language is not found, or alias cycle
      *   detected.
      */
-    public function Get(string $translationId, mixed ...$args): string
+    public function Get(string $key, mixed ...$args): string
     {
-        return $this->resolve($translationId, $args, []);
+        return $this->resolve($key, $args, []);
     }
 
     #endregion public
@@ -165,8 +165,9 @@ abstract class Translation extends Singleton
      * method is called. Subsequent calls return the already loaded translations.
      *
      * @return CArray
-     *   A `CArray` where each key maps to either a nested `CArray` of localized
-     *   translation units or a string alias for another translation ID.
+     *   A `CArray` where each translation key maps to either a nested `CArray`
+     *   of localized language-text pairs, or a string alias referencing another
+     *   translation key.
      * @throws \RuntimeException
      *   If there is an error reading the file or decoding its JSON content.
      */
@@ -187,14 +188,12 @@ abstract class Translation extends Singleton
      * Loads and parses the file, returning validated translation units or
      * aliases.
      *
-     * This method handles file I/O, JSON decoding, structural validation, and
-     * conversion into a `CArray` of language-text translation units.
-     *
      * @param CPath $filePath
      *   The path to the translation file.
      * @return CArray
-     *   A `CArray` mapping translation IDs to nested language-text pairs or
-     *   alias strings.
+     *   A `CArray` where each translation key maps to either a nested `CArray`
+     *   of localized language-text pairs, or a string alias referencing another
+     *   translation key.
      * @throws \RuntimeException
      *   If the file cannot be opened, read, decoded, or validated.
      */
@@ -217,28 +216,28 @@ abstract class Translation extends Singleton
             throw new \RuntimeException(
                 'Translation file must contain an object at the root.');
         }
-        foreach ($root as $translationId => $unit) {
-            if (!\is_string($translationId)) {
-                throw new \RuntimeException('Translation ID must be a string.');
+        foreach ($root as $key => $unit) {
+            if (!\is_string($key)) {
+                throw new \RuntimeException('Translation key must be a string.');
             }
-            if ($translationId === '') {
-                throw new \RuntimeException('Translation ID cannot be empty.');
+            if ($key === '') {
+                throw new \RuntimeException('Translation key cannot be empty.');
             }
             if (\is_array($unit)) {
-                foreach ($unit as $language => $translation) {
+                foreach ($unit as $language => $text) {
                     if (!\is_string($language)) {
                         throw new \RuntimeException('Language code must be a string.');
                     }
                     if ($language === '') {
                         throw new \RuntimeException('Language code cannot be empty.');
                     }
-                    if (!\is_string($translation)) {
+                    if (!\is_string($text)) {
                         throw new \RuntimeException('Translation text must be a string.');
                     }
                 }
-                $root[$translationId] = new CArray($unit);
+                $root[$key] = new CArray($unit);
             } elseif (\is_string($unit)) {
-                $root[$translationId] = $unit; // Alias
+                $root[$key] = $unit; // Alias
             } else {
                 throw new \RuntimeException(
                     'Translation unit must be an object of language-text pairs or an alias string.');
@@ -265,7 +264,7 @@ abstract class Translation extends Singleton
             throw new \RuntimeException('Language not set in configuration.');
         }
         if (!\is_string($language)) {
-            throw new \RuntimeException('Language setting is not a string.');
+            throw new \RuntimeException('Language code must be a string.');
         }
         return $this->language = $language;
     }
@@ -281,45 +280,45 @@ abstract class Translation extends Singleton
     #region private ------------------------------------------------------------
 
     /**
-     * Recursively resolves translation IDs and performs alias handling.
+     * Recursively resolves translation keys and performs alias handling.
      *
-     * @param string $translationId
-     *   The translation ID to resolve.
+     * @param string $key
+     *   The translation key.
      * @param array $args
      *   Arguments for string formatting within the translation.
      * @param array $visited
-     *   Previously visited translation IDs (for alias cycle detection).
+     *   Previously visited translation keys (for alias cycle detection).
      * @return string
-     *   The resolved translation text in the current language.
+     *   The translation text in the current language.
      * @throws \RuntimeException
-     *   When the translation ID or language is not found, or alias cycle
+     *   When the translation key or language is not found, or alias cycle
      *   detected.
      */
-    private function resolve(string $translationId, array $args, array $visited): string
+    private function resolve(string $key, array $args, array $visited): string
     {
-        if (\in_array($translationId, $visited, true)) {
+        if (\in_array($key, $visited, true)) {
             throw new \RuntimeException(
-                "Alias cycle detected with translation ID '$translationId'.");
+                "Alias cycle detected with translation '$key'.");
         }
         $translations = $this->translations();
-        if (!$translations->Has($translationId)) {
-            throw new \RuntimeException("Translation ID '$translationId' not found.");
+        if (!$translations->Has($key)) {
+            throw new \RuntimeException("Translation key '$key' not found.");
         }
-        $unit = $translations->Get($translationId);
+        $unit = $translations->Get($key);
         if (\is_string($unit)) { // Alias
-            $visited[] = $translationId;
+            $visited[] = $key;
             return $this->resolve($unit, $args, $visited);
         }
         $language = $this->language();
         if (!$unit->Has($language)) {
             throw new \RuntimeException(
-                "Language '$language' not found for translation ID '$translationId'.");
+                "Language '$language' not found for translation '$key'.");
         }
-        $translation = $unit->Get($language);
+        $text = $unit->Get($language);
         if (!empty($args)) {
-            $translation = \vsprintf($translation, $args);
+            $text = \vsprintf($text, $args);
         }
-        return $translation;
+        return $text;
     }
 
     #endregion private
