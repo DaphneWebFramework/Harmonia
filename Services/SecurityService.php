@@ -168,10 +168,10 @@ class SecurityService extends Singleton
      */
     private function deobfuscate(string $data): string
     {
-        // Suppressed notices are:
-        // - hex2bin(): Hexadecimal input string must have an even length
-        // - hex2bin(): Input string must be hexadecimal string
-        $decoded = @\hex2bin($data);
+        if (!\ctype_xdigit($data) || (\strlen($data) % 2 !== 0)) {
+            return '';
+        }
+        $decoded = \hex2bin($data);
         if ($decoded === false) {
             return '';
         }
