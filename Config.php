@@ -48,17 +48,6 @@ class Config extends Singleton
     #region public -------------------------------------------------------------
 
     /**
-     * Retrieves the configuration options.
-     *
-     * @return CArray
-     *   The configuration options.
-     */
-    public function Options(): CArray
-    {
-        return $this->options;
-    }
-
-    /**
      * Retrieves the path to the configuration options file.
      *
      * @return ?CPath
