@@ -20,7 +20,7 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  * Updating the email and status of a specific user:
  *
  * ```php
- * $query = (new UpdateQuery())
+ * $query = (new UpdateQuery)
  *     ->Table('users')
  *     ->Columns('email', 'status')
  *     ->Values(':email', ':status')

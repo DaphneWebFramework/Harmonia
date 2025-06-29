@@ -20,7 +20,7 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  * Deleting a user by ID:
  *
  * ```php
- * $query = (new DeleteQuery())
+ * $query = (new DeleteQuery)
  *     ->Table('users')
  *     ->Where('id = :id')
  *     ->Bind(['id' => 101]);
