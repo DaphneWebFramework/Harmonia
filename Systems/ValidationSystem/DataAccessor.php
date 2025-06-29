@@ -77,7 +77,7 @@ class DataAccessor
      * @param string|int $field
      *   The field name or index to retrieve.
      * @return mixed
-     *   Returns the value of the field.
+     *   The field value if it exists.
      * @throws \RuntimeException
      *   If the field does not exist.
      */
@@ -98,6 +98,30 @@ class DataAccessor
         } else {
             return self::getSubfield($this->data, $field);
         }
+    }
+
+    /**
+     * Retrieves the value of the specified field or returns a default if not
+     * found.
+     *
+     * Supports nested fields using dot notation (e.g., `'user.profile.name'`).
+     *
+     * @param string|int $field
+     *   The field name or index to retrieve.
+     * @param mixed $defaultValue
+     *   The default value to return if the field does not exist.
+     * @return mixed
+     *   The field value if it exists, otherwise the default value.
+     */
+    public function GetFieldOrDefault(
+        string|int $field,
+        mixed $defaultValue = null
+    ): mixed
+    {
+        if (!$this->HasField($field)) {
+            return $defaultValue;
+        }
+        return $this->GetField($field);
     }
 
     #endregion public
