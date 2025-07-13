@@ -38,7 +38,7 @@ class RawQuery extends Query
      * Sets the SQL string.
      *
      * @param string $sql
-     *   The SQL string. May include named placeholders (e.g., :name).
+     *   The SQL string. May include named placeholders (e.g., `:name`).
      * @return self
      *   The current instance.
      * @throws \InvalidArgumentException
