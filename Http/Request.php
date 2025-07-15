@@ -202,5 +202,51 @@ class Request extends Singleton
         });
     }
 
+    /**
+     * Decodes the request body as JSON and returns it as an associative array.
+     *
+     * @return array
+     *   The decoded JSON data, or an empty array if the request's media type
+     *   is not `application/json`, if the body content cannot be read, or if
+     *   the JSON is invalid.
+     */
+    public function JsonBody(): array
+    {
+        if (!$this->IsMediaType('application/json')) {
+            return [];
+        }
+        $body = $this->Body();
+        if ($body === null) {
+            return [];
+        }
+        $decoded = \json_decode($body, true);
+        if (!\is_array($decoded)) {
+            return [];
+        }
+        return $decoded;
+    }
+
+    /**
+     * Checks whether the request's media type matches the given type.
+     *
+     * @param string $expectedType
+     *   The expected media type (e.g., 'application/json').
+     * @return bool
+     *   Return `true` if the request's media type matches, `false` otherwise.
+     */
+    public function IsMediaType(string $expectedType): bool
+    {
+        $header = $this->Headers()->Get('content-type');
+        if (!\is_string($header)) {
+            return false;
+        }
+        foreach (\explode(';', $header) as $part) {
+            if (0 === \strcasecmp(\trim($part), $expectedType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     #endregion public
 }
