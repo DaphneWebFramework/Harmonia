@@ -188,18 +188,17 @@ class Request extends Singleton
      * differently. If raw input is required for file uploads, consider using
      * the PUT method instead.
      *
-     * @return ?CString
-     *   A `CString` instance containing the raw body data, or `null` if an
-     *   error occurs.
+     * @return ?string
+     *   The raw body content, or `null` if an error occurs.
      */
-    public function Body(): ?CString
+    public function Body(): ?string
     {
         return $this->body->Get(function() {
             $data = \file_get_contents('php://input');
             if ($data === false) {
                 return null;
             }
-            return new CString($data);
+            return $data;
         });
     }
 
