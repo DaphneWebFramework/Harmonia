@@ -23,6 +23,11 @@ use \Harmonia\Systems\ValidationSystem\Requirements\RequirementEngine;
 class Validator
 {
     /**
+     * The name of the rule that indicates a field is nullable.
+     */
+    public const RULE_NULLABLE = 'nullable';
+
+    /**
      * Holds the compiled validation rules.
      *
      * @var CompiledRules
@@ -46,7 +51,7 @@ class Validator
      *     'id' => ['required', 'integer', 'min:1'],
      *     'token' => 'regex:/^[a-f0-9]{64}$/',
      *     'countryCode' => function($value) {
-     *         return \in_array($value, ['US', 'CA', 'MX']);
+     *         return \in_array($value, ['US', 'CA', 'MX'], true);
      *     }
      * ]);
      * ```
@@ -74,7 +79,7 @@ class Validator
      * );
      * ```
      *
-     * @param array<string|int, string|\Closure|array<string|\Closure>> $userDefinedRules
+     * @param array<string|int, string|\Closure|array<int, string|\Closure>> $userDefinedRules
      *   An associative array where each key represents a field, and each value
      *   is either a single rule (string or closure) or an array of rules.
      * @param ?array<string, string> $customMessages
@@ -133,7 +138,7 @@ class Validator
      *
      * @param string|int $field
      *   The name or index of the field to validate.
-     * @param array<IMetaRule> $metaRules
+     * @param IMetaRule[] $metaRules
      *   The validation rules for the field.
      * @param DataAccessor $dataAccessor
      *   Provides access to the data fields.
@@ -156,6 +161,7 @@ class Validator
         DataAccessor $dataAccessor
     ): void
     {
+        // 1
         $requirementEngine = new RequirementEngine($field, $metaRules, $dataAccessor);
         try {
             $requirementEngine->Validate();
@@ -168,7 +174,14 @@ class Validator
             return;
         }
         $metaRules = $requirementEngine->FilterOutRequirementRules($metaRules);
+        // 2
         $value = $dataAccessor->GetField($field);
+        // 3
+        if ($this->shouldSkipFurtherValidationDueToNullable($metaRules, $value)) {
+            return;
+        }
+        $metaRules = $this->filterOutNullableRules($metaRules);
+        // 4
         foreach ($metaRules as $metaRule) {
             try {
                 $metaRule->Validate($field, $value);
@@ -176,6 +189,50 @@ class Validator
                 $this->rethrow($field, $metaRule->GetName(), $e);
             }
         }
+    }
+
+    /**
+     * Determines whether further validation should be skipped due to the
+     * presence of a `nullable` rule and the value is `null`.
+     *
+     * @param IMetaRule[] $metaRules
+     *   The list of rules to inspect for `nullable`.
+     * @param mixed $value
+     *   The value of the field to check.
+     * @return bool
+     *   Returns `true` if a `nullable` rule is defined and the value is `null`.
+     *   Otherwise, returns `false`.
+     */
+    private function shouldSkipFurtherValidationDueToNullable(
+        array $metaRules,
+        mixed $value
+    ): bool
+    {
+        foreach ($metaRules as $rule) {
+            if ($rule->GetName() === self::RULE_NULLABLE) {
+                return $value === null;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Filters out all `nullable` rules from the rule list.
+     *
+     * This step is essential to avoid "Unknown rule" errors during rule
+     * validation, since `nullable` is not implemented as an executable
+     * validation rule.
+     *
+     * @param IMetaRule[] $metaRules
+     *   The list of rules to clean.
+     * @return IMetaRule[]
+     *   The list of rules with all `nullable` entries removed.
+     */
+    private function filterOutNullableRules(array $metaRules): array
+    {
+        return \array_filter($metaRules, function($metaRule) {
+            return $metaRule->GetName() !== self::RULE_NULLABLE;
+        });
     }
 
     /**
@@ -191,7 +248,11 @@ class Validator
      * @return never
      *   This method always throws and never returns.
      */
-    private function rethrow(string|int $field, string $rule, \RuntimeException $e): never
+    private function rethrow(
+        string|int $field,
+        string $rule,
+        \RuntimeException $e
+    ): never
     {
         $customMessage = $this->customMessage($field, $rule);
         if ($customMessage !== null) {
@@ -215,7 +276,6 @@ class Validator
         if ($this->customMessages === null) {
             return null;
         }
-        $rule = \strtolower($rule);
         foreach ($this->customMessages as $key => $message) {
             $lastDot = \strrpos($key, '.');
             if ($lastDot === false) {

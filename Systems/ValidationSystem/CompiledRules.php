@@ -35,7 +35,7 @@ class CompiledRules
     /**
      * Constructs a new instance by compiling the provided rules into meta rules.
      *
-     * @param array<string|int, string|\Closure|array<string|\Closure>> $userDefinedRules
+     * @param array<string|int, string|\Closure|array<int, string|\Closure>> $userDefinedRules
      *   An associative array where each key represents a field, and each value
      *   is either a single rule (string or closure) or an array of rules.
      * @throws \RuntimeException
