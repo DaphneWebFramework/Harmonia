@@ -44,6 +44,17 @@ class DataAccessor
     }
 
     /**
+     * Returns the underlying data source.
+     *
+     * @return array|object
+     *   The data source being accessed, which can be an array or an object.
+     */
+    public function Data(): array|object
+    {
+        return $this->data;
+    }
+
+    /**
      * Checks if the specified field exists in the data.
      *
      * Supports nested fields using dot notation (e.g., `'user.profile.name'`).
