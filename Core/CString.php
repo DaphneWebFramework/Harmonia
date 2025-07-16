@@ -1161,7 +1161,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
         $value = $function($this->value, ...$args);
         if (!\is_string($value)) {
             throw new \UnexpectedValueException(
-                'Applied function must return an string.');
+                'Applied function must return a string.');
         }
         $this->value = $value;
         return $this;
