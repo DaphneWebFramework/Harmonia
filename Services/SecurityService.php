@@ -30,6 +30,11 @@ class SecurityService extends Singleton
     public const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
 
     /**
+     * Regular expression pattern that matches bcrypt password hashes.
+     */
+    public const PASSWORD_HASH_PATTERN = '/^\$2[aby]?\$\d{1,2}\$[.\/A-Za-z0-9]{53}$/';
+
+    /**
      * Recommended minimum password length.
      *
      * A minimum of 8 characters is commonly recommended by standards such as
@@ -122,23 +127,6 @@ class SecurityService extends Singleton
                 $csrfToken->CookieValue()
             )
         );
-    }
-
-    /**
-     * Determines whether the given string is a valid token.
-     *
-     * A valid token is a 64-character string composed exclusively of
-     * lowercase hexadecimal digits (a–f, 0–9).
-     *
-     * @param string $value
-     *   The token string to validate.
-     * @return bool
-     *   Returns `true` if the string matches the expected format, `false`
-     *   otherwise.
-     */
-    public static function IsValidToken(string $value): bool
-    {
-        return \preg_match(self::TOKEN_PATTERN, $value) === 1;
     }
 
     #endregion public
