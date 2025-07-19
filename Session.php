@@ -27,10 +27,9 @@ class Session extends Singleton
      * setting a unique session name.
      *
      * @throws \RuntimeException
-     *   If session support is disabled or already active, if setting session
-     *   initialization options fails, if setting session cookie parameters
-     *   fails, or if setting the session name fails.
-     *
+     *   If session support is disabled or a session has already been started,
+     *   if setting session initialization options fails, if setting session
+     *   cookie parameters fails, or if setting the session name fails.
      */
     protected function __construct()
     {
@@ -90,13 +89,13 @@ class Session extends Singleton
     /**
      * Starts a new session or resumes an existing one.
      *
-     * If session support is disabled or the session is already started, this
-     * method does nothing.
+     * If session support is disabled or the session has already been started,
+     * this method does nothing.
      *
      * @return self
      *   The current instance.
      * @throws \RuntimeException
-     *   If starting the session or regenerating the session ID fails.
+     *   If starting the session fails.
      */
     public function Start(): self
     {
@@ -104,6 +103,26 @@ class Session extends Singleton
             return $this;
         }
         $this->_session_start();
+        return $this;
+    }
+
+    /**
+     * Regenerates the session ID to mitigate session fixation attacks.
+     *
+     * This method replaces the current session ID with a new one, preserving
+     * existing session data. It requires that the session be already started;
+     * otherwise, it does nothing.
+     *
+     * @return self
+     *   The current instance.
+     * @throws \RuntimeException
+     *   If regenerating the session ID fails.
+     */
+    public function RenewId(): self
+    {
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return $this;
+        }
         $this->_session_regenerate_id();
         return $this;
     }
@@ -130,12 +149,13 @@ class Session extends Singleton
     /**
      * Sets a session variable.
      *
-     * If the session is not started, this method does nothing.
+     * This method does nothing if the session has not been started, or if it
+     * has already been closed.
      *
      * @param string $key
      *   The name of the session variable.
      * @param mixed $value
-     *   The value of the session variable.
+     *   The value to assign to the session variable.
      * @return self
      *   The current instance.
      */
@@ -151,22 +171,20 @@ class Session extends Singleton
     /**
      * Retrieves a session variable.
      *
-     * If the session is not started, this method returns the default value.
+     * This method does not require the session to be currently started; it
+     * allows read access even after the session has been closed, as long as
+     * the `$_SESSION` superglobal is still available.
      *
      * @param string $key
      *   The name of the session variable.
      * @param mixed $defaultValue
-     *   (Optional) The default value to return if the session variable does not
-     *   exist. Defaults to `null`.
+     *   (Optional) The default value to return if the `$_SESSION` superglobal
+     *   itself or the session variable does not exist. Defaults to `null`.
      * @return mixed
-     *   The value of the session variable if it exists, the default value
-     *   otherwise.
+     *   The value of the session variable if available, or the default value.
      */
     public function Get(string $key, mixed $defaultValue = null): mixed
     {
-        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return $defaultValue;
-        }
         if (!isset($_SESSION)) {
             return $defaultValue;
         }
@@ -179,7 +197,8 @@ class Session extends Singleton
     /**
      * Removes a session variable.
      *
-     * If the session is not started, this method does nothing.
+     * This method does nothing if the session has not been started, or if it
+     * has already been closed.
      *
      * @param string $key
      *   The name of the session variable.
@@ -196,9 +215,10 @@ class Session extends Singleton
     }
 
     /**
-     * Clears all session variables.
+     * Removes all variables from the session.
      *
-     * If the session is not started, this method does nothing.
+     * This method does nothing if the session has not been started, or if it
+     * has already been closed.
      *
      * @return self
      *   The current instance.
@@ -217,7 +237,11 @@ class Session extends Singleton
     /**
      * Destroys the current session.
      *
-     * If the session is not started, this method does nothing.
+     * This method does nothing if the session has not been started, or if it
+     * has already been closed.
+     *
+     * It deletes the session cookie, clears all session variables, and deletes
+     * the session data stored on the server.
      *
      * @return self
      *   The current instance.
