@@ -147,28 +147,6 @@ class Session extends Singleton
     }
 
     /**
-     * Sets a session variable.
-     *
-     * This method does nothing if the session has not been started, or if it
-     * has already been closed.
-     *
-     * @param string $key
-     *   The name of the session variable.
-     * @param mixed $value
-     *   The value to assign to the session variable.
-     * @return self
-     *   The current instance.
-     */
-    public function Set(string $key, mixed $value): self
-    {
-        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
-            return $this;
-        }
-        $_SESSION[$key] = $value;
-        return $this;
-    }
-
-    /**
      * Retrieves a session variable.
      *
      * This method does not require the session to be currently started; it
@@ -192,6 +170,28 @@ class Session extends Singleton
             return $defaultValue;
         }
         return $_SESSION[$key];
+    }
+
+    /**
+     * Sets a session variable.
+     *
+     * This method does nothing if the session has not been started, or if it
+     * has already been closed.
+     *
+     * @param string $key
+     *   The name of the session variable.
+     * @param mixed $value
+     *   The value to assign to the session variable.
+     * @return self
+     *   The current instance.
+     */
+    public function Set(string $key, mixed $value): self
+    {
+        if ($this->_session_status() !== \PHP_SESSION_ACTIVE) {
+            return $this;
+        }
+        $_SESSION[$key] = $value;
+        return $this;
     }
 
     /**
