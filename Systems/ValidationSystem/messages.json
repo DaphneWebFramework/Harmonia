@@ -7,6 +7,10 @@
     "en": "Either field '%s' or %s must be present.",
     "tr": "Ya '%s' alanı ya da %s mevcut olmalı."
   },
+  "enum_requires_class_name": {
+    "en": "Rule 'enum' must be used with a valid enum class name.",
+    "tr": "Kural 'enum', geçerli bir enum sınıfı adı ile kullanılmalıdır."
+  },
   "expected_array_or_object_for_data": {
     "en": "Expected an array or object for data, got: %s",
     "tr": "Veri için bir dizi veya nesne bekleniyordu, alınan: %s"
@@ -55,9 +59,13 @@
     "en": "Field '%s' must be numeric.",
     "tr": "Alan '%s' bir sayı olmalıdır."
   },
-  "field_must_be_valid_email": {
+  "field_must_be_a_valid_email_address": {
     "en": "Field '%s' must be a valid email address.",
     "tr": "Alan '%s' geçerli bir e-posta adresi olmalıdır."
+  },
+  "field_must_be_a_valid_enum_value": {
+    "en": "Field '%s' must be a valid value of enum '%s'.",
+    "tr": "Alan '%s', '%s' enum'unda geçerli bir değer olmalıdır."
   },
   "field_must_match_datetime_format": {
     "en": "Field '%s' must match the datetime format: %s",

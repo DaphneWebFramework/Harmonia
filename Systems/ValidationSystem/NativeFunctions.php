@@ -24,7 +24,7 @@ class NativeFunctions
      * Determines if the given value is of a numeric type.
      *
      * @param mixed $value
-     *   The value to check.
+     *   The value to check for numeric type.
      * @return bool
      *   Returns `true` if the value is numeric, `false` otherwise.
      */
@@ -37,7 +37,7 @@ class NativeFunctions
      * Determines if the given value is of string type.
      *
      * @param mixed $value
-     *   The value to check.
+     *   The value to check for string type.
      * @return bool
      *   Returns `true` if the value is a string, `false` otherwise.
      */
@@ -51,7 +51,7 @@ class NativeFunctions
      * an integer.
      *
      * @param mixed $value
-     *   The value to check.
+     *   The value to validate as an integer or integer string.
      * @return bool
      *   Returns `true` if the value is an integer or a string representing an
      *   integer, `false` otherwise.
@@ -69,7 +69,7 @@ class NativeFunctions
      * Determines if the given value is a valid email address.
      *
      * @param mixed $value
-     *   The value to check.
+     *   The value to validate as an email address.
      * @return bool
      *   Returns `true` if the value is a valid email address, `false` otherwise.
      */
@@ -82,7 +82,7 @@ class NativeFunctions
      * Determines if the given value is of array type.
      *
      * @param mixed $value
-     *   The value to check.
+     *   The value to check for array type.
      * @return bool
      *   Returns `true` if the value is an array, `false` otherwise.
      */
@@ -95,7 +95,7 @@ class NativeFunctions
      * Determines if the given value represents an uploaded file.
      *
      * @param mixed $value
-     *   The value to check.
+     *   The value to validate as a file upload array.
      * @return bool
      *   Returns `true` if the value represents an uploaded file, `false`
      *   otherwise.
@@ -134,7 +134,7 @@ class NativeFunctions
      * parameter.
      *
      * @param string $value
-     *   The value to be matched against the regular expression.
+     *   The string value to validate against the regular expression pattern.
      * @param string $param
      *   The regular expression pattern.
      * @return bool
@@ -167,7 +167,7 @@ class NativeFunctions
      * a given format.
      *
      * @param string $value
-     *   The date/time string to be validated.
+     *   The string value to validate as a date/time.
      * @param string $param
      *   The format string that the date/time should adhere to, as per
      *   `DateTime::createFromFormat` documentation.
@@ -188,5 +188,56 @@ class NativeFunctions
             return false;
         }
         return true;
+    }
+
+    /**
+     * Validates whether a given value is a valid case of a specified enum class.
+     *
+     * Supports both backed and pure enums. For backed enums, the value must
+     * match the enum's backing type exactly and exist in its defined cases.
+     * For pure enums, the value must match the name of a defined case.
+     *
+     * @param mixed $value
+     *   The value to validate as an enum case.
+     * @param string $enumClass
+     *   The fully qualified name of the enum class.
+     * @return bool
+     *   Returns `true` if the value matches a valid enum case, `false` otherwise.
+     */
+    public function IsEnumValue(mixed $value, string $enumClass): bool
+    {
+        if (!\enum_exists($enumClass)) {
+            return false;
+        }
+        if (\is_subclass_of($enumClass, \BackedEnum::class))
+        {
+            $reflectionEnum = new \ReflectionEnum($enumClass);
+            switch ($reflectionEnum->getBackingType()->getName())
+            {
+            case 'int':
+                if (!\is_int($value)) {
+                    return false;
+                }
+                break;
+            case 'string':
+                if (!\is_string($value)) {
+                    return false;
+                }
+                break;
+            }
+            return $enumClass::tryFrom($value) !== null;
+        }
+        else // Pure enum: match against case names
+        {
+            if (!\is_string($value)) {
+                return false;
+            }
+            foreach ($enumClass::cases() as $case) {
+                if ($case->name === $value) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
