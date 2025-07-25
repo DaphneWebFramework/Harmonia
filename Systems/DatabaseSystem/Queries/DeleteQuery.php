@@ -28,7 +28,7 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  *
  * **Generated SQL:**
  * ```sql
- * DELETE FROM users WHERE id = :id
+ * DELETE FROM `users` WHERE id = :id
  * ```
  */
 class DeleteQuery extends Query
@@ -92,7 +92,11 @@ class DeleteQuery extends Query
             throw new \RuntimeException(
                 'Condition must be provided.');
         }
-        return "DELETE FROM {$this->table} WHERE {$this->condition}";
+        $clauses = [
+            "DELETE FROM {$this->formatIdentifier($this->table)}",
+            "WHERE {$this->condition}"
+        ];
+        return \implode(' ', $clauses);
     }
 
     #endregion protected

@@ -17,7 +17,8 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  *
  * #### Example
  *
- * Fetching active users who registered after a specific date, sorted by their last login:
+ * Fetching active users who registered after a specific date, sorted by their
+ * last login:
  *
  * ```php
  * $query = (new SelectQuery)
@@ -37,7 +38,7 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  *
  * **Generated SQL:**
  * ```sql
- * SELECT name, email, COUNT(*) AS loginCount FROM users
+ * SELECT name, email, COUNT(*) AS loginCount FROM `users`
  * WHERE status = :status AND createdAt >= :startDate
  * ORDER BY lastLogin DESC, name
  * LIMIT 20 OFFSET 10
@@ -176,7 +177,7 @@ class SelectQuery extends Query
         }
         $clauses = [
             "SELECT {$this->columns}",
-            "FROM {$this->table}"
+            "FROM {$this->formatIdentifier($this->table)}"
         ];
         if ($this->condition !== null) {
             $clauses[] = "WHERE {$this->condition}";

@@ -34,7 +34,7 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  *
  * **Generated SQL:**
  * ```sql
- * UPDATE users
+ * UPDATE `users`
  * SET email = :email, status = :status
  * WHERE id = :id
  * ```
@@ -147,7 +147,7 @@ class UpdateQuery extends Query
                 'Number of columns must match number of values.');
         }
         $clauses = [
-            "UPDATE {$this->table}",
+            "UPDATE {$this->formatIdentifier($this->table)}",
             "SET " . \implode(', ', \array_map(
                 function($column, $value) { return "{$column} = {$value}"; },
                 $this->columns,

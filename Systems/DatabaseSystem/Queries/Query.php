@@ -166,6 +166,23 @@ abstract class Query
         return \implode(', ', $this->checkStringList(...$strings));
     }
 
+    /**
+     * Safely formats an SQL identifier such as a table or column name.
+     *
+     * The identifier is enclosed in backticks, and any existing backtick
+     * characters within it are escaped by doubling them.
+     *
+     * @param string $identifier
+     *   The SQL identifier to be formatted.
+     * @return string
+     *   The identifier enclosed in backticks with internal backticks escaped.
+     */
+    protected function formatIdentifier(string $identifier): string
+    {
+        $identifier = \str_replace('`', '``', $identifier);
+        return "`{$identifier}`";
+    }
+
     #endregion protected
 
     #region private ------------------------------------------------------------

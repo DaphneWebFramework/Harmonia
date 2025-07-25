@@ -35,7 +35,7 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  *
  * **Generated SQL:**
  * ```sql
- * INSERT INTO users (id, name, email, status, createdAt)
+ * INSERT INTO `users` (id, name, email, status, createdAt)
  * VALUES (:id, :name, :email, :status, :createdAt)
  * ```
  */
@@ -121,7 +121,7 @@ class InsertQuery extends Query
                 'Values must be provided.');
         }
         $clauses = [
-            "INSERT INTO {$this->table}"
+            "INSERT INTO {$this->formatIdentifier($this->table)}"
         ];
         if ($this->columns !== null) {
             $clauses[] = "({$this->columns})";
