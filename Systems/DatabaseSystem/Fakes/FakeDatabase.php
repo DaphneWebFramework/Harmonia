@@ -36,7 +36,7 @@ use \Harmonia\Systems\DatabaseSystem\ResultSet;
  *     {
  *         $fakeDatabase = new FakeDatabase();
  *         $fakeDatabase->Expect(
- *             sql: 'SELECT COUNT(*) FROM account WHERE email = :email',
+ *             sql: 'SELECT COUNT(*) FROM `account` WHERE `email` = :email',
  *             bindings: ['email' => 'john@example.com'],
  *             result: [[1]]
  *         );
@@ -273,7 +273,7 @@ class FakeDatabase extends Database
      */
     private function formatExpectation(string $sql, array $bindings): string
     {
-        return "query: `{$sql}`, bindings: " . \json_encode($bindings);
+        return "query: \"{$sql}\", bindings: " . \json_encode($bindings);
     }
 
     #endregion private
