@@ -219,6 +219,32 @@ class Connection
         }
     }
 
+    /**
+     * Escapes special characters in a string for use in SQL statements.
+     *
+     * This method is intended for use in SQL queries where parameter binding
+     * is not supported by the database engine (e.g., `SHOW DATABASES LIKE`).
+     * It helps prevent SQL injection by escaping input values.
+     *
+     * The returned value is not quoted automatically. It is the caller's
+     * responsibility to wrap the result in single quotes when embedding it
+     * directly in a SQL string.
+     *
+     * #### Example
+     * ```php
+     * $sql = "SHOW DATABASES LIKE '{$connection->EscapeString($name)}'";
+     * ```
+     *
+     * @param string $string
+     *   The string to be escaped.
+     * @return string
+     *   The escaped string, safe for use in SQL contexts when properly quoted.
+     */
+    public function EscapeString(string $string): string
+    {
+        return $this->handle->real_escape_string($string);
+    }
+
     #endregion public
 
     #region protected ----------------------------------------------------------
