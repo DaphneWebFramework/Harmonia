@@ -1190,6 +1190,26 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
     }
 
     /**
+     * Calls a function using the current value.
+     *
+     * @param callable $function
+     *   The function to call. It must accept a string as its first parameter.
+     *   Any additional arguments passed to this method will be forwarded to the
+     *   called function.
+     * @param mixed ...$args
+     *   Additional arguments to pass to the called function.
+     * @return mixed
+     *   The return value of the called function.
+     *
+     * @see Apply
+     * @see ApplyInPlace
+     */
+    public function Call(callable $function, mixed ...$args): mixed
+    {
+        return $function($this->value, ...$args);
+    }
+
+    /**
      * Matches the string against a regular expression pattern.
      *
      * @param string $pattern
