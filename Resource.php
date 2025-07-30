@@ -160,11 +160,14 @@ class Resource extends Singleton
             $serverDirectoryContainsLinkToAppPath = false;
             if (\PHP_OS_FAMILY !== 'Windows') {
                 $linkPath = CPath::Join($serverPath, $appPath->Apply('\basename'));
-                if ($linkPath->IsLink()) {
-                    $targetPath = $linkPath->ReadLink();
-                    if ($targetPath !== null && $targetPath->Equals($appPath)) {
-                        $appPath = $linkPath;
-                        $serverDirectoryContainsLinkToAppPath = true;
+                if ($linkPath->Call('\is_link')) {
+                    $targetPath = $linkPath->Call('\readlink');
+                    if ($targetPath !== false) {
+                        $targetPath = new CPath($targetPath);
+                        if ($targetPath->Equals($appPath)) {
+                            $appPath = $linkPath;
+                            $serverDirectoryContainsLinkToAppPath = true;
+                        }
                     }
                 }
             }

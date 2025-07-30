@@ -232,7 +232,7 @@ class Logger extends Singleton
     protected function ensureDirectoryExists(): void
     {
         $dirPath = $this->filePath->Apply('dirname');
-        if (!$dirPath->IsDirectory()) {
+        if (!$dirPath->Call('\is_dir')) {
             CFileSystem::Instance()->CreateDirectory($dirPath);
         }
     }

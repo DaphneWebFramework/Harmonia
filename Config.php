@@ -69,7 +69,7 @@ class Config extends Singleton
      */
     public function Load(CPath $optionsFilePath): void
     {
-        if (!$optionsFilePath->IsFile()) {
+        if (!$optionsFilePath->Call('\is_file')) {
             throw new \InvalidArgumentException(
                 "Configuration options file not found: $optionsFilePath");
         }

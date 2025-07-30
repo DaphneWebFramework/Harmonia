@@ -66,7 +66,7 @@ class CPath extends CString
     public function EnsureLeadingSlash(): self
     {
         if (!self::isSlash($this->First())) {
-            $this->PrependInPlace(DIRECTORY_SEPARATOR);
+            $this->PrependInPlace(\DIRECTORY_SEPARATOR);
         }
         return $this;
     }
@@ -85,7 +85,7 @@ class CPath extends CString
     public function EnsureTrailingSlash(): self
     {
         if (!self::isSlash($this->Last())) {
-            $this->AppendInPlace(DIRECTORY_SEPARATOR);
+            $this->AppendInPlace(\DIRECTORY_SEPARATOR);
         }
         return $this;
     }
@@ -124,59 +124,6 @@ class CPath extends CString
         return $this;
     }
 
-    /**
-     * Determines whether the path points to an existing file.
-     *
-     * @return bool
-     *   Returns `true` if the path points to a file; otherwise, `false`.
-     */
-    public function IsFile(): bool
-    {
-        return \is_file($this->value);
-    }
-
-    /**
-     * Determines whether the path points to an existing directory.
-     *
-     * @return bool
-     *   Returns `true` if the path points to a directory; otherwise, `false`.
-     */
-    public function IsDirectory(): bool
-    {
-        return \is_dir($this->value);
-    }
-
-    /**
-     * Determines whether the path points to an existing symbolic link.
-     *
-     * @return bool
-     *   Returns `true` if the path points to a symbolic link; otherwise, `false`.
-     *
-     * @see ReadLink
-     */
-    public function IsLink(): bool
-    {
-        return \is_link($this->value);
-    }
-
-    /**
-     * Reads the target path of a symbolic link.
-     *
-     * @return ?CPath
-     *   A new `CPath` instance containing the target of the symbolic link if
-     *   successful, or `null` if the method fails.
-     *
-     * @see IsLink
-     */
-    public function ReadLink(): ?CPath
-    {
-        $targetPath = @\readlink($this->value);
-        if ($targetPath === false) {
-            return null;
-        }
-        return new CPath($targetPath);
-    }
-
     #endregion public
 
     #region private ------------------------------------------------------------
@@ -192,7 +139,7 @@ class CPath extends CString
      */
     private static function getSlashes(): string
     {
-        return DIRECTORY_SEPARATOR === '/' ? '/' : '/\\';
+        return \DIRECTORY_SEPARATOR === '/' ? '/' : '/\\';
     }
 
     /**
@@ -210,7 +157,7 @@ class CPath extends CString
      */
     private static function isSlash(string $char): bool
     {
-        return $char === '/' || $char === DIRECTORY_SEPARATOR;
+        return $char === '/' || $char === \DIRECTORY_SEPARATOR;
     }
 
     #endregion private
