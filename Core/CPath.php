@@ -42,10 +42,10 @@ class CPath extends CString
         $lastIndex = \count($filtered) - 1;
         foreach ($filtered as $index => $segment) {
             if ($index > 0) {
-                $segment->TrimLeadingSlashes();
+                $segment = $segment->TrimLeadingSlashes();
             }
             if ($index < $lastIndex) {
-                $segment->EnsureTrailingSlash();
+                $segment = $segment->EnsureTrailingSlash();
             }
             $joined->AppendInPlace($segment);
         }
@@ -53,75 +53,65 @@ class CPath extends CString
     }
 
     /**
-     * Ensures the path starts with a leading slash.
+     * Ensures the path starts with a slash.
      *
      * If the path does not already start with a slash, one is inserted at the
      * beginning.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance that starts with a slash.
      */
-    public function EnsureLeadingSlash(): self
+    public function EnsureLeadingSlash(): static
     {
-        if (!self::isSlash($this->First())) {
-            $this->PrependInPlace(\DIRECTORY_SEPARATOR);
+        if (self::isSlash($this->First())) {
+            return clone $this;
         }
-        return $this;
+        return $this->Prepend(\DIRECTORY_SEPARATOR);
     }
 
     /**
-     * Ensures the path ends with a trailing slash.
+     * Ensures the path ends with a slash.
      *
      * If the path does not already end with a slash, one is appended at the
      * end.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance that ends with a slash.
      */
-    public function EnsureTrailingSlash(): self
+    public function EnsureTrailingSlash(): static
     {
-        if (!self::isSlash($this->Last())) {
-            $this->AppendInPlace(\DIRECTORY_SEPARATOR);
+        if (self::isSlash($this->Last())) {
+            return clone $this;
         }
-        return $this;
+        return $this->Append(\DIRECTORY_SEPARATOR);
     }
 
     /**
-     * Removes all leading slashes.
+     * Removes slashes from the start of the path.
      *
-     * Leading slashes include both forward slashes and backslashes depending on
+     * The slashes include both forward slashes and backslashes depending on
      * the operating system.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance without slashes at the start.
      */
-    public function TrimLeadingSlashes(): self
+    public function TrimLeadingSlashes(): static
     {
-        $this->TrimLeftInPlace(self::getSlashes());
-        return $this;
+        return $this->TrimLeft(self::getSlashes());
     }
 
     /**
-     * Removes all trailing slashes.
+     * Removes slashes from the end of the path.
      *
-     * Trailing slashes include both forward slashes and backslashes depending
-     * on the operating system.
+     * The slashes include both forward slashes and backslashes depending on
+     * the operating system.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance without slashes at the end.
      */
-    public function TrimTrailingSlashes(): self
+    public function TrimTrailingSlashes(): static
     {
-        $this->TrimRightInPlace(self::getSlashes());
-        return $this;
+        return $this->TrimRight(self::getSlashes());
     }
 
     #endregion public

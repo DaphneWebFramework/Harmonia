@@ -42,10 +42,10 @@ class CUrl extends CString
         $lastIndex = \count($filtered) - 1;
         foreach ($filtered as $index => $segment) {
             if ($index > 0) {
-                $segment->TrimLeadingSlashes();
+                $segment = $segment->TrimLeadingSlashes();
             }
             if ($index < $lastIndex) {
-                $segment->EnsureTrailingSlash();
+                $segment = $segment->EnsureTrailingSlash();
             }
             $joined->AppendInPlace($segment);
         }
@@ -53,69 +53,59 @@ class CUrl extends CString
     }
 
     /**
-     * Ensures the URL starts with a leading slash.
+     * Ensures the URL starts with a slash.
      *
      * If the URL does not already start with a slash, one is inserted at the
      * beginning.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance that starts with a slash.
      */
-    public function EnsureLeadingSlash(): self
+    public function EnsureLeadingSlash(): static
     {
-        if ($this->First() !== '/') {
-            $this->PrependInPlace('/');
+        if ($this->First() === '/') {
+            return clone $this;
         }
-        return $this;
+        return $this->Prepend('/');
     }
 
     /**
-     * Ensures the URL ends with a trailing slash.
+     * Ensures the URL ends with a slash.
      *
      * If the URL does not already end with a slash, one is appended at the
      * end.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance that ends with a slash.
      */
-    public function EnsureTrailingSlash(): self
+    public function EnsureTrailingSlash(): static
     {
-        if ($this->Last() !== '/') {
-            $this->AppendInPlace('/');
+        if ($this->Last() === '/') {
+            return clone $this;
         }
-        return $this;
+        return $this->Append('/');
     }
 
     /**
-     * Removes all leading slashes.
+     * Removes slashes from the start of the URL.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance without slashes at the start.
      */
-    public function TrimLeadingSlashes(): self
+    public function TrimLeadingSlashes(): static
     {
-        $this->TrimLeftInPlace('/');
-        return $this;
+        return $this->TrimLeft('/');
     }
 
     /**
-     * Removes all trailing slashes.
+     * Removes slashes from the end of the URL.
      *
-     * This method directly modifies the current instance.
-     *
-     * @return self
-     *   The current instance.
+     * @return static
+     *   A new instance without slashes at the end.
      */
-    public function TrimTrailingSlashes(): self
+    public function TrimTrailingSlashes(): static
     {
-        $this->TrimRightInPlace('/');
-        return $this;
+        return $this->TrimRight('/');
     }
 
     #endregion public
