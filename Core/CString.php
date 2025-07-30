@@ -19,7 +19,7 @@ namespace Harmonia\Core;
  *
  * This class requires PHP's `mbstring` extension for multibyte encoding support.
  */
-class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
+class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSerializable
 {
     /**
      * Bitwise flag for `Split` options, performing a straightforward split with
@@ -1354,6 +1354,23 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate
     }
 
     #endregion Interface: IteratorAggregate
+
+    #region Interface: JsonSerializable
+
+    /**
+     * Returns the string representation for JSON serialization.
+     *
+     * @return string
+     *   The string value stored in the instance.
+     *
+     * @override
+     */
+    public function jsonSerialize(): string
+    {
+        return $this->value;
+    }
+
+    #endregion Interface: JsonSerializable
 
     #endregion public
 
