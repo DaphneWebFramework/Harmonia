@@ -89,7 +89,7 @@ class Config extends Singleton
             throw new \RuntimeException('No configuration options file is loaded.');
         }
         if (\function_exists('opcache_invalidate')) {
-            \opcache_invalidate((string)$this->optionsFilePath, true);
+            $this->optionsFilePath->Call('\opcache_invalidate', true);
         }
         $this->options = new CArray(include $this->optionsFilePath);
     }

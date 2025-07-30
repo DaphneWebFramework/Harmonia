@@ -113,11 +113,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
             $this->encoding = $value->encoding;
             $this->isSingleByte = $value->isSingleByte;
         } else {
-            if ($value instanceof \Stringable) {
-                $this->value = (string)$value;
-            } else { // \is_string($value)
-                $this->value = $value;
-            }
+            $this->value = (string)$value;
             $this->encoding = $encoding ?? \mb_internal_encoding();
             $this->isSingleByte = self::isSingleByteEncoding($this->encoding);
         }
@@ -295,9 +291,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
         if ($offset > $length) {
             return $this;
         }
-        if ($substring instanceof \Stringable) {
-            $substring = (string)$substring;
-        }
+        $substring = (string)$substring;
         if ($substring === '') {
             return $this;
         }
@@ -334,9 +328,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
      */
     public function PrependInPlace(string|\Stringable $substring): self
     {
-        if ($substring instanceof \Stringable) {
-            $substring = (string)$substring;
-        }
+        $substring = (string)$substring;
         $this->value = $substring . $this->value;
         return $this;
     }
@@ -373,9 +365,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
      */
     public function AppendInPlace(string|\Stringable $substring): self
     {
-        if ($substring instanceof \Stringable) {
-            $substring = (string)$substring;
-        }
+        $substring = (string)$substring;
         $this->value .= $substring;
         return $this;
     }
@@ -946,9 +936,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
         bool $caseSensitive = true
     ): ?int
     {
-        if ($searchString instanceof \Stringable) {
-            $searchString = (string)$searchString;
-        }
+        $searchString = (string)$searchString;
         if ($this->isSingleByte) {
             if ($caseSensitive) {
                 $foundOffset = \strpos($this->value, $searchString, $startOffset);
@@ -996,12 +984,8 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
         bool $caseSensitive = true
     ): self
     {
-        if ($searchString instanceof \Stringable) {
-            $searchString = (string)$searchString;
-        }
-        if ($replacement instanceof \Stringable) {
-            $replacement = (string)$replacement;
-        }
+        $searchString = (string)$searchString;
+        $replacement = (string)$replacement;
         if ($this->isSingleByte) {
             if ($caseSensitive) {
                 $this->value = \str_replace($searchString, $replacement, $this->value);
@@ -1155,6 +1139,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
      *   If the applied function returns a value that is not a string.
      *
      * @see Apply
+     * @see Call
      */
     public function ApplyInPlace(callable $function, mixed ...$args): self
     {
@@ -1182,6 +1167,7 @@ class CString implements \Stringable, \ArrayAccess, \IteratorAggregate, \JsonSer
      *   If the applied function returns a value that is not a string.
      *
      * @see ApplyInPlace
+     * @see Call
      */
     public function Apply(callable $function, mixed ...$args): static
     {

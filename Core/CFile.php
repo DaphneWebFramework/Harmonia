@@ -104,9 +104,7 @@ class CFile
         string $mode = self::MODE_READ
     ): ?CFile
     {
-        if ($filename instanceof \Stringable) {
-            $filename = (string)$filename;
-        }
+        $filename = (string)$filename;
         $handle = self::_fopen($filename, $mode);
         if ($handle === false) {
             return null;
