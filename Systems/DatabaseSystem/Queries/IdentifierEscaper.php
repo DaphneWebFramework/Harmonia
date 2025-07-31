@@ -13,7 +13,7 @@
 namespace Harmonia\Systems\DatabaseSystem\Queries;
 
 /**
- * Provides a utility method for escaping SQL identifiers.
+ * Provides a static utility method for escaping SQL identifiers.
  */
 trait IdentifierEscaper
 {
@@ -31,7 +31,7 @@ trait IdentifierEscaper
      *   The escaped identifier, safe for use in SQL contexts when properly
      *   enclosed in backticks.
      */
-    protected function escapeIdentifier(string $identifier): string
+    protected static function escapeIdentifier(string $identifier): string
     {
         return \str_replace('`', '``', $identifier);
     }
