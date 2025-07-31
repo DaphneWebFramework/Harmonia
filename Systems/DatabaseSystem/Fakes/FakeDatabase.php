@@ -236,6 +236,31 @@ class FakeDatabase extends Database
         }
     }
 
+    /**
+     * Simulates MySQL's `real_escape_string()` behavior.
+     *
+     * Unlike the real method, this simulation does not account for connection
+     * charset or collation. However, it closely approximates the escaping
+     * behavior for testing purposes.
+     *
+     * @param string $string
+     *   The input string to escape.
+     * @return string
+     *   A simulated escaped string.
+     */
+    public function EscapeString(string $string): string
+    {
+        return \strtr($string, [
+            "\\" => "\\\\",
+            "\0" => "\\0",
+            "\n" => "\\n",
+            "\r" => "\\r",
+            "\x1a" => "\\Z",
+            "'" => "\\'",
+            '"' => "\\\"",
+        ]);
+    }
+
     #endregion Database Overrides
 
     #endregion public
