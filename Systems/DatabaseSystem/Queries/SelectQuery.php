@@ -48,6 +48,8 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  */
 class SelectQuery extends Query
 {
+    use IdentifierEscaper;
+
     private ?string $table = null;
     private string $columns = '*';
     private ?string $condition = null;
@@ -177,7 +179,7 @@ class SelectQuery extends Query
         }
         $clauses = [
             "SELECT {$this->columns}",
-            "FROM {$this->formatIdentifier($this->table)}"
+            "FROM `{$this->escapeIdentifier($this->table)}`"
         ];
         if ($this->condition !== null) {
             $clauses[] = "WHERE {$this->condition}";

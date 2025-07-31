@@ -33,6 +33,8 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  */
 class DeleteQuery extends Query
 {
+    use IdentifierEscaper;
+
     private ?string $table = null;
     private ?string $condition = null;
 
@@ -93,7 +95,7 @@ class DeleteQuery extends Query
                 'Condition must be provided.');
         }
         $clauses = [
-            "DELETE FROM {$this->formatIdentifier($this->table)}",
+            "DELETE FROM `{$this->escapeIdentifier($this->table)}`",
             "WHERE {$this->condition}"
         ];
         return \implode(' ', $clauses);

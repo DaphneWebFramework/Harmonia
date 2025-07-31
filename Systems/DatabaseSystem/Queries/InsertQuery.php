@@ -41,6 +41,8 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  */
 class InsertQuery extends Query
 {
+    use IdentifierEscaper;
+
     private ?string $table = null;
     private ?string $columns = null;
     private ?string $values = null;
@@ -121,7 +123,7 @@ class InsertQuery extends Query
                 'Values must be provided.');
         }
         $clauses = [
-            "INSERT INTO {$this->formatIdentifier($this->table)}"
+            "INSERT INTO `{$this->escapeIdentifier($this->table)}`"
         ];
         if ($this->columns !== null) {
             $clauses[] = "({$this->columns})";

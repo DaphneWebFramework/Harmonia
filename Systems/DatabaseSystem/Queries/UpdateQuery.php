@@ -41,6 +41,8 @@ namespace Harmonia\Systems\DatabaseSystem\Queries;
  */
 class UpdateQuery extends Query
 {
+    use IdentifierEscaper;
+
     private ?string $table = null;
     private ?array $columns = null;
     private ?array $values = null;
@@ -147,7 +149,7 @@ class UpdateQuery extends Query
                 'Number of columns must match number of values.');
         }
         $clauses = [
-            "UPDATE {$this->formatIdentifier($this->table)}",
+            "UPDATE `{$this->escapeIdentifier($this->table)}`",
             "SET " . \implode(', ', \array_map(
                 function($column, $value) { return "{$column} = {$value}"; },
                 $this->columns,
