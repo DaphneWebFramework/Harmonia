@@ -58,13 +58,15 @@ class CPath extends CString
      * If the path does not already start with a slash, one is inserted at the
      * beginning.
      *
+     * @return self
+     *   If the instance already starts with a slash.
      * @return static
-     *   A new instance that starts with a slash.
+     *   If a slash is prepended, a new instance that starts with a slash.
      */
     public function EnsureLeadingSlash(): static
     {
         if (self::isSlash($this->First())) {
-            return clone $this;
+            return $this;
         }
         return $this->Prepend(\DIRECTORY_SEPARATOR);
     }
@@ -75,13 +77,15 @@ class CPath extends CString
      * If the path does not already end with a slash, one is appended at the
      * end.
      *
+     * @return self
+     *   If the instance already ends with a slash.
      * @return static
-     *   A new instance that ends with a slash.
+     *   If a slash is appended, a new instance that ends with a slash.
      */
     public function EnsureTrailingSlash(): static
     {
         if (self::isSlash($this->Last())) {
-            return clone $this;
+            return $this;
         }
         return $this->Append(\DIRECTORY_SEPARATOR);
     }
@@ -92,11 +96,17 @@ class CPath extends CString
      * The slashes include both forward slashes and backslashes depending on
      * the operating system.
      *
+     * @return self
+     *   If the instance has no leading slashes.
      * @return static
-     *   A new instance without slashes at the start.
+     *   If leading slashes are removed, a new instance without slashes
+     *   at the start.
      */
     public function TrimLeadingSlashes(): static
     {
+        if (!self::isSlash($this->First())) {
+            return $this;
+        }
         return $this->TrimLeft(self::getSlashes());
     }
 
@@ -106,11 +116,17 @@ class CPath extends CString
      * The slashes include both forward slashes and backslashes depending on
      * the operating system.
      *
+     * @return self
+     *   If the instance has no trailing slashes.
      * @return static
-     *   A new instance without slashes at the end.
+     *   If trailing slashes are removed, a new instance without slashes
+     *   at the end.
      */
     public function TrimTrailingSlashes(): static
     {
+        if (!self::isSlash($this->Last())) {
+            return $this;
+        }
         return $this->TrimRight(self::getSlashes());
     }
 
@@ -137,7 +153,7 @@ class CPath extends CString
      * operating system.
      *
      * This function checks if the given character matches a forward slash on
-     * Linux or either a forward slash or backslash on Windows.
+     * Linux, or either a forward slash or backslash on Windows.
      *
      * @param string $char
      *   The character to check.

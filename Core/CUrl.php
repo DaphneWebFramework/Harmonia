@@ -58,13 +58,15 @@ class CUrl extends CString
      * If the URL does not already start with a slash, one is inserted at the
      * beginning.
      *
+     * @return self
+     *   If the instance already starts with a slash.
      * @return static
-     *   A new instance that starts with a slash.
+     *   If a slash is prepended, a new instance that starts with a slash.
      */
     public function EnsureLeadingSlash(): static
     {
         if ($this->First() === '/') {
-            return clone $this;
+            return $this;
         }
         return $this->Prepend('/');
     }
@@ -75,13 +77,15 @@ class CUrl extends CString
      * If the URL does not already end with a slash, one is appended at the
      * end.
      *
+     * @return self
+     *   If the instance already ends with a slash.
      * @return static
-     *   A new instance that ends with a slash.
+     *   If a slash is appended, a new instance that ends with a slash.
      */
     public function EnsureTrailingSlash(): static
     {
         if ($this->Last() === '/') {
-            return clone $this;
+            return $this;
         }
         return $this->Append('/');
     }
@@ -89,22 +93,34 @@ class CUrl extends CString
     /**
      * Removes slashes from the start of the URL.
      *
+     * @return self
+     *   If the instance has no leading slashes.
      * @return static
-     *   A new instance without slashes at the start.
+     *   If leading slashes are removed, a new instance without slashes
+     *   at the start.
      */
     public function TrimLeadingSlashes(): static
     {
+        if ($this->First() !== '/') {
+            return $this;
+        }
         return $this->TrimLeft('/');
     }
 
     /**
      * Removes slashes from the end of the URL.
      *
+     * @return self
+     *   If the instance has no trailing slashes.
      * @return static
-     *   A new instance without slashes at the end.
+     *   If trailing slashes are removed, a new instance without slashes
+     *   at the end.
      */
     public function TrimTrailingSlashes(): static
     {
+        if ($this->Last() !== '/') {
+            return $this;
+        }
         return $this->TrimRight('/');
     }
 
