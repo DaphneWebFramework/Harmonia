@@ -21,6 +21,19 @@ namespace Harmonia\Systems\ValidationSystem;
 class NativeFunctions
 {
     /**
+     * Determines if the given value is of integer type.
+     *
+     * @param mixed $value
+     *   The value to check for integer type.
+     * @return bool
+     *   Returns `true` if the value is an integer, `false` otherwise.
+     */
+    public function IsInteger(mixed $value): bool
+    {
+        return \is_int($value);
+    }
+
+    /**
      * Determines if the given value is of a numeric type.
      *
      * @param mixed $value

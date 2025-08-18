@@ -20,21 +20,35 @@ use \Harmonia\Systems\ValidationSystem\Messages;
 class IntegerRule extends Rule
 {
     /**
-     * Validates that the field contains an integer-like value.
+     * Validates that the field contains an integer or an integer-like string.
      *
      * @param string|int $field
      *   The field name or index to validate.
      * @param mixed $value
      *   The value of the field to validate.
      * @param mixed $param
-     *   Unused in this rule.
+     *   Optional parameter to specify validation mode. If set to 'strict', the
+     *   value must be an integer. If omitted, both integers and integer-like
+     *   strings are accepted.
      * @throws \RuntimeException
-     *   If the value is not an integer or an integer-like string.
+     *   If the parameter is 'strict' and the value is not an integer; or if no
+     *   parameter is given and the value is not an integer or an integer-like
+     *   string; or if an invalid parameter is given.
      */
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
-        if ($this->nativeFunctions->IsIntegerLike($value)) {
-            return;
+        if ($param === 'strict') {
+            if ($this->nativeFunctions->IsInteger($value)) {
+                return;
+            }
+        } else if ($param === null) {
+            if ($this->nativeFunctions->IsIntegerLike($value)) {
+                return;
+            }
+        } else {
+            throw new \RuntimeException(Messages::Instance()->Get(
+                'integer_requires_strict_or_no_param'
+            ));
         }
         throw new \RuntimeException(Messages::Instance()->Get(
             'field_must_be_an_integer',

@@ -75,6 +75,10 @@
     "en": "Field '%s' must match the required pattern: %s",
     "tr": "Alan '%s' gereken desene uymalıdır: %s"
   },
+  "integer_requires_strict_or_no_param": {
+    "en": "Rule 'integer' must be used with either 'strict' or no parameter.",
+    "tr": "Kural 'integer' ya 'strict' ya da boş parametre ile kullanılmalıdır."
+  },
   "max_requires_number": {
     "en": "Rule 'max' must be used with a number.",
     "tr": "Kural 'max' bir sayı ile kullanılmalıdır."
