@@ -26,8 +26,30 @@ class CUrl extends CString
      *   A list of URL segments to join.
      * @return static
      *   A new instance representing the joined URL.
+     *
+     * @see ExtendInPlace
+     * @see Extend
      */
     public static function Join(string|\Stringable ...$segments): static
+    {
+        $joined = new static();
+        return $joined->ExtendInPlace(...$segments);
+    }
+
+    /**
+     * Appends one or more segments to the current URL.
+     *
+     * This version of the method directly modifies the current instance.
+     *
+     * @param string|\Stringable ...$segments
+     *   One or more URL segments to append.
+     * @return self
+     *   The current instance.
+     *
+     * @see ExtendInPlace
+     * @see Join
+     */
+    public function ExtendInPlace(string|\Stringable ...$segments): self
     {
         $filtered = [];
         foreach ($segments as $segment) {
@@ -38,8 +60,14 @@ class CUrl extends CString
                 $filtered[] = $segment;
             }
         }
-        $joined = new static();
-        $lastIndex = \count($filtered) - 1;
+        $segmentCount = \count($filtered);
+        if ($segmentCount === 0) {
+            return $this;
+        }
+        if (!$this->IsEmpty() && $this->Last() !== '/') {
+            $this->AppendInPlace('/');
+        }
+        $lastIndex = $segmentCount - 1;
         foreach ($filtered as $index => $segment) {
             if ($index > 0) {
                 $segment = $segment->TrimLeadingSlashes();
@@ -47,9 +75,26 @@ class CUrl extends CString
             if ($index < $lastIndex) {
                 $segment = $segment->EnsureTrailingSlash();
             }
-            $joined->AppendInPlace($segment);
+            $this->AppendInPlace($segment);
         }
-        return $joined;
+        return $this;
+    }
+
+    /**
+     * Appends one or more segments to the current URL.
+     *
+     * @param string|\Stringable ...$segments
+     *   One or more URL segments to append.
+     * @return static
+     *   A new instance with the segments appended.
+     *
+     * @see ExtendInPlace
+     * @see Join
+     */
+    public function Extend(string|\Stringable ...$segments): static
+    {
+        $clone = clone $this;
+        return $clone->ExtendInPlace(...$segments);
     }
 
     /**
@@ -59,7 +104,7 @@ class CUrl extends CString
      * beginning.
      *
      * @return self
-     *   If the instance already starts with a slash.
+     *   The current instance if the instance already starts with a slash.
      * @return static
      *   If a slash is prepended, a new instance that starts with a slash.
      */
@@ -78,7 +123,7 @@ class CUrl extends CString
      * end.
      *
      * @return self
-     *   If the instance already ends with a slash.
+     *   The current instance if the instance already ends with a slash.
      * @return static
      *   If a slash is appended, a new instance that ends with a slash.
      */
@@ -94,7 +139,7 @@ class CUrl extends CString
      * Removes slashes from the start of the URL.
      *
      * @return self
-     *   If the instance has no leading slashes.
+     *   The current instance if the instance has no leading slashes.
      * @return static
      *   If leading slashes are removed, a new instance without slashes
      *   at the start.
@@ -111,7 +156,7 @@ class CUrl extends CString
      * Removes slashes from the end of the URL.
      *
      * @return self
-     *   If the instance has no trailing slashes.
+     *   The current instance if the instance has no trailing slashes.
      * @return static
      *   If trailing slashes are removed, a new instance without slashes
      *   at the end.
