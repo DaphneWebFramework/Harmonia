@@ -13,7 +13,7 @@
 namespace Harmonia\Systems\DatabaseSystem\Queries;
 
 /**
- * Provides a static utility method for escaping SQL identifiers.
+ * Provides a utility method for escaping SQL identifiers.
  */
 trait IdentifierEscaper
 {
