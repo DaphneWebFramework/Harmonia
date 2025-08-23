@@ -24,21 +24,21 @@ class CUrl extends CString
      *
      * @param string|\Stringable ...$segments
      *   A list of URL segments to join.
-     * @return CUrl
-     *   A new `CUrl` instance representing the joined URL.
+     * @return static
+     *   A new instance representing the joined URL.
      */
-    public static function Join(string|\Stringable ...$segments): CUrl
+    public static function Join(string|\Stringable ...$segments): static
     {
         $filtered = [];
         foreach ($segments as $segment) {
-            if (!$segment instanceof CUrl) {
-                $segment = new CUrl($segment);
+            if (!$segment instanceof static) {
+                $segment = new static($segment);
             }
             if (!$segment->Trim('/')->IsEmpty()) {
                 $filtered[] = $segment;
             }
         }
-        $joined = new CUrl();
+        $joined = new static();
         $lastIndex = \count($filtered) - 1;
         foreach ($filtered as $index => $segment) {
             if ($index > 0) {

@@ -24,21 +24,21 @@ class CPath extends CString
      *
      * @param string|\Stringable ...$segments
      *   A list of path segments to join.
-     * @return CPath
-     *   A new `CPath` instance representing the joined path.
+     * @return static
+     *   A new instance representing the joined path.
      */
-    public static function Join(string|\Stringable ...$segments): CPath
+    public static function Join(string|\Stringable ...$segments): static
     {
         $filtered = [];
         foreach ($segments as $segment) {
-            if (!$segment instanceof CPath) {
-                $segment = new CPath($segment);
+            if (!$segment instanceof static) {
+                $segment = new static($segment);
             }
             if (!$segment->Trim(self::getSlashes())->IsEmpty()) {
                 $filtered[] = $segment;
             }
         }
-        $joined = new CPath();
+        $joined = new static();
         $lastIndex = \count($filtered) - 1;
         foreach ($filtered as $index => $segment) {
             if ($index > 0) {
