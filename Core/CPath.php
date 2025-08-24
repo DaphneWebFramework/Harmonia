@@ -27,30 +27,11 @@ class CPath extends CString
      * @return static
      *   A new instance representing the joined path.
      *
-     * @see ExtendInPlace
      * @see Extend
      */
     public static function Join(string|\Stringable ...$segments): static
     {
         $joined = new static();
-        return $joined->ExtendInPlace(...$segments);
-    }
-
-    /**
-     * Appends one or more segments to the current path.
-     *
-     * This version of the method directly modifies the current instance.
-     *
-     * @param string|\Stringable ...$segments
-     *   One or more path segments to append.
-     * @return self
-     *   The current instance.
-     *
-     * @see ExtendInPlace
-     * @see Join
-     */
-    public function ExtendInPlace(string|\Stringable ...$segments): self
-    {
         $filtered = [];
         $slashes = self::getSlashes();
         foreach ($segments as $segment) {
@@ -61,14 +42,7 @@ class CPath extends CString
                 $filtered[] = $segment;
             }
         }
-        $segmentCount = \count($filtered);
-        if ($segmentCount === 0) {
-            return $this;
-        }
-        if (!$this->IsEmpty() && !self::isSlash($this->Last())) {
-            $this->AppendInPlace(\DIRECTORY_SEPARATOR);
-        }
-        $lastIndex = $segmentCount - 1;
+        $lastIndex = \count($filtered) - 1;
         foreach ($filtered as $index => $segment) {
             if ($index > 0) {
                 $segment = $segment->TrimLeadingSlashes();
@@ -76,9 +50,9 @@ class CPath extends CString
             if ($index < $lastIndex) {
                 $segment = $segment->EnsureTrailingSlash();
             }
-            $this->AppendInPlace($segment);
+            $joined->AppendInPlace($segment);
         }
-        return $this;
+        return $joined;
     }
 
     /**
@@ -89,13 +63,11 @@ class CPath extends CString
      * @return static
      *   A new instance with the segments appended.
      *
-     * @see ExtendInPlace
      * @see Join
      */
     public function Extend(string|\Stringable ...$segments): static
     {
-        $clone = clone $this;
-        return $clone->ExtendInPlace(...$segments);
+        return static::Join($this, ...$segments);
     }
 
     /**
