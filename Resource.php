@@ -84,11 +84,10 @@ class Resource extends Singleton
             $appPath = new CPath($appPath);
         }
         try {
-            $appPath->ApplyInPlace('\realpath');
+            $this->appPath = $appPath->Apply('\realpath');
         } catch (\UnexpectedValueException $e) {
             throw new \RuntimeException('Failed to resolve application path.');
         }
-        $this->appPath = $appPath;
     }
 
     /**
