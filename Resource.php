@@ -158,7 +158,7 @@ class Resource extends Singleton
             // resolves to the application path.
             $serverDirectoryContainsLinkToAppPath = false;
             if (\PHP_OS_FAMILY !== 'Windows') {
-                $linkPath = CPath::Join($serverPath, $appPath->Apply('\basename'));
+                $linkPath = $serverPath->Extend($appPath->Apply('\basename'));
                 if ($linkPath->Call('\is_link')) {
                     $targetPath = $linkPath->Call('\readlink');
                     if ($targetPath !== false) {
@@ -212,7 +212,8 @@ class Resource extends Singleton
         if ($serverUrl === null) {
             throw new \RuntimeException('Server URL not available.');
         }
-        $result = CUrl::Join($serverUrl, $this->AppRelativePath())
+        $result = $serverUrl
+            ->Extend($this->AppRelativePath())
             ->EnsureTrailingSlash();
         $this->cache->Set(__FUNCTION__, $result);
         return $result;
@@ -232,7 +233,7 @@ class Resource extends Singleton
         if ($this->cache->Has($cacheKey)) {
             return $this->cache->Get($cacheKey);
         }
-        $result = CPath::Join($this->AppPath(), $subdirectory);
+        $result = $this->AppPath()->Extend($subdirectory);
         $this->cache->Set($cacheKey, $result);
         return $result;
     }
@@ -251,9 +252,9 @@ class Resource extends Singleton
         if ($this->cache->Has($cacheKey)) {
             return $this->cache->Get($cacheKey);
         }
-        $url = CUrl::Join($this->AppUrl(), $subdirectory);
-        $this->cache->Set($cacheKey, $url);
-        return $url;
+        $result = $this->AppUrl()->Extend($subdirectory);
+        $this->cache->Set($cacheKey, $result);
+        return $result;
     }
 
     #endregion public

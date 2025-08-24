@@ -190,7 +190,7 @@ class Logger extends Singleton
         if ($this->isAbsolutePath($filename)) {
             return new CPath($filename);
         }
-        return CPath::Join(Resource::Instance()->AppPath(), $filename);
+        return Resource::Instance()->AppPath()->Extend($filename);
     }
 
     /**
