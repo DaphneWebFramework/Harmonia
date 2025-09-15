@@ -42,9 +42,7 @@ abstract class RuleParser
             $ruleParam = null;
         }
         if ($ruleName === '') {
-            throw new \InvalidArgumentException(Messages::Instance()->Get(
-                'rule_must_be_non_empty'
-            ));
+            throw new \InvalidArgumentException("Rule must be a non-empty string.");
         }
         return [\strtolower($ruleName), $ruleParam];
     }

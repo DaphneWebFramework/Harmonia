@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field's value corresponds to a valid case of the
  * specified enum class.
@@ -39,17 +37,13 @@ class EnumRule extends Rule
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
         if (!$this->nativeFunctions->IsString($param)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'enum_requires_class_name'
-            ));
+            throw new \RuntimeException(
+                "Rule 'enum' must be used with a valid enum class name.");
         }
         if ($this->nativeFunctions->IsEnumValue($value, $param)) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_be_a_valid_enum_value',
-            $field,
-            $param
-        ));
+        throw new \RuntimeException(
+            "Field '{$field}' must be a valid value of enum '{$param}'.");
     }
 }

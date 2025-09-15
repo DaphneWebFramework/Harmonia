@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field satisfies a specified minimum length.
  */
@@ -39,23 +37,16 @@ class MinlengthRule extends Rule
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
         if (!$this->nativeFunctions->IsString($value)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'field_must_be_a_string',
-                $field
-            ));
+            throw new \RuntimeException("Field '{$field}' must be a string.");
         }
         if (!$this->nativeFunctions->IsIntegerLike($param)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'minlength_requires_integer'
-            ));
+            throw new \RuntimeException(
+                "Rule 'minLength' must be used with an integer.");
         }
         if (\strlen($value) >= (int)$param) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_min_length',
-            $field,
-            $param
-        ));
+        throw new \RuntimeException(
+            "Field '{$field}' must have a minimum length of {$param} characters.");
     }
 }

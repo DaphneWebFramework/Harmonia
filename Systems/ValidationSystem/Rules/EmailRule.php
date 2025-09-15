@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field contains a valid email address.
  */
@@ -36,9 +34,6 @@ class EmailRule extends Rule
         if ($this->nativeFunctions->IsEmailAddress($value)) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_be_a_valid_email_address',
-            $field
-        ));
+        throw new \RuntimeException("Field '{$field}' must be a valid email address.");
     }
 }

@@ -12,7 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\MetaRules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
 use \Harmonia\Systems\ValidationSystem\RuleFactory;
 
 /**
@@ -84,10 +83,7 @@ class StandardMetaRule implements IMetaRule
     {
         $ruleObject = RuleFactory::Create($this->name);
         if ($ruleObject === null) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'unknown_rule',
-                $this->name
-            ));
+            throw new \RuntimeException("Unknown rule '{$this->name}'.");
         }
         $ruleObject->Validate($field, $value, $this->param);
     }

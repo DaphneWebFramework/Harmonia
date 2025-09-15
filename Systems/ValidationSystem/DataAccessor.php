@@ -95,10 +95,7 @@ class DataAccessor
     public function GetField(string|int $field): mixed
     {
         if (!$this->HasField($field)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'field_does_not_exist',
-                $field
-            ));
+            throw new \RuntimeException("Field '{$field}' does not exist.");
         }
         if (self::isDottedField($field)) {
             $carry = $this->data;

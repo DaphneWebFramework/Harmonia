@@ -12,7 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Requirements;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
 use \Harmonia\Systems\ValidationSystem\MetaRules\IMetaRule;
 
 /**
@@ -99,9 +98,8 @@ class FieldRequirementConstraints
             case self::RULE_REQUIRED_WITHOUT:
                 $param = $metaRule->GetParam();
                 if ($param === null) {
-                    throw new \InvalidArgumentException(Messages::Instance()->Get(
-                        'requiredwithout_requires_field_name'
-                    ));
+                    throw new \InvalidArgumentException(
+                        "Rule 'requiredWithout' must be used with a field name.");
                 }
                 $requiredWithoutFields[] = $param;
                 break;

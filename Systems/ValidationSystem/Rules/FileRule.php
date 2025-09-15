@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field contains an uploaded file.
  */
@@ -37,10 +35,7 @@ class FileRule extends Rule
             return;
         }
         $this->checkUploadError($value);
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_be_a_file',
-            $field
-        ));
+        throw new \RuntimeException("Field '{$field}' must be a file.");
     }
 
     private function checkUploadError(mixed $value): void

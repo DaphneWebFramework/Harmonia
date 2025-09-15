@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field matches a specified regex pattern.
  */
@@ -35,23 +33,16 @@ class RegexRule extends Rule
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
         if (!$this->nativeFunctions->IsString($value)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'field_must_be_a_string',
-                $field
-            ));
+            throw new \RuntimeException("Field '{$field}' must be a string.");
         }
         if (!$this->nativeFunctions->IsString($param)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'regex_requires_pattern'
-            ));
+            throw new \RuntimeException(
+                "Rule 'regex' must be used with a valid pattern.");
         }
         if ($this->nativeFunctions->MatchRegex($value, $param)) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_match_pattern',
-            $field,
-            $param
-        ));
+        throw new \RuntimeException(
+            "Field '{$field}' must match the required pattern: {$param}");
     }
 }

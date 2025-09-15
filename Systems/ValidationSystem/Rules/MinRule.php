@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field satisfies a specified minimum value.
  */
@@ -39,23 +37,15 @@ class MinRule extends Rule
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
         if (!$this->nativeFunctions->IsNumeric($value)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'field_must_be_numeric',
-                $field
-            ));
+            throw new \RuntimeException("Field '{$field}' must be numeric.");
         }
         if (!$this->nativeFunctions->IsNumeric($param)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'min_requires_number'
-            ));
+            throw new \RuntimeException("Rule 'min' must be used with a number.");
         }
         if ($value >= $param) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_min_value',
-            $field,
-            $param
-        ));
+        throw new \RuntimeException(
+            "Field '{$field}' must have a minimum value of {$param}.");
     }
 }

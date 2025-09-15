@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\MetaRules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Provides functionality for user-defined validation rules represented as
  * closures.
@@ -78,9 +76,6 @@ class CustomMetaRule implements IMetaRule
         if (false !== ($this->closure)($value)) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_failed_custom_validation',
-            $field
-        ));
+        throw new \RuntimeException("Field '{$field}' failed custom validation.");
     }
 }

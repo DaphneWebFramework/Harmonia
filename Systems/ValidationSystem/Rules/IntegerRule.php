@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field contains an integer or an integer-like
  * string.
@@ -51,13 +49,9 @@ class IntegerRule extends Rule
                 return;
             }
         } else {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'integer_requires_strict_or_no_param'
-            ));
+            throw new \RuntimeException(
+                "Rule 'integer' must be used with either 'strict' or no parameter.");
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_be_an_integer',
-            $field
-        ));
+        throw new \RuntimeException("Field '{$field}' must be an integer.");
     }
 }

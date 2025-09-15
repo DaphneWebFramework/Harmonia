@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field is an array.
  */
@@ -36,9 +34,6 @@ class ArrayRule extends Rule
         if ($this->nativeFunctions->IsArray($value)) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_must_be_an_array',
-            $field
-        ));
+        throw new \RuntimeException("Field '{$field}' must be an array.");
     }
 }

@@ -12,8 +12,6 @@
 
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
-use \Harmonia\Systems\ValidationSystem\Messages;
-
 /**
  * Validates whether a given field satisfies a specified maximum length.
  */
@@ -39,23 +37,16 @@ class MaxlengthRule extends Rule
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
         if (!$this->nativeFunctions->IsString($value)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'field_must_be_a_string',
-                $field
-            ));
+            throw new \RuntimeException("Field '{$field}' must be a string.");
         }
         if (!$this->nativeFunctions->IsIntegerLike($param)) {
-            throw new \RuntimeException(Messages::Instance()->Get(
-                'maxlength_requires_integer'
-            ));
+            throw new \RuntimeException(
+                "Rule 'maxLength' must be used with an integer.");
         }
         if (\strlen($value) <= (int)$param) {
             return;
         }
-        throw new \RuntimeException(Messages::Instance()->Get(
-            'field_max_length',
-            $field,
-            $param
-        ));
+        throw new \RuntimeException(
+            "Field '{$field}' must have a maximum length of {$param} characters.");
     }
 }
