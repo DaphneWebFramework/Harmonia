@@ -30,11 +30,6 @@ class CookieService extends Singleton
     private const DEFAULT_APP_NAME = 'Harmonia';
 
     /**
-     * The suffix used for the CSRF cookie name.
-     */
-    private const CSRF_COOKIE_NAME_SUFFIX = 'CSRF';
-
-    /**
      * The cookie options.
      */
     private readonly array $options;
@@ -67,16 +62,28 @@ class CookieService extends Singleton
      *   The cookie name.
      * @param string $value
      *   The cookie value. If empty, the cookie is deleted.
+     * @param ?int $expires
+     *   (Optional) The cookie's expiration time, in seconds since the Unix
+     *   epoch. If not specified, the cookie will expire at the end of the
+     *   browser session.
      * @throws \RuntimeException
      *   If the HTTP headers have already been sent or if the cookie could not
      *   be set for any other reason.
      */
-    public function SetCookie(string $name, string $value): void
+    public function SetCookie(
+        string $name,
+        string $value,
+        ?int $expires = null
+    ): void
     {
         if ($this->_headers_sent()) {
             throw new \RuntimeException('HTTP headers have already been sent.');
         }
-        if (!$this->_setcookie($name, $value, $this->options)) {
+        $options = $this->options; // copy-on-write
+        if ($expires !== null) {
+            $options['expires'] = $expires;
+        }
+        if (!$this->_setcookie($name, $value, $options)) {
             throw new \RuntimeException('Failed to set or delete cookie.');
         }
     }
@@ -163,7 +170,7 @@ class CookieService extends Singleton
      */
     public function CsrfCookieName(): string
     {
-        return $this->AppSpecificCookieName(self::CSRF_COOKIE_NAME_SUFFIX);
+        return $this->AppSpecificCookieName('CSRF');
     }
 
     #endregion CSRF
