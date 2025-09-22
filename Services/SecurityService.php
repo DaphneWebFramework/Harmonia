@@ -24,12 +24,6 @@ class SecurityService extends Singleton
     #region public -------------------------------------------------------------
 
     /**
-     * Regular expression pattern that matches 64-character lowercase
-     * hexadecimal tokens.
-     */
-    public const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
-
-    /**
      * Regular expression pattern that matches bcrypt password hashes.
      */
     public const PASSWORD_HASH_PATTERN = '/^\$2[aby]?\$\d{1,2}\$[.\/A-Za-z0-9]{53}$/';
@@ -86,14 +80,35 @@ class SecurityService extends Singleton
     }
 
     /**
-     * Generates a cryptographically secure random token.
+     * Generates a cryptographically secure random token of a given byte length.
      *
+     * @param int $byteLength
+     *   (Optional) The number of bytes to generate. Defaults to 32.
      * @return string
-     *   A 64-character hexadecimal token.
+     *   A hexadecimal string representing the random bytes. Since each byte is
+     *   encoded as two hexadecimal characters, the resulting string length is
+     *   exactly twice the specified byte length.
      */
-    public function GenerateToken(): string
+    public function GenerateToken(int $byteLength = 32): string
     {
-        return \bin2hex(\random_bytes(32));
+        return \bin2hex(\random_bytes($byteLength));
+    }
+
+    /**
+     * Returns a regular expression pattern for validating tokens of a given
+     * byte length.
+     *
+     * @param int $byteLength
+     *   (Optional) The number of bytes to validate. Defaults to 32.
+     * @return string
+     *   A regular expression that matches hexadecimal strings of the appropriate
+     *   length. Because each byte corresponds to two hexadecimal characters,
+     *   the pattern enforces a string length of twice the specified byte length.
+     */
+    public static function TokenPattern(int $byteLength = 32): string
+    {
+        $hexLength = $byteLength * 2;
+        return "/^[a-f0-9]{{$hexLength}}$/";
     }
 
     /**
