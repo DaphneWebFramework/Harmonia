@@ -21,7 +21,7 @@ class CsrfToken
     private readonly string $cookieValue;
 
     /**
-     * Creates a new instance.
+     * Constructs a new instance.
      *
      * @param string $token
      *   The token value.

@@ -105,7 +105,7 @@ class SecurityService extends Singleton
      *   length. Because each byte corresponds to two hexadecimal characters,
      *   the pattern enforces a string length of twice the specified byte length.
      */
-    public static function TokenPattern(int $byteLength = 32): string
+    public function TokenPattern(int $byteLength = 32): string
     {
         $hexLength = $byteLength * 2;
         return "/^[a-f0-9]{{$hexLength}}$/";
