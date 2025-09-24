@@ -77,7 +77,9 @@ class Session extends Singleton
             'httponly' => true,
             // Prevents the session cookie from being sent with cross-site
             // requests, mitigating cross-site request forgery (CSRF) attacks.
-            'samesite' => 'Strict'
+            // FIX: Changed from 'Strict' to 'Lax' to avoid Safari/iOS not
+            // sending cookies on the first top-level navigation into the site.
+            'samesite' => 'Lax'
         ]);
 
         // Set the session name to a unique value for the application.

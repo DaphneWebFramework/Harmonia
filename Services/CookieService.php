@@ -47,7 +47,9 @@ class CookieService extends Singleton
             'domain'   => '',
             'secure'   => Server::Instance()->IsSecure(),
             'httponly' => true,
-            'samesite' => 'Strict'
+            // FIX: Changed from 'Strict' to 'Lax' to avoid Safari/iOS not
+            // sending cookies on the first top-level navigation into the site.
+            'samesite' => 'Lax'
         ];
     }
 
