@@ -14,13 +14,18 @@ namespace Harmonia\Services;
 
 use \Harmonia\Patterns\Singleton;
 
-use \Harmonia\Services\Security\CsrfToken;
+use \Harmonia\Config;
 
 /**
  * Provides security-related utilities.
  */
 class SecurityService extends Singleton
 {
+    /**
+     * The minimum length of the CSRF secret string.
+     */
+    private const CSRF_SECRET_MIN_LENGTH = 32;
+
     #region public -------------------------------------------------------------
 
     /**
@@ -108,78 +113,81 @@ class SecurityService extends Singleton
     public function TokenPattern(int $byteLength = 32): string
     {
         $hexLength = $byteLength * 2;
-        return "/^[a-f0-9]{{$hexLength}}$/";
+        return "/^[A-Fa-f0-9]{{$hexLength}}$/";
     }
 
     /**
-     * Generates a CSRF token and its hashed cookie value.
+     * Creates a token and its corresponding cookie value.
      *
-     * @return CsrfToken
-     *   A `CsrfToken` instance containing the token and its obfuscated hash.
+     * Returns a token (to be included in forms or request headers) and a
+     * matching value for storing in a cookie. Together, these values can
+     * later be verified to help mitigate cross‑site request forgery (CSRF)
+     * attacks by ensuring the request originated from the same client.
+     *
+     * @return array{0: string, 1: string}
+     *   A two-element array containing the generated token and its
+     *   corresponding cookie value.
+     *
+     * @see VerifyCsrfPair
      */
-    public function GenerateCsrfToken(): CsrfToken
+    public function GenerateCsrfPair(): array
     {
         $token = $this->GenerateToken();
-        $cookieValue = $this->obfuscate(
-            $this->HashPassword($token)
-        );
-        return new CsrfToken($token, $cookieValue);
+        $cookieValue = \hash_hmac('sha256', $token, $this->csrfSecret());
+        return [$token, $cookieValue];
     }
 
     /**
-     * Verifies whether a CSRF token matches its expected hash.
+     * Verifies a token against its corresponding cookie value.
      *
-     * @param CsrfToken $csrfToken
-     *   The CSRF token instance to verify.
+     * Compares the provided token with the value stored in the cookie. If
+     * they match, the request is considered authentic. This check is used
+     * to mitigate cross‑site request forgery (CSRF) attacks by validating
+     * that the request was issued by the same client that received the token.
+     *
+     * @param string $token
+     *   The token received from the client (e.g., from a form field or
+     *   request header).
+     * @param string $cookieValue
+     *   The value retrieved from the cookie.
      * @return bool
-     *   Returns `true` if the token is valid, otherwise `false`.
+     *   Returns `true` if the token matches the cookie value, otherwise `false`.
+     *
+     * @see GenerateCsrfPair
      */
-    public function VerifyCsrfToken(CsrfToken $csrfToken): bool
+    public function VerifyCsrfPair(string $token, string $cookieValue): bool
     {
-        return $this->VerifyPassword(
-            $csrfToken->Token(),
-            $this->deobfuscate(
-                $csrfToken->CookieValue()
-            )
-        );
+        $expected = \hash_hmac('sha256', $token, $this->csrfSecret());
+        return \hash_equals($expected, $cookieValue);
     }
 
     #endregion public
 
-    #region private ------------------------------------------------------------
+    #region protected ----------------------------------------------------------
 
     /**
-     * Obfuscates a string to prevent direct comparison attacks.
+     * Retrieves the CSRF secret used for HMAC-based token generation.
      *
-     * @param string $data
-     *   The string to obfuscate.
+     * The secret is loaded from the application configuration and must be a
+     * cryptographically random string of at least `CSRF_SECRET_MIN_LENGTH`
+     * characters.
+     *
      * @return string
-     *   The obfuscated string.
+     *   The validated CSRF secret.
+     * @throws \RuntimeException
+     *   If the configuration value is missing, not a string, or too short.
      */
-    private function obfuscate(string $data): string
+    protected function csrfSecret(): string
     {
-        return \bin2hex(\strrev($data));
+        $csrfSecret = Config::Instance()->Option('CsrfSecret');
+        if (!\is_string($csrfSecret) ||
+            \strlen($csrfSecret) < self::CSRF_SECRET_MIN_LENGTH)
+        {
+            throw new \RuntimeException('CSRF secret must be a string of at '
+                . 'least ' . self::CSRF_SECRET_MIN_LENGTH . ' characters.');
+        }
+        return $csrfSecret;
     }
 
-    /**
-     * Reverses the obfuscation process on a string.
-     *
-     * @param string $data
-     *   The obfuscated string.
-     * @return string
-     *   The original string if decoding succeeds, otherwise an empty string.
-     */
-    private function deobfuscate(string $data): string
-    {
-        if (!\ctype_xdigit($data) || (\strlen($data) % 2 !== 0)) {
-            return '';
-        }
-        $decoded = \hex2bin($data);
-        if ($decoded === false) {
-            return '';
-        }
-        return \strrev($decoded);
-    }
-
-    #endregion private
+    #endregion protected
 }
