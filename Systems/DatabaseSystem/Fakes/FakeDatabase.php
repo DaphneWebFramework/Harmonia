@@ -223,17 +223,14 @@ class FakeDatabase extends Database
      * The callback is invoked immediately without starting a real transaction.
      *
      * @param callable $callback
-     *   The operation to simulate within a transaction block.
-     * @return mixed
-     *   The return value of the callback, or `false` if an exception was thrown.
+     *   The callback function to execute. It may throw an exception to signal
+     *   an error.
+     * @throws \Throwable
+     *   If the callback throws an exception.
      */
-    public function WithTransaction(callable $callback): mixed
+    public function WithTransaction(callable $callback): void
     {
-        try {
-            return $callback();
-        } catch (\Throwable) {
-            return false;
-        }
+        $callback();
     }
 
     /**

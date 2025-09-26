@@ -106,42 +106,36 @@ class Database extends Singleton
      * Executes a callable within a database transaction.
      *
      * This method initiates a transaction, executes the provided callback, and
-     * commits the transaction if no exception is thrown. The return value of
-     * the callback is then propagated as the result of the transaction. A
-     * callback returning any value (including `false`) is considered a valid
-     * outcome and will be returned after a successful commit. If an exception
-     * occurs during execution or commit, the transaction is rolled back and
-     * `false` is returned.
+     * commits the transaction if no exception is thrown.
      *
      * @param callable $callback
-     *   The callback function to execute within the transaction. It may return
-     *   any value representing a valid business logic outcome, or throw an
-     *   exception to signal an error.
-     * @return mixed
-     *   Returns the value from the callback if the transaction is committed
-     *   successfully. Returns `false` if the connection is unavailable or if an
-     *   exception occurs during the transaction.
+     *   The callback function to execute within the transaction. It may throw
+     *   an exception to signal an error.
+     * @throws \Throwable
+     *   If no database connection is available, if the callback throws an
+     *   exception, or if beginning, committing, or rolling back the transaction
+     *   fails.
      */
-    public function WithTransaction(callable $callback): mixed
+    public function WithTransaction(callable $callback): void
     {
         $connection = $this->connection();
         if ($connection === null) {
-            return false;
+            throw new \RuntimeException("No database connection available.");
         }
         try {
             $connection->BeginTransaction();
-            $result = $callback();
+            $callback();
             $connection->CommitTransaction();
-            return $result;
         } catch (\Throwable $e) {
-            Logger::Instance()->Error($e->getMessage());
             try {
                 $connection->RollbackTransaction();
-            } catch (\Throwable $e) {
-                Logger::Instance()->Error($e->getMessage());
+            } catch (\RuntimeException $e_) {
+                // If rollback fails, rethrow by keeping original as "previous".
+                throw new \RuntimeException($e_->getMessage(), $e_->getCode(), $e);
             }
+            // If rollback succeeds, rethrow original exception.
+            throw $e;
         }
-        return false;
     }
 
     /**
@@ -177,7 +171,7 @@ class Database extends Singleton
 
     #endregion public
 
-    #region private ------------------------------------------------------------
+    #region protected ----------------------------------------------------------
 
     /**
      * Lazily initializes and retrieves the database connection.
@@ -189,7 +183,7 @@ class Database extends Singleton
      * @return ?Connection
      *   The established database connection, or `null` if the connection fails.
      */
-    private function connection(): ?Connection
+    protected function connection(): ?Connection
     {
         if ($this->connection === null) {
             $config = Config::Instance();
@@ -217,15 +211,14 @@ class Database extends Singleton
         return $this->connection;
     }
 
-    #endregion private
-
-    #region protected ----------------------------------------------------------
-
-    /** @codeCoverageIgnore */
+    /**
+     * @throws \RuntimeException
+     * @codeCoverageIgnore
+     */
     protected function _new_Connection(string $host, string $username,
         string $password, ?string $charset): Connection
     {
-        return new Connection($host, $username, $password, $charset); // may throw
+        return new Connection($host, $username, $password, $charset);
     }
 
     #endregion protected
