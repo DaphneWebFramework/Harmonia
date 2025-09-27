@@ -57,6 +57,15 @@ class SecurityService extends Singleton
     public const PASSWORD_MAX_LENGTH = 72;
 
     /**
+     * Regular expression pattern that matches 64-character hexadecimal tokens.
+     *
+     * This constant provides a fixed reference for the standard token pattern.
+     * It is intended for use in validation rules and in tests, where calling
+     * `TokenPattern()` is not practical.
+     */
+    public const TOKEN_DEFAULT_PATTERN = '/^[0-9a-fA-F]{64}$/';
+
+    /**
      * Hashes a password using a secure hashing algorithm.
      *
      * @param string $password
@@ -96,6 +105,9 @@ class SecurityService extends Singleton
      */
     public function GenerateToken(int $byteLength = 32): string
     {
+        if ($byteLength < 1) {
+            throw new \InvalidArgumentException('Byte length must be at least 1.');
+        }
         return \bin2hex(\random_bytes($byteLength));
     }
 
@@ -112,8 +124,11 @@ class SecurityService extends Singleton
      */
     public function TokenPattern(int $byteLength = 32): string
     {
+        if ($byteLength < 1) {
+            throw new \InvalidArgumentException('Byte length must be at least 1.');
+        }
         $hexLength = $byteLength * 2;
-        return "/^[A-Fa-f0-9]{{$hexLength}}$/";
+        return "/^[0-9a-fA-F]{{$hexLength}}$/";
     }
 
     /**
