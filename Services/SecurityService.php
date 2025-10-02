@@ -22,39 +22,20 @@ use \Harmonia\Logger;
  */
 class SecurityService extends Singleton
 {
+    /**
+     * The required minimum length of the CSRF secret string.
+     */
     private const CSRF_SECRET_MIN_LENGTH = 32;
 
-    private readonly string $csrfSecret;
-
     /**
-     * Constructs a new instance by initializing the CSRF secret.
+     * Represents the secret used for CSRF token HMAC generation/validation.
      *
-     * The secret is read from the configuration and stored for use in
-     * HMAC-based token generation/validation. It must be a cryptographically
-     * secure random value of at least `CSRF_SECRET_MIN_LENGTH` characters.
+     * This property is lazy-initialized. Therefore, never use this property
+     * directly, use the `csrfSecret` method instead.
      *
-     * If the value is not a string or is empty, an error is logged and the
-     * secret is set to an empty string. If the value is shorter than the
-     * required minimum length, a warning is logged but the value is still
-     * accepted as-is. In these cases, CSRF protection may be effectively
-     * disabled, since tokens can be forged without a proper secret.
+     * @var ?string
      */
-    protected function __construct()
-    {
-        $csrfSecret = Config::Instance()->Option('CsrfSecret');
-        if (!\is_string($csrfSecret)) {
-            Logger::Instance()->Error('CSRF secret must be a string.');
-            $this->csrfSecret = '';
-        } else {
-            if ($csrfSecret === '') {
-                Logger::Instance()->Error('CSRF secret must not be empty.');
-            } else if (\strlen($csrfSecret) < self::CSRF_SECRET_MIN_LENGTH) {
-                Logger::Instance()->Warning('CSRF secret must be at least '
-                    . self::CSRF_SECRET_MIN_LENGTH . ' characters.');
-            }
-            $this->csrfSecret = $csrfSecret;
-        }
-    }
+    private ?string $csrfSecret = null;
 
     #region public -------------------------------------------------------------
 
@@ -178,7 +159,7 @@ class SecurityService extends Singleton
     public function GenerateCsrfPair(): array
     {
         $token = $this->GenerateToken();
-        $cookieValue = \hash_hmac('sha256', $token, $this->csrfSecret);
+        $cookieValue = \hash_hmac('sha256', $token, $this->csrfSecret());
         return [$token, $cookieValue];
     }
 
@@ -202,9 +183,51 @@ class SecurityService extends Singleton
      */
     public function VerifyCsrfPair(string $token, string $cookieValue): bool
     {
-        $expected = \hash_hmac('sha256', $token, $this->csrfSecret);
+        $expected = \hash_hmac('sha256', $token, $this->csrfSecret());
         return \hash_equals($expected, $cookieValue);
     }
 
     #endregion public
+
+    #region protected ----------------------------------------------------------
+
+    /**
+     * Retrieves the CSRF secret used for HMAC-based token generation/validation.
+     *
+     * The secret is read lazily from the configuration on first access and
+     * then cached for subsequent calls. It must be a cryptographically
+     * secure random value of at least `CSRF_SECRET_MIN_LENGTH` characters.
+     *
+     * If the value is not a string or is empty, an error is logged and the
+     * secret is set to an empty string. If the value is shorter than the
+     * required minimum length, a warning is logged but the value is still
+     * accepted as-is. In these cases, CSRF protection may be effectively
+     * disabled, since tokens can be forged without a proper secret.
+     *
+     * @return string
+     *   The CSRF secret, or an empty string if not set or set to a non-string
+     *   value.
+     */
+    protected function csrfSecret(): string
+    {
+        if ($this->csrfSecret !== null) {
+            return $this->csrfSecret;
+        }
+        $value = Config::Instance()->Option('CsrfSecret');
+        if (!\is_string($value)) {
+            Logger::Instance()->Error('CSRF secret must be a string.');
+            $this->csrfSecret = '';
+        } else {
+            if ($value === '') {
+                Logger::Instance()->Error('CSRF secret must not be empty.');
+            } else if (\strlen($value) < self::CSRF_SECRET_MIN_LENGTH) {
+                Logger::Instance()->Warning('CSRF secret must be at least '
+                    . self::CSRF_SECRET_MIN_LENGTH . ' characters.');
+            }
+            $this->csrfSecret = $value;
+        }
+        return $this->csrfSecret;
+    }
+
+    #endregion protected
 }
