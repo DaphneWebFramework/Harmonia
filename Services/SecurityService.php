@@ -15,16 +15,46 @@ namespace Harmonia\Services;
 use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Config;
+use \Harmonia\Logger;
 
 /**
  * Provides security-related utilities.
  */
 class SecurityService extends Singleton
 {
-    /**
-     * The minimum length of the CSRF secret string.
-     */
     private const CSRF_SECRET_MIN_LENGTH = 32;
+
+    private readonly string $csrfSecret;
+
+    /**
+     * Constructs a new instance by initializing the CSRF secret.
+     *
+     * The secret is read from the configuration and stored for use in
+     * HMAC-based token generation/validation. It must be a cryptographically
+     * secure random value of at least `CSRF_SECRET_MIN_LENGTH` characters.
+     *
+     * If the value is not a string or is empty, an error is logged and the
+     * secret is set to an empty string. If the value is shorter than the
+     * required minimum length, a warning is logged but the value is still
+     * accepted as-is. In these cases, CSRF protection may be effectively
+     * disabled, since tokens can be forged without a proper secret.
+     */
+    protected function __construct()
+    {
+        $csrfSecret = Config::Instance()->Option('CsrfSecret');
+        if (!\is_string($csrfSecret)) {
+            Logger::Instance()->Error('CSRF secret must be a string.');
+            $this->csrfSecret = '';
+        } else {
+            if ($csrfSecret === '') {
+                Logger::Instance()->Error('CSRF secret must not be empty.');
+            } else if (\strlen($csrfSecret) < self::CSRF_SECRET_MIN_LENGTH) {
+                Logger::Instance()->Warning('CSRF secret must be at least '
+                    . self::CSRF_SECRET_MIN_LENGTH . ' characters.');
+            }
+            $this->csrfSecret = $csrfSecret;
+        }
+    }
 
     #region public -------------------------------------------------------------
 
@@ -136,7 +166,7 @@ class SecurityService extends Singleton
      *
      * Returns a token (to be included in forms or request headers) and a
      * matching value for storing in a cookie. Together, these values can
-     * later be verified to help mitigate cross‑site request forgery (CSRF)
+     * later be verified to help mitigate cross-site request forgery (CSRF)
      * attacks by ensuring the request originated from the same client.
      *
      * @return array{0: string, 1: string}
@@ -148,7 +178,7 @@ class SecurityService extends Singleton
     public function GenerateCsrfPair(): array
     {
         $token = $this->GenerateToken();
-        $cookieValue = \hash_hmac('sha256', $token, $this->csrfSecret());
+        $cookieValue = \hash_hmac('sha256', $token, $this->csrfSecret);
         return [$token, $cookieValue];
     }
 
@@ -157,7 +187,7 @@ class SecurityService extends Singleton
      *
      * Compares the provided token with the value stored in the cookie. If
      * they match, the request is considered authentic. This check is used
-     * to mitigate cross‑site request forgery (CSRF) attacks by validating
+     * to mitigate cross-site request forgery (CSRF) attacks by validating
      * that the request was issued by the same client that received the token.
      *
      * @param string $token
@@ -172,37 +202,9 @@ class SecurityService extends Singleton
      */
     public function VerifyCsrfPair(string $token, string $cookieValue): bool
     {
-        $expected = \hash_hmac('sha256', $token, $this->csrfSecret());
+        $expected = \hash_hmac('sha256', $token, $this->csrfSecret);
         return \hash_equals($expected, $cookieValue);
     }
 
     #endregion public
-
-    #region protected ----------------------------------------------------------
-
-    /**
-     * Retrieves the CSRF secret used for HMAC-based token generation.
-     *
-     * The secret is loaded from the application configuration and must be a
-     * cryptographically random string of at least `CSRF_SECRET_MIN_LENGTH`
-     * characters.
-     *
-     * @return string
-     *   The validated CSRF secret.
-     * @throws \RuntimeException
-     *   If the configuration value is missing, not a string, or too short.
-     */
-    protected function csrfSecret(): string
-    {
-        $csrfSecret = Config::Instance()->Option('CsrfSecret');
-        if (!\is_string($csrfSecret) ||
-            \strlen($csrfSecret) < self::CSRF_SECRET_MIN_LENGTH)
-        {
-            throw new \RuntimeException('CSRF secret must be a string of at '
-                . 'least ' . self::CSRF_SECRET_MIN_LENGTH . ' characters.');
-        }
-        return $csrfSecret;
-    }
-
-    #endregion protected
 }
