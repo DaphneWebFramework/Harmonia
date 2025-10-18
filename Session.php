@@ -149,6 +149,26 @@ class Session extends Singleton
     }
 
     /**
+     * Checks if a session variable exists.
+     *
+     * This method does not require the session to be currently started; it
+     * allows read access even after the session has been closed, as long as
+     * the `$_SESSION` superglobal is still available.
+     *
+     * @param string $key
+     *   The name of the session variable.
+     * @return bool
+     *   Returns `true` if the session variable exists, otherwise `false`.
+     */
+    public function Has(string $key): bool
+    {
+        if (!isset($_SESSION)) {
+            return false;
+        }
+        return \array_key_exists($key, $_SESSION);
+    }
+
+    /**
      * Retrieves a session variable.
      *
      * This method does not require the session to be currently started; it
@@ -165,10 +185,7 @@ class Session extends Singleton
      */
     public function Get(string $key, mixed $defaultValue = null): mixed
     {
-        if (!isset($_SESSION)) {
-            return $defaultValue;
-        }
-        if (!\array_key_exists($key, $_SESSION)) {
+        if (!$this->Has($key)) {
             return $defaultValue;
         }
         return $_SESSION[$key];
