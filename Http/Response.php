@@ -20,33 +20,12 @@ use \Harmonia\Services\CookieService;
  */
 class Response
 {
-    /**
-     * Stores the HTTP status code.
-     *
-     * @var StatusCode
-     */
     private StatusCode $statusCode;
-
-    /**
-     * Stores the HTTP headers.
-     *
-     * @var ?CArray
-     */
     private ?CArray $headers;
-
-    /**
-     * Stores the cookies.
-     *
-     * @var ?CArray
-     */
     private ?CArray $cookies;
-
-    /**
-     * Stores the response body.
-     *
-     * @var ?string
-     */
     private ?string $body;
+
+    private readonly CookieService $cookieService;
 
     #region public -------------------------------------------------------------
 
@@ -59,6 +38,7 @@ class Response
         $this->headers = null;
         $this->cookies = null;
         $this->body = null;
+        $this->cookieService = CookieService::Instance();
     }
 
     /**
@@ -155,9 +135,8 @@ class Response
                 }
             }
             if ($this->cookies !== null) {
-                $cookieService = CookieService::Instance();
                 foreach ($this->cookies as $name => $value) {
-                    $cookieService->SetCookie($name, $value);
+                    $this->cookieService->SetCookie($name, $value);
                 }
             }
         }
@@ -167,22 +146,20 @@ class Response
     }
 
     /**
-     * Redirects the client to a new URL.
+     * Redirects the client to a new URL and terminates script execution.
      *
-     * @param string $url
+     * @param string|\Stringable $url
      *   The URL to redirect to.
-     * @param bool $exitScript
-     *   (Optional) If `true`, the script will exit after sending the response.
-     *   Default is `true`.
+     * @return never
+     *   This method does not return; it exits the script.
      */
-    public function Redirect(string|\Stringable $url, bool $exitScript = true): void
+    public static function Redirect(string|\Stringable $url): void
     {
-        $this->SetStatusCode(StatusCode::Found)
-             ->SetHeader('Location', (string)$url)
-             ->Send();
-        if ($exitScript) {
-            $this->exitScript();
-        }
+        $response = new static(); // late static binding for testability
+        $response->SetStatusCode(StatusCode::Found)
+                 ->SetHeader('Location', (string)$url)
+                 ->Send();
+        $response->exitScript();
     }
 
     #endregion public
