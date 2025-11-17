@@ -118,6 +118,9 @@ class NativeFunctions
         if (!\is_string($value)) {
             return false;
         }
+        if (\trim($value) === '') {
+            return false;
+        }
         try {
             new \DateTime($value);
             return true;
