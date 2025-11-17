@@ -105,6 +105,28 @@ class NativeFunctions
     }
 
     /**
+     * Determines if the given value is a valid datetime string.
+     *
+     * @param mixed $value
+     *   The value to validate as a datetime string.
+     * @return bool
+     *   Returns `true` if the value is a valid datetime string, `false`
+     *   otherwise.
+     */
+    public function IsDateTime(mixed $value): bool
+    {
+        if (!\is_string($value)) {
+            return false;
+        }
+        try {
+            new \DateTime($value);
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
      * Determines if the given value represents an uploaded file.
      *
      * @param mixed $value
@@ -176,13 +198,13 @@ class NativeFunctions
     }
 
     /**
-     * Validates whether a specified string represents a date/time that matches
+     * Validates whether a specified string represents a datetime that matches
      * a given format.
      *
      * @param string $value
-     *   The string value to validate as a date/time.
+     *   The string value to validate as a datetime.
      * @param string $param
-     *   The format string that the date/time should adhere to, as per
+     *   The format string that the datetime should adhere to, as per
      *   `DateTime::createFromFormat` documentation.
      * @return bool
      *   Returns `true` if `$value` matches the format specified in `$param`,

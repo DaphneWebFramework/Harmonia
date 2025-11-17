@@ -13,36 +13,46 @@
 namespace Harmonia\Systems\ValidationSystem\Rules;
 
 /**
- * Validates whether a given field matches a specified datetime format.
+ * Validates whether a given field contains a datetime string.
+ *
+ * If a format string is provided as the optional parameter, the value must
+ * match that format exactly (per `DateTime::createFromFormat`). If no format
+ * is provided, any string that PHP can parse into a datetime is accepted.
  */
 class DatetimeRule extends Rule
 {
     /**
-     * Validates that the field matches a specified datetime format.
+     * Validates that the field contains a datetime string.
      *
      * @param string|int $field
      *   The field name or index to validate.
      * @param mixed $value
      *   The value of the field to validate.
      * @param mixed $param
-     *   The expected datetime format.
+     *   Optional format string. When provided, the value must match it exactly.
+     *   When omitted, any PHP‑parsable datetime string is accepted.
      * @throws \RuntimeException
-     *   If the value is not a string, the format is not a string, or the value
-     *   does not match the format.
+     *   If a format is provided and the value does not match it exactly; or if
+     *   no format is provided and the value is not a valid datetime string; or
+     *   if an invalid parameter is given.
      */
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
-        if (!$this->nativeFunctions->IsString($value)) {
-            throw new \RuntimeException("Field '{$field}' must be a string.");
-        }
-        if (!$this->nativeFunctions->IsString($param)) {
+        if ($this->nativeFunctions->IsString($param)) {
+            if ($this->nativeFunctions->MatchDateTime($value, $param)) {
+                return;
+            }
             throw new \RuntimeException(
-                "Rule 'datetime' must be used with a valid datetime format.");
+                "Field '{$field}' must match the exact datetime format: {$param}");
+        } else if ($param === null) {
+            if ($this->nativeFunctions->IsDateTime($value)) {
+                return;
+            }
+            throw new \RuntimeException(
+                "Field '{$field}' must be a valid datetime string.");
+        } else {
+            throw new \RuntimeException(
+                "Rule 'datetime' must be used with either a format string or no parameter.");
         }
-        if ($this->nativeFunctions->MatchDateTime($value, $param)) {
-            return;
-        }
-        throw new \RuntimeException(
-            "Field '{$field}' must match the datetime format: {$param}");
     }
 }
