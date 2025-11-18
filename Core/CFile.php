@@ -141,7 +141,7 @@ class CFile
      */
     public function Read(?int $length = null): ?string
     {
-        return $this->withLock(\LOCK_SH, function() use($length) {
+        return $this->WithReadLock(function() use($length) {
             if ($length === null) {
                 $cursor = $this->Cursor();
                 if ($cursor === null) {
@@ -151,7 +151,7 @@ class CFile
             }
             if ($length < 0) {
                 return null;
-            } elseif ($length === 0) {
+            } else if ($length === 0) {
                 return '';
             }
             $bytes = $this->_fread($length);
@@ -175,7 +175,7 @@ class CFile
      */
     public function ReadLine(): ?string
     {
-        return $this->withLock(\LOCK_SH, function() {
+        return $this->WithReadLock(function() {
             $line = $this->_fgets();
             if ($line === false) {
                 return null;
@@ -199,7 +199,7 @@ class CFile
      */
     public function Write(string $bytes): bool
     {
-        return $this->withLock(\LOCK_EX, function() use($bytes) {
+        return $this->WithWriteLock(function() use($bytes) {
             if (false === $this->_fwrite($bytes)) {
                 return false;
             }
@@ -276,7 +276,56 @@ class CFile
         return $this->_fseek($offset, $origin) === 0;
     }
 
+    /**
+     * Executes a callback with a read lock.
+     *
+     * @param callable $callback
+     *   The callback to execute while holding the lock.
+     * @return mixed
+     *   The result of the callback, or `null` if locking fails.
+     */
+    public function WithReadLock(callable $callback): mixed
+    {
+        return $this->withLock(\LOCK_SH, $callback);
+    }
+
+    /**
+     * Executes a callback with a write lock.
+     *
+     * @param callable $callback
+     *   The callback to execute while holding the lock.
+     * @return mixed
+     *   The result of the callback, or `null` if locking fails.
+     */
+    public function WithWriteLock(callable $callback): mixed
+    {
+        return $this->withLock(\LOCK_EX, $callback);
+    }
+
     //-- protected -------------------------------------------------------------
+
+    /**
+     * Executes a callback with the specified lock mode.
+     *
+     * @param int $mode
+     *   The locking mode, such as `LOCK_SH` for shared or `LOCK_EX` for
+     *   exclusive.
+     * @param callable $callback
+     *   The callback to execute while holding the lock.
+     * @return mixed
+     *   The result of the callback, or `null` if locking fails.
+     */
+    protected function withLock(int $mode, callable $callback): mixed
+    {
+        if (!$this->_flock($mode)) {
+            return null;
+        }
+        try {
+            return $callback();
+        } finally {
+            $this->_flock(\LOCK_UN);
+        }
+    }
 
     /**
      * Opens a file with the specified mode.
@@ -392,30 +441,5 @@ class CFile
     protected function _flock(int $mode): bool
     {
         return \flock($this->handle, $mode);
-    }
-
-    //-- private ---------------------------------------------------------------
-
-    /**
-     * Executes a callback with the specified lock mode.
-     *
-     * @param int $mode
-     *   The locking mode, such as `LOCK_SH` for shared or `LOCK_EX` for
-     *   exclusive.
-     * @param callable $callback
-     *   The callback to execute while holding the lock.
-     * @return mixed
-     *   The result of the callback, or `null` if locking fails.
-     */
-    protected function withLock(int $mode, callable $callback)
-    {
-        if (!$this->_flock($mode)) {
-            return null;
-        }
-        try {
-            return $callback();
-        } finally {
-            $this->_flock(\LOCK_UN);
-        }
     }
 }
