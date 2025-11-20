@@ -151,7 +151,7 @@ class CFile
             }
             if ($length < 0) {
                 return null;
-            } else if ($length === 0) {
+            } elseif ($length === 0) {
                 return '';
             }
             $bytes = $this->_fread($length);

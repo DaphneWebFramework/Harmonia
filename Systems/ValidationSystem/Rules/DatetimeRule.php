@@ -44,7 +44,7 @@ class DatetimeRule extends Rule
             }
             throw new \RuntimeException(
                 "Field '{$field}' must match the exact datetime format: {$param}");
-        } else if ($param === null) {
+        } elseif ($param === null) {
             if ($this->nativeFunctions->IsDateTime($value)) {
                 return;
             }

@@ -44,7 +44,7 @@ class IntegerRule extends Rule
             if ($this->nativeFunctions->IsInteger($value)) {
                 return;
             }
-        } else if ($param === null) {
+        } elseif ($param === null) {
             if ($this->nativeFunctions->IsIntegerLike($value)) {
                 return;
             }

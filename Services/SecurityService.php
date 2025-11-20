@@ -220,7 +220,7 @@ class SecurityService extends Singleton
         } else {
             if ($value === '') {
                 Logger::Instance()->Error('CSRF secret must not be empty.');
-            } else if (\strlen($value) < self::CSRF_SECRET_MIN_LENGTH) {
+            } elseif (\strlen($value) < self::CSRF_SECRET_MIN_LENGTH) {
                 Logger::Instance()->Warning('CSRF secret must be at least '
                     . self::CSRF_SECRET_MIN_LENGTH . ' characters.');
             }
