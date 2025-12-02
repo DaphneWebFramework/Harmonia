@@ -27,7 +27,7 @@ class Client
     /**
      * Constructs a new instance.
      *
-     * By default the request method is initialized to "GET".
+     * The request method is initialized to "GET" by default.
      *
      * @throws \RuntimeException
      *   If the transport layer fails to initialize.
@@ -94,6 +94,36 @@ class Client
     }
 
     /**
+     * Sets the request method to "GET".
+     *
+     * @return self
+     *   The current instance.
+     *
+     * @see Post
+     * @see Method_
+     */
+    public function Get(): self
+    {
+        $this->request->method = 'GET';
+        return $this;
+    }
+
+    /**
+     * Sets the request method to "POST".
+     *
+     * @return self
+     *   The current instance.
+     *
+     * @see Get
+     * @see Method_
+     */
+    public function Post(): self
+    {
+        $this->request->method = 'POST';
+        return $this;
+    }
+
+    /**
      * Sets the request URL.
      *
      * @param string $url
@@ -137,7 +167,8 @@ class Client
      * When passing an array, it will always be encoded as `multipart/form-data`
      * with an automatically generated boundary. To send URL‑encoded form data,
      * you must encode the array yourself (e.g., with `http_build_query()`) and
-     * pass the resulting string instead.
+     * pass the resulting string instead. Passing an empty array results in no
+     * payload being sent.
      *
      * @param string|array|null $body
      *   The body to set, or `null` to get the response body.
