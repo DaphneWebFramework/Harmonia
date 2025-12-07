@@ -30,7 +30,7 @@ class DatetimeRule extends Rule
      *   The value of the field to validate.
      * @param mixed $param
      *   Optional format string. When provided, the value must match it exactly.
-     *   When omitted, any PHP‑parsable datetime string is accepted.
+     *   When omitted, any PHP-parsable datetime string is accepted.
      * @throws \RuntimeException
      *   If a format is provided and the value does not match it exactly; or if
      *   no format is provided and the value is not a valid datetime string; or

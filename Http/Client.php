@@ -159,13 +159,13 @@ class Client
     /**
      * Sets the request body or returns the response body.
      *
-     * When passing a non‑empty string, the default `Content-Type` header will
+     * When passing a non-empty string, the default `Content-Type` header will
      * be `application/x-www-form-urlencoded` unless you explicitly set your own
      * (e.g., `application/json`, `application/xml`). Passing an empty string
      * results in no payload being sent.
      *
      * When passing an array, it will always be encoded as `multipart/form-data`
-     * with an automatically generated boundary. To send URL‑encoded form data,
+     * with an automatically generated boundary. To send URL-encoded form data,
      * you must encode the array yourself (e.g., with `http_build_query()`) and
      * pass the resulting string instead. Passing an empty array results in no
      * payload being sent.
