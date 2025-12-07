@@ -59,18 +59,17 @@ class Request extends Singleton
      * PHPUnit 12 introduced a restriction preventing the use of "Method" as a
      * method name. To comply with this, "Method_" was chosen instead.
      *
-     * @return ?RequestMethod
-     *   The request method, or `null` if the request method is not available or
-     *   unsupported.
+     * @return ?CString
+     *   The request method, or `null` if the request method is not available.
      */
-    public function Method_(): ?RequestMethod
+    public function Method_(): ?CString
     {
         return $this->method->Get(function() {
             $requestMethod = Server::Instance()->RequestMethod();
             if ($requestMethod === null) {
                 return null;
             }
-            return RequestMethod::tryFrom((string)$requestMethod->UppercaseInPlace());
+            return $requestMethod->UppercaseInPlace();
         });
     }
 
