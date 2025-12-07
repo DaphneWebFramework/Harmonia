@@ -200,10 +200,7 @@ class CFile
     public function Write(string $bytes): bool
     {
         return $this->WithWriteLock(function() use($bytes) {
-            if (false === $this->_fwrite($bytes)) {
-                return false;
-            }
-            return true;
+            return $this->_fwrite($bytes) !== false;
         }) ?? false;
     }
 
@@ -361,7 +358,7 @@ class CFile
      * @return string|false
      *   Returns the read bytes as a string on success, or `false` on failure.
      */
-    protected function _fread(int $length)
+    protected function _fread(int $length): string|false
     {
         return \fread($this->handle, $length);
     }
@@ -372,7 +369,7 @@ class CFile
      * @return string|false
      *   Returns the line read from the file on success, or `false` on failure.
      */
-    protected function _fgets()
+    protected function _fgets(): string|false
     {
         return \fgets($this->handle);
     }
@@ -385,7 +382,7 @@ class CFile
      * @return int|false
      *   Returns the number of bytes written on success, or `false` on failure.
      */
-    protected function _fwrite(string $bytes)
+    protected function _fwrite(string $bytes): int|false
     {
         return \fwrite($this->handle, $bytes);
     }
@@ -396,7 +393,7 @@ class CFile
      * @return array|false
      *   Returns an array with file statistics on success, or `false` on failure.
      */
-    protected function _fstat()
+    protected function _fstat(): array|false
     {
         return \fstat($this->handle);
     }
@@ -408,7 +405,7 @@ class CFile
      *   Returns the current position of the file pointer on success, or `false`
      *   on failure.
      */
-    protected function _ftell()
+    protected function _ftell(): int|false
     {
         return \ftell($this->handle);
     }
