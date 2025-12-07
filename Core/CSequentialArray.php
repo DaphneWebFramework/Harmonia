@@ -331,10 +331,7 @@ class CSequentialArray extends CArray
         if ($array instanceof CArray) {
             $array = $array->value;
         }
-        if (empty($array)) {
-            return true;
-        }
-        return \array_keys($array) === \range(0, \count($array) - 1);
+        return \array_is_list($array);
     }
 
     #endregion private
