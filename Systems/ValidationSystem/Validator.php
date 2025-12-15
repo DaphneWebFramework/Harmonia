@@ -12,6 +12,7 @@
 
 namespace Harmonia\Systems\ValidationSystem;
 
+use \Harmonia\Http\StatusCode;
 use \Harmonia\Systems\ValidationSystem\Requirements\FieldRequirementConstraints;
 use \Harmonia\Systems\ValidationSystem\Requirements\RequiredRuleException;
 use \Harmonia\Systems\ValidationSystem\Requirements\RequiredWithoutRuleException;
@@ -106,17 +107,10 @@ class Validator
      *   Returns a data accessor object that provides access to the validated
      *   data fields.
      * @throws \InvalidArgumentException
-     *   If a `requiredWithout` rule is defined without a field name, or if the
-     *   field references itself as a `requiredWithout` field.
+     *   If a validation rule is incorrectly defined.
      * @throws \RuntimeException
-     *   If the field fails any requirement rule. This includes cases where a
-     *   required field is missing, the field and any mutually exclusive field
-     *   are both present, or neither the field nor any mutually exclusive
-     *   fields are present.
-     * @throws \RuntimeException
-     *   If the rule does not exist or validation fails.
-     * @throws \RuntimeException
-     *   If the user-defined closure returns `false`.
+     *   If the validation fails. These exceptions are thrown with the code set
+     *   to 400 (Bad Request).
      */
     public function Validate(array|object $data): DataAccessor
     {
@@ -143,17 +137,10 @@ class Validator
      * @param DataAccessor $dataAccessor
      *   Provides access to the data fields.
      * @throws \InvalidArgumentException
-     *   If a `requiredWithout` rule is defined without a field name, or if the
-     *   field references itself as a `requiredWithout` field.
+     *   If a validation rule is incorrectly defined.
      * @throws \RuntimeException
-     *   If the field fails any requirement rule. This includes cases where a
-     *   required field is missing, the field and any mutually exclusive field
-     *   are both present, or neither the field nor any mutually exclusive
-     *   fields are present.
-     * @throws \RuntimeException
-     *   If the rule does not exist or validation fails.
-     * @throws \RuntimeException
-     *   If the user-defined closure returns `false`.
+     *   If the validation fails. These exceptions are thrown with the code set
+     *   to 400 (Bad Request).
      */
     private function validateField(
         string|int $field,
@@ -239,6 +226,9 @@ class Validator
      * Rethrows a validation exception, optionally replacing its message with a
      * custom one.
      *
+     * This method ensures the final thrown exception has the code set to 400
+     * (Bad Request).
+     *
      * @param string|int $field
      *   The name or index of the field being validated.
      * @param string $rule
@@ -254,11 +244,15 @@ class Validator
         \RuntimeException $e
     ): never
     {
-        $customMessage = $this->customMessage($field, $rule);
-        if ($customMessage !== null) {
-            throw new \RuntimeException($customMessage, 0, $e);
+        $message = $this->customMessage($field, $rule);
+        if ($message === null) {
+            $message = $e->getMessage();
         }
-        throw $e;
+        throw new \RuntimeException(
+            $message,
+            StatusCode::BadRequest->value,
+            $e
+        );
     }
 
     /**
