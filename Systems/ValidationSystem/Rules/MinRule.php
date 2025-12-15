@@ -30,6 +30,8 @@ class MinRule extends Rule
      *   The value of the field to validate.
      * @param mixed $param
      *   The minimum allowed value, inclusive.
+     * @throws \InvalidArgumentException
+     *   If the parameter is not numeric.
      * @throws \RuntimeException
      *   If the value is not numeric, the specified minimum is not numeric, or
      *   the value is less than the specified minimum.
@@ -40,7 +42,8 @@ class MinRule extends Rule
             throw new \RuntimeException("Field '{$field}' must be numeric.");
         }
         if (!$this->nativeFunctions->IsNumeric($param)) {
-            throw new \RuntimeException("Rule 'min' must be used with a number.");
+            throw new \InvalidArgumentException(
+                "Rule 'min' must be used with a number.");
         }
         if ($value >= $param) {
             return;

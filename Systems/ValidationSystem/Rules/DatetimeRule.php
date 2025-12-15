@@ -31,6 +31,8 @@ class DatetimeRule extends Rule
      * @param mixed $param
      *   Optional format string. When provided, the value must match it exactly.
      *   When omitted, any PHP-parsable datetime string is accepted.
+     * @throws \InvalidArgumentException
+     *   If the parameter is neither a string nor `null`.
      * @throws \RuntimeException
      *   If a format is provided and the value does not match it exactly; or if
      *   no format is provided and the value is not a valid datetime string; or
@@ -51,7 +53,7 @@ class DatetimeRule extends Rule
             throw new \RuntimeException(
                 "Field '{$field}' must be a valid datetime string.");
         } else {
-            throw new \RuntimeException(
+            throw new \InvalidArgumentException(
                 "Rule 'datetime' must be used with either a format string or no parameter.");
         }
     }

@@ -76,14 +76,17 @@ class StandardMetaRule implements IMetaRule
      *   The name or index of the field to validate.
      * @param mixed $value
      *   The value of the field to validate.
+     * @throws \InvalidArgumentException
+     *   If the rule name is empty, contains leading or trailing spaces,
+     *   contains uppercase letters, or the rule does not exist.
      * @throws \RuntimeException
-     *   If the rule does not exist or validation fails.
+     *   If the validation fails.
      */
     public function Validate(string|int $field, mixed $value): void
     {
         $ruleObject = RuleFactory::Create($this->name);
         if ($ruleObject === null) {
-            throw new \RuntimeException("Unknown rule '{$this->name}'.");
+            throw new \InvalidArgumentException("Unknown rule '{$this->name}'.");
         }
         $ruleObject->Validate($field, $value, $this->param);
     }

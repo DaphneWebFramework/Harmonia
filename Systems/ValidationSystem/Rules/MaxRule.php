@@ -30,6 +30,8 @@ class MaxRule extends Rule
      *   The value of the field to validate.
      * @param mixed $param
      *   The maximum allowed value, inclusive.
+     * @throws \InvalidArgumentException
+     *   If the parameter is not numeric.
      * @throws \RuntimeException
      *   If the value is not numeric, the specified maximum is not numeric, or
      *   the value exceeds the specified maximum.
@@ -40,7 +42,8 @@ class MaxRule extends Rule
             throw new \RuntimeException("Field '{$field}' must be numeric.");
         }
         if (!$this->nativeFunctions->IsNumeric($param)) {
-            throw new \RuntimeException("Rule 'max' must be used with a number.");
+            throw new \InvalidArgumentException(
+                "Rule 'max' must be used with a number.");
         }
         if ($value <= $param) {
             return;

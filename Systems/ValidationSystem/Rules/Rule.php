@@ -46,8 +46,10 @@ abstract class Rule
      *   The field value to validate.
      * @param mixed $param
      *   The optional parameter for validation.
+     * @throws \InvalidArgumentException
+     *   If the parameter is invalid.
      * @throws \RuntimeException
-     *   If validation fails.
+     *   If the validation fails.
      */
     abstract public function Validate(string|int $field, mixed $value, mixed $param): void;
 }

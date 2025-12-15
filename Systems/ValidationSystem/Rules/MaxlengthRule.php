@@ -30,6 +30,8 @@ class MaxlengthRule extends Rule
      *   The value of the field to validate.
      * @param mixed $param
      *   The maximum allowed length, inclusive.
+     * @throws \InvalidArgumentException
+     *   If the parameter is not an integer.
      * @throws \RuntimeException
      *   If the value is not a string, the specified length is not an
      *   integer-like value, or the value exceeds the specified length.
@@ -40,7 +42,7 @@ class MaxlengthRule extends Rule
             throw new \RuntimeException("Field '{$field}' must be a string.");
         }
         if (!$this->nativeFunctions->IsIntegerLike($param)) {
-            throw new \RuntimeException(
+            throw new \InvalidArgumentException(
                 "Rule 'maxLength' must be used with an integer.");
         }
         if (\strlen($value) <= (int)$param) {

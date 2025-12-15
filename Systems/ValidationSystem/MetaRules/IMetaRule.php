@@ -40,6 +40,8 @@ interface IMetaRule
      *   The name or index of the field to validate.
      * @param mixed $value
      *   The value of the field to validate.
+     * @throws \InvalidArgumentException
+     *   If the rule name is invalid.
      * @throws \RuntimeException
      *   If the validation fails.
      */

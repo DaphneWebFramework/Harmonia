@@ -26,6 +26,8 @@ class RegexRule extends Rule
      *   The value of the field to validate.
      * @param mixed $param
      *   The regex pattern to match against.
+     * @throws \InvalidArgumentException
+     *   If the parameter is not a string.
      * @throws \RuntimeException
      *   If the value is not a string, the pattern is not a string, or the value
      *   does not match the pattern.
@@ -36,8 +38,8 @@ class RegexRule extends Rule
             throw new \RuntimeException("Field '{$field}' must be a string.");
         }
         if (!$this->nativeFunctions->IsString($param)) {
-            throw new \RuntimeException(
-                "Rule 'regex' must be used with a valid pattern.");
+            throw new \InvalidArgumentException(
+                "Rule 'regex' must be used with a pattern.");
         }
         if ($this->nativeFunctions->MatchRegex($value, $param)) {
             return;

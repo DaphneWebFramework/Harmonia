@@ -89,13 +89,13 @@ class DataAccessor
      *   The field name or index to retrieve.
      * @return mixed
      *   The field value if it exists.
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *   If the field does not exist.
      */
     public function GetField(string|int $field): mixed
     {
         if (!$this->HasField($field)) {
-            throw new \RuntimeException("Field '{$field}' does not exist.");
+            throw new \InvalidArgumentException("Field '{$field}' does not exist.");
         }
         if (self::isDottedField($field)) {
             $carry = $this->data;

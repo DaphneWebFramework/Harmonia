@@ -30,6 +30,8 @@ class EnumRule extends Rule
      *   The value of the field to validate.
      * @param mixed $param
      *   The fully qualified name of the enum class.
+     * @throws \InvalidArgumentException
+     *   If the parameter is not a string.
      * @throws \RuntimeException
      *   If the parameter is not a valid class name, or the value is not valid
      *   for the enum.
@@ -37,8 +39,8 @@ class EnumRule extends Rule
     public function Validate(string|int $field, mixed $value, mixed $param): void
     {
         if (!$this->nativeFunctions->IsString($param)) {
-            throw new \RuntimeException(
-                "Rule 'enum' must be used with a valid enum class name.");
+            throw new \InvalidArgumentException(
+                "Rule 'enum' must be used with an enum class name.");
         }
         if ($this->nativeFunctions->IsEnumValue($value, $param)) {
             return;
