@@ -103,7 +103,7 @@ class Resource extends Singleton
         if ($this->appPath === null) {
             throw new \RuntimeException('Resource is not initialized.');
         }
-        return $this->appPath;
+        return clone $this->appPath;
     }
 
     /**
@@ -140,7 +140,7 @@ class Resource extends Singleton
     public function AppRelativePath(): CPath
     {
         if ($this->cache->Has(__FUNCTION__)) {
-            return $this->cache->Get(__FUNCTION__);
+            return clone $this->cache->Get(__FUNCTION__);
         }
         $appPath = $this->AppPath();
         $serverPath = Server::Instance()->Path();
@@ -179,7 +179,7 @@ class Resource extends Singleton
             ->Replace('\\', '/')
             ->TrimLeft('/');
         $this->cache->Set(__FUNCTION__, $result);
-        return $result;
+        return clone $result;
     }
 
     /**
@@ -206,7 +206,7 @@ class Resource extends Singleton
     public function AppUrl(): CUrl
     {
         if ($this->cache->Has(__FUNCTION__)) {
-            return $this->cache->Get(__FUNCTION__);
+            return clone $this->cache->Get(__FUNCTION__);
         }
         $serverUrl = Server::Instance()->Url();
         if ($serverUrl === null) {
@@ -216,7 +216,7 @@ class Resource extends Singleton
             ->Extend($this->AppRelativePath())
             ->EnsureTrailingSlash();
         $this->cache->Set(__FUNCTION__, $result);
-        return $result;
+        return clone $result;
     }
 
     /**
@@ -231,11 +231,11 @@ class Resource extends Singleton
     {
         $cacheKey = __FUNCTION__ . "($subdirectory)";
         if ($this->cache->Has($cacheKey)) {
-            return $this->cache->Get($cacheKey);
+            return clone $this->cache->Get($cacheKey);
         }
         $result = $this->AppPath()->Extend($subdirectory);
         $this->cache->Set($cacheKey, $result);
-        return $result;
+        return clone $result;
     }
 
     /**
@@ -250,11 +250,11 @@ class Resource extends Singleton
     {
         $cacheKey = __FUNCTION__ . "($subdirectory)";
         if ($this->cache->Has($cacheKey)) {
-            return $this->cache->Get($cacheKey);
+            return clone $this->cache->Get($cacheKey);
         }
         $result = $this->AppUrl()->Extend($subdirectory);
         $this->cache->Set($cacheKey, $result);
-        return $result;
+        return clone $result;
     }
 
     #endregion public
