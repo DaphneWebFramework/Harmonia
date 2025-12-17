@@ -23,21 +23,9 @@ use \Harmonia\Core\CUrl;
  */
 class Resource extends Singleton
 {
-    /**
-     * Stores the absolute path to the application's root directory.
-     *
-     * Never use this property directly. Use the `AppPath` method instead.
-     *
-     * @var ?CPath
-     */
     private ?CPath $appPath;
-
-    /**
-     * Stores cached values to avoid expensive operations.
-     *
-     * @var CArray
-     */
     private readonly CArray $cache;
+    private readonly Server $server;
 
     /**
      * Constructs a new instance.
@@ -51,6 +39,7 @@ class Resource extends Singleton
     {
         $this->appPath = null;
         $this->cache = new CArray();
+        $this->server = Server::Instance();
     }
 
     #region public -------------------------------------------------------------
@@ -78,7 +67,7 @@ class Resource extends Singleton
     public function Initialize(string|\Stringable $appPath): void
     {
         if ($this->appPath !== null) {
-            throw new \RuntimeException('Resource is already initialized.');
+            throw new \RuntimeException("Resource is already initialized.");
         }
         if (!$appPath instanceof CPath) {
             $appPath = new CPath($appPath);
@@ -86,7 +75,7 @@ class Resource extends Singleton
         try {
             $this->appPath = $appPath->Apply('\realpath');
         } catch (\UnexpectedValueException $e) {
-            throw new \RuntimeException('Failed to resolve application path.');
+            throw new \RuntimeException("Failed to resolve application path.");
         }
     }
 
@@ -101,7 +90,7 @@ class Resource extends Singleton
     public function AppPath(): CPath
     {
         if ($this->appPath === null) {
-            throw new \RuntimeException('Resource is not initialized.');
+            throw new \RuntimeException("Resource is not initialized.");
         }
         return clone $this->appPath;
     }
@@ -142,38 +131,16 @@ class Resource extends Singleton
         if ($this->cache->Has(__FUNCTION__)) {
             return clone $this->cache->Get(__FUNCTION__);
         }
-        $appPath = $this->AppPath();
-        $serverPath = Server::Instance()->Path();
+        $serverPath = $this->server->Path();
         if ($serverPath === null) {
-            throw new \RuntimeException('Server path not available.');
+            throw new \RuntimeException("Server path not available.");
         }
         try {
             $serverPath->ApplyInPlace('\realpath');
         } catch (\UnexpectedValueException $e) {
-            throw new \RuntimeException('Failed to resolve server path.');
+            throw new \RuntimeException("Failed to resolve server path.");
         }
-        if (!$appPath->StartsWith($serverPath)) {
-            // Linux/macOS only: If the application path is not under the server
-            // path, check if the server directory contains a symbolic link that
-            // resolves to the application path.
-            $serverDirectoryContainsLinkToAppPath = false;
-            if (\PHP_OS_FAMILY !== 'Windows') {
-                $linkPath = $serverPath->Extend($appPath->Apply('\basename'));
-                if ($linkPath->Call('\is_link')) {
-                    $targetPath = $linkPath->Call('\readlink');
-                    if ($targetPath !== false) {
-                        $targetPath = new CPath($targetPath);
-                        if ($targetPath->Equals($appPath)) {
-                            $appPath = $linkPath;
-                            $serverDirectoryContainsLinkToAppPath = true;
-                        }
-                    }
-                }
-            }
-            if (!$serverDirectoryContainsLinkToAppPath) {
-                throw new \RuntimeException('Application path is not under server path.');
-            }
-        }
+        $appPath = $this->resolveAppPath($this->AppPath(), $serverPath);
         $result = $appPath
             ->Middle($serverPath->Length())
             ->Replace('\\', '/')
@@ -208,9 +175,9 @@ class Resource extends Singleton
         if ($this->cache->Has(__FUNCTION__)) {
             return clone $this->cache->Get(__FUNCTION__);
         }
-        $serverUrl = Server::Instance()->Url();
+        $serverUrl = $this->server->Url();
         if ($serverUrl === null) {
-            throw new \RuntimeException('Server URL not available.');
+            throw new \RuntimeException("Server URL not available.");
         }
         $result = $serverUrl
             ->Extend($this->AppRelativePath())
@@ -258,4 +225,37 @@ class Resource extends Singleton
     }
 
     #endregion public
+
+    #region private ------------------------------------------------------------
+
+    /**
+     * @param CPath $appPath
+     * @param CPath $serverPath
+     * @return CPath
+     * @throws \RuntimeException
+     */
+    private function resolveAppPath(CPath $appPath, CPath $serverPath): CPath
+    {
+        if ($appPath->StartsWith($serverPath)) {
+            return $appPath;
+        }
+        // Linux/macOS only: If the application path is not under the server
+        // path, check if the server directory contains a symbolic link that
+        // resolves to the application path.
+        if (\PHP_OS_FAMILY !== 'Windows') {
+            $linkPath = $serverPath->Extend($appPath->Apply('\basename'));
+            if ($linkPath->Call('\is_link')) {
+                $targetPath = $linkPath->Call('\readlink');
+                if ($targetPath !== false) {
+                    $targetPath = new CPath($targetPath);
+                    if ($targetPath->Equals($appPath)) {
+                        return $linkPath;
+                    }
+                }
+            }
+        }
+        throw new \RuntimeException("Application path is not under server path.");
+    }
+
+    #endregion private
 }
