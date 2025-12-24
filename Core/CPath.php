@@ -34,11 +34,13 @@ class CPath extends CString
         $joined = new static();
         $filtered = [];
         $slashes = self::getSlashes();
-        foreach ($segments as $segment) {
+        foreach ($segments as $index => $segment) {
             if (!$segment instanceof static) {
                 $segment = new static($segment);
             }
-            if (!$segment->Trim($slashes)->IsEmpty()) {
+            if (($index === 0 && !$segment->IsEmpty()) ||
+                !$segment->Trim($slashes)->IsEmpty()
+            ) {
                 $filtered[] = $segment;
             }
         }
