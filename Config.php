@@ -15,26 +15,14 @@ namespace Harmonia;
 use \Harmonia\Patterns\Singleton;
 
 use \Harmonia\Core\CArray;
-use \Harmonia\Core\CPath;
 
 /**
  * Provides structured access to configuration options.
  */
 class Config extends Singleton
 {
-    /**
-     * Stores configuration options.
-     *
-     * @var CArray
-     */
     private CArray $options;
-
-    /**
-     * Stores the path to the configuration options file.
-     *
-     * @var ?CPath
-     */
-    private ?CPath $optionsFilePath;
+    private ?string $optionsFilePath;
 
     /**
      * Constructs a new instance with empty configuration options.
@@ -48,28 +36,16 @@ class Config extends Singleton
     #region public -------------------------------------------------------------
 
     /**
-     * Retrieves the path to the configuration options file.
-     *
-     * @return ?CPath
-     *   The path to the configuration options file, or `null` if no file is
-     *   loaded.
-     */
-    public function OptionsFilePath(): ?CPath
-    {
-        return $this->optionsFilePath;
-    }
-
-    /**
      * Loads configuration options from the specified file.
      *
-     * @param CPath $optionsFilePath
+     * @param string $optionsFilePath
      *   The path to the configuration options file.
      * @throws \InvalidArgumentException
      *   If the specified file does not exist.
      */
-    public function Load(CPath $optionsFilePath): void
+    public function Load(string $optionsFilePath): void
     {
-        if (!$optionsFilePath->Call('\is_file')) {
+        if (!\is_file($optionsFilePath)) {
             throw new \InvalidArgumentException(
                 "Configuration options file not found: $optionsFilePath");
         }
@@ -89,7 +65,7 @@ class Config extends Singleton
             throw new \RuntimeException('No configuration options file is loaded.');
         }
         if (\function_exists('opcache_invalidate')) {
-            $this->optionsFilePath->Call('\opcache_invalidate', true);
+            \opcache_invalidate($this->optionsFilePath, true);
         }
         $this->options = new CArray(include $this->optionsFilePath);
     }
