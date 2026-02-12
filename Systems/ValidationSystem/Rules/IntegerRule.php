@@ -17,8 +17,8 @@ namespace Harmonia\Systems\ValidationSystem\Rules;
  * string.
  *
  * By default, both native integers and string representations of integers
- * (often referred to as integer-like) are valid. If the optional parameter
- * "strict" is provided, only native integers are valid.
+ * (referred to as integer-like) are valid. If the optional parameter "strict"
+ * is provided, only native integers are considered valid.
  */
 class IntegerRule extends Rule
 {

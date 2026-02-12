@@ -34,6 +34,23 @@ class NativeFunctions
     }
 
     /**
+     * Determines if the given value is a native numeric type.
+     *
+     * This method validates only native PHP numeric values, meaning integers
+     * and floating-point numbers. String representations of numbers are not
+     * considered numeric by this method.
+     *
+     * @param mixed $value
+     *   The value to check for native numeric type.
+     * @return bool
+     *   Returns `true` if the value is an integer or a float, `false` otherwise.
+     */
+    public function IsNumber(mixed $value): bool
+    {
+        return \is_int($value) || \is_float($value);
+    }
+
+    /**
      * Determines if the given value is of a numeric type.
      *
      * @param mixed $value
