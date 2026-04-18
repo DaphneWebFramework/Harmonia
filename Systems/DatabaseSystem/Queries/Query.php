@@ -88,11 +88,15 @@ abstract class Query
                     "Invalid binding value for '{$key}': Resource not allowed.");
             }
             if (\is_object($value)) {
-                if (!\method_exists($value, '__toString')) {
+                if ($value instanceof \BackedEnum) {
+                    $bindings[$key] = $value->value;
+                } elseif (\method_exists($value, '__toString')) {
+                    $bindings[$key] = (string)$value;
+                } else {
                     throw new \InvalidArgumentException(
-                        "Invalid binding value for '{$key}': Object without __toString() not allowed.");
+                        "Invalid binding value for '{$key}': "
+                      . "Object must be a BackedEnum or implement __toString().");
                 }
-                $bindings[$key] = (string)$value;
             }
         }
         $this->bindings = $bindings;
@@ -125,7 +129,7 @@ abstract class Query
     {
         $string = \trim($string);
         if ($string === '') {
-            throw new \InvalidArgumentException('String cannot be empty.');
+            throw new \InvalidArgumentException("String cannot be empty.");
         }
         return $string;
     }
@@ -144,7 +148,7 @@ abstract class Query
     protected function checkStringList(string ...$strings): array
     {
         if (\count($strings) === 0) {
-            throw new \InvalidArgumentException('String list cannot be empty.');
+            throw new \InvalidArgumentException("String list cannot be empty.");
         }
         return \array_map([$this, 'checkString'], $strings);
     }
@@ -188,7 +192,9 @@ abstract class Query
         if (false === \preg_match_all('/:' . self::IDENTIFIER_PATTERN . '/',
             $sql, $matches))
         {
-            throw new \RuntimeException('Failed to match placeholders in SQL.');
+            // @codeCoverageIgnoreStart
+            throw new \RuntimeException("Failed to match placeholders in SQL.");
+            // @codeCoverageIgnoreEnd
         }
 
         // Remove the colon prefix from placeholders, e.g. ':id' -> 'id'
@@ -208,11 +214,11 @@ abstract class Query
         // Compare the two arrays and throw an exception if they differ
         if ($diff = \array_diff($placeholders, $bindingKeys)) {
             throw new \InvalidArgumentException(
-                'Missing bindings: ' . \implode(', ', $diff));
+                "Missing bindings: " . \implode(', ', $diff));
         }
         if ($diff = \array_diff($bindingKeys, $placeholders)) {
             throw new \InvalidArgumentException(
-                'Missing placeholders: ' . \implode(', ', $diff));
+                "Missing placeholders: " . \implode(', ', $diff));
         }
     }
 
